@@ -7,7 +7,7 @@ export { Entity, EntitySignals } from "./core/entity";
 
 // media
 export { Input, BUTTON_LEFT, BUTTON_RIGHT } from "./buildin/media/input";
-export { Audio } from "./buildin/media/audio";
+export { _Audio as Audio } from "./buildin/media/audio";
 
 // buildins
 export { Scene } from "./buildin/scene";
