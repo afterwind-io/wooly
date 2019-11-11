@@ -59,7 +59,17 @@ export const Input = {
     return !!switchMap[key];
   },
   IsKeyPress(key: string): boolean {
-    return !!pressMap[key];
+    const f = !!pressMap[key];
+    /**
+     * 如果按键查询发生频率很高(Entity的Update中)，
+     * 会发生OnKeyUp来不及重置pressMap的情况。
+     * 因此在keypress为true的情况下，直接在查询中
+     * 将值置为false，以防止下次查询出现伪真值的问题
+     */
+    if (f) {
+      pressMap[key] = false;
+    }
+    return f;
   },
   IsMouseDown(btn: number): boolean {
     return !!buttonMap[btn];
