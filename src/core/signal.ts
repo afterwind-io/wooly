@@ -14,6 +14,10 @@ export class Signal {
     }
   }
 
+  public Clear() {
+    this.sigmap = {};
+  }
+
   public Emit(signal: string, ...args: any[]) {
     const map = this.sigmap[signal];
 
@@ -25,7 +29,7 @@ export class Signal {
     }
   }
 
-  public Clear() {
-    this.sigmap = {};
+  public Has(name: string): boolean {
+    return name in this.sigmap;
   }
 }
