@@ -21,6 +21,37 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   public scale: Vector2 = new Vector2(1, 1);
   public rotation: number = 0;
 
+  /**
+   * A flag indicates whether to enable the entity or not.
+   *
+   * When set to `false`, the entity is completely ignored. Both `_Update` and
+   * `_Draw` are skipped.
+   *
+   * @type {boolean}
+   * @memberof Entity
+   */
+  public enabled: boolean = true;
+
+  /**
+   * A flag indicates whether to update the entity or not.
+   *
+   * When set to `true`, the `_Update` cycle of the entity and its descendants
+   * is skipped, but they still get drawed.
+   *
+   * @type {boolean}
+   * @memberof Entity
+   */
+  public paused: boolean = false;
+
+  /**
+   * A flag indicates the visibility of the Entity.
+   *
+   * When set to `false`, the `_Draw` cycle of the entity and its descendants
+   * is skipped, but they still get updated.
+   *
+   * @type {boolean}
+   * @memberof Entity
+   */
   public visible: boolean = true;
 
   public parent: Entity | null = null;
@@ -71,6 +102,7 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   public AddChild(entity: Entity) {
     entity.parent = this;
     this.children.push(entity);
+
     entity._Ready();
   }
 
@@ -173,8 +205,30 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
     this.scale.y = this.scale.y * sy;
   }
 
+  /**
+   * Set the value of `enabled` property.
+   *
+   * @param {boolean} f The flag.
+   * @returns {this} This instance of the entity.
+   * @memberof Entity
+   */
+  public SetEnabled(f: boolean): this {
+    return (this.enabled = f), this;
+  }
+
   public SetName(name: string): this {
     return (this.name = name), this;
+  }
+
+  /**
+   * Set the value of `paused` property
+   *
+   * @param {boolean} f The flag.
+   * @returns {this} This instance of the entity.
+   * @memberof Entity
+   */
+  public SetPaused(f: boolean): this {
+    return (this.paused = f), this;
   }
 
   /**
@@ -216,6 +270,13 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
     return (this.w = w), (this.h = h), this;
   }
 
+  /**
+   * Set the visiblity of the entity.
+   *
+   * @param {boolean} f The flag.
+   * @returns {this} This instance of the entity.
+   * @memberof Entity
+   */
   public SetVisible(f: boolean): this {
     return (this.visible = f), this;
   }
@@ -304,17 +365,21 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   }
 
   private $Draw(ctx: CanvasRenderingContext2D) {
+    if (!this.enabled) {
+      return;
+    }
+
     ctx.save();
 
     ctx.translate(this.position.x, this.position.y);
     ctx.rotate(this.rotation);
     ctx.scale(this.scale.x, this.scale.y);
 
-    ctx.save();
-    this.visible && this._Draw(ctx);
-    ctx.restore();
-
     if (this.visible) {
+      ctx.save();
+      this._Draw(ctx);
+      ctx.restore();
+
       for (const child of this.children) {
         child.$Draw(ctx);
       }
@@ -324,10 +389,16 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   }
 
   private $Update(delta: number) {
-    this._Update(delta);
+    if (!this.enabled) {
+      return;
+    }
 
-    for (const child of this.children) {
-      child.$Update(delta);
+    if (!this.paused) {
+      this._Update(delta);
+
+      for (const child of this.children) {
+        child.$Update(delta);
+      }
     }
   }
 }
