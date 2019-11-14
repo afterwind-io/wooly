@@ -348,7 +348,9 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   private $Destory() {
     this.parent = null;
 
-    this.signals.Emit("OnDestroy");
+    if (this.signals.Has("OnDestroy")) {
+      this.signals.Emit("OnDestroy");
+    }
     this.signals.Clear();
 
     for (const group of this.groups) {
