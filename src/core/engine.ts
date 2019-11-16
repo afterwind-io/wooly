@@ -2,8 +2,6 @@ import { Entity } from "./entity";
 import { Signal } from "./signal";
 import { Vector2 } from "../util/vector2";
 
-// TODO: double buffer
-
 let _canvas: HTMLCanvasElement | null;
 let _lastUpdate: number = Date.now();
 let _lastDelta: number = 0;
@@ -23,7 +21,7 @@ export class Engine {
     }
     this.ctx = ctx;
 
-    this.Run = this.Run.bind(this);
+    this.Update = this.Update.bind(this);
   }
 
   /**
@@ -45,11 +43,11 @@ export class Engine {
    * @memberof Engine
    */
   public static GetDimension(): Vector2 {
-    if (_canvas) {
-      return new Vector2(_canvas.clientWidth, _canvas.clientHeight);
-    } else {
+    if (_canvas == null) {
       throw new Error("Canvas unset.");
     }
+
+    return new Vector2(_canvas.clientWidth, _canvas.clientHeight);
   }
 
   /**
@@ -74,29 +72,45 @@ export class Engine {
     this.signals.Add("loopStart", cb);
   }
 
-  public SetScene(scene: Entity) {
-    this.rootNode = scene;
+  public SetRoot(root: Entity) {
+    if (this.rootNode) {
+      this.rootNode.Free();
+    }
+
+    this.rootNode = root;
   }
 
   public Run() {
-    this.signals.Emit("loopStart");
-    this.Loop();
-    this.signals.Emit("loopEnd");
+    if (!this.rootNode) {
+      throw new Error(
+        "[wooly] A root node should be set before start the engine."
+      );
+    }
 
-    requestAnimationFrame(this.Run);
+    this.Update();
   }
 
   private Loop() {
-    if (!this.rootNode) {
-      throw new Error("No root node!");
-    }
-
     this.ctx.clearRect(0, 0, _canvas!.clientWidth, _canvas!.clientHeight);
 
     const timestamp = Date.now();
     _lastDelta = timestamp - _lastUpdate;
     _lastUpdate = timestamp;
 
-    this.rootNode.$Tick(this.ctx, _lastDelta);
+    this.rootNode!.$Tick(this.ctx, _lastDelta);
+  }
+
+  private Update() {
+    if (this.signals.Has("loopStart")) {
+      this.signals.Emit("loopStart");
+    }
+
+    this.Loop();
+
+    if (this.signals.Has("loopEnd")) {
+      this.signals.Emit("loopEnd");
+    }
+
+    requestAnimationFrame(this.Update);
   }
 }
