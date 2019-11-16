@@ -10,7 +10,7 @@ export { Input, BUTTON_LEFT, BUTTON_RIGHT } from "./buildin/media/input";
 export { _Audio as Audio } from "./buildin/media/audio";
 
 // buildins
-export { Scene } from "./buildin/scene";
+export { Scene, SceneInitPolicy, SceneManager } from "./buildin/scene";
 export { Shape } from "./buildin/shape";
 export { Sprite } from "./buildin/sprite";
 export { Collision } from "./buildin/collision/index";
