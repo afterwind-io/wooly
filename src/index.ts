@@ -30,6 +30,7 @@ export {
   PropertyType
 } from "./buildin/animation";
 export { State, StateMachine } from "./buildin/fsm";
+export { Timer, TimerBehavior } from "./buildin/timer";
 
 // UI
 export { Label } from "./buildin/ui/label";
