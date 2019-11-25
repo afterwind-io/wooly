@@ -1,16 +1,28 @@
+import { ParamType } from "../util/common";
+
 type SignalCallback = (...args: any[]) => void;
 
-export class Signal {
-  private sigmap: { [key: string]: SignalCallback[] } = {};
+export class Signal<SIGNALS> {
+  private sigmap: Partial<Record<keyof SIGNALS, SignalCallback[]>> = {};
 
-  public Add(signal: string, cb: SignalCallback) {
-    // TODO: cb排重
-    const map = this.sigmap[signal];
+  public Connect<S extends keyof SIGNALS>(
+    signal: S,
+    handler: SIGNALS[S],
+    context: any = null
+  ) {
+    // #!if debug
+    if (typeof handler !== "function") {
+      throw new Error("[wooly] Signal handler should be a function.");
+    }
+    // #!endif
 
-    if (!map) {
+    const cb = handler.bind(context);
+
+    const handlers = this.sigmap[signal];
+    if (!handlers) {
       this.sigmap[signal] = [cb];
     } else {
-      map.push(cb);
+      handlers.push(cb);
     }
   }
 
@@ -18,18 +30,21 @@ export class Signal {
     this.sigmap = {};
   }
 
-  public Emit(signal: string, ...args: any[]) {
-    const map = this.sigmap[signal];
+  public Emit<S extends keyof SIGNALS>(
+    signal: S,
+    ...args: ParamType<SIGNALS[S]>
+  ) {
+    const handlers = this.sigmap[signal];
 
-    if (!map) {
+    if (!handlers) {
       // #!debug
-      console.warn(`${signal} undefined.`);
+      console.warn(`[wooly] Signal "${signal}" undefined.`);
     } else {
-      map.length !== 0 && map.forEach(s => s(...args));
+      handlers.length !== 0 && handlers.forEach(s => s(...args));
     }
   }
 
-  public Has(name: string): boolean {
+  public Has(name: keyof SIGNALS): boolean {
     return name in this.sigmap;
   }
 }
