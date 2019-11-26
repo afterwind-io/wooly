@@ -1,6 +1,6 @@
 /**
  * A utility class represents the concept of "CoolDown".
- * 
+ *
  * Basically a mini timer for continuous countdown.
  *
  * @export
@@ -60,7 +60,7 @@ export class CoolDown {
       return;
     }
 
-    if (this.timer <= delta || delta >= this.cd) {
+    if (this.timer < delta || delta >= this.cd) {
       this.isCooling = false;
     }
 
