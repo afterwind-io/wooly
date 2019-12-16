@@ -1,6 +1,6 @@
 # Wooly
 
-:construction: An experimental Javascript 2D Game Engine. :construction:
+:construction: An experimental Javascript 2D Game Framework. :construction:
 
 [中文](README_cn.md)
 
@@ -8,7 +8,7 @@
 
 ## Summary
 
-**Wooly** is a 2D game engine written in Typescript, based on Canvas API. The object tree model and coding style are largely inspired by [Godot][_godot].
+**Wooly** is a 2D game framework written in Typescript, based on Canvas API. The object tree model and coding style are largely inspired by [Godot][_godot].
 
 It is rather simple, but still battery-included. Built-in functions including:
 
@@ -21,7 +21,7 @@ It is rather simple, but still battery-included. Built-in functions including:
 - Particals
 - State Machine Model
 - Scene / Scene Manager
-- Diagnosis (FPS | Mouse Position Indicator)
+- Diagnosis (FPS | Object Counter | Mouse Position Indicator)
 - ~~Physical Simulation~~ (Never Happens)
 - And other goodies...
 
@@ -31,7 +31,7 @@ Since the quality standard of **Wooly** is as lower as "enough to build my game 
 - Working on a not-that-serious project
 - Seeking a handy framework for a game contest like [JS13k][_js13k]
   > But watch out for the package size, my friend.
-- Take a peak of what a naive game engine looks like
+- Take a peak of what a naive game framework looks like
 - ~~Trying to write a Godot game in C# on Linux, but the coding experience is not pleasing at all~~
 
 ## Docs
