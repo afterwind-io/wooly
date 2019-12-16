@@ -1,27 +1,51 @@
+import { CanvasTree } from "./canvasTree";
 import { Entity } from "./entity";
+import { GlobalEvents } from "./globals";
+import { Node } from "./node";
 import { Signal } from "./signal";
 import { Vector2 } from "../util/vector2";
 
-let _canvas: HTMLCanvasElement | null;
-let _lastUpdate: number = Date.now();
-let _lastDelta: number = 0;
+interface EngineSignals {
+  LoopEnd: () => void;
+  LoopStart: () => void;
+}
 
 export class Engine {
+  private static me: Engine;
+
   public ctx: CanvasRenderingContext2D;
-  public rootNode: Entity | null = null;
+  public nodeRoot: Entity | null = null;
+  public canvasRoot: CanvasTree = new CanvasTree();
 
-  private signals: Signal = new Signal();
+  private nodeFreeQueue: Node[] = [];
 
-  public constructor(canvas: HTMLCanvasElement, backend: "2d") {
-    _canvas = canvas;
+  private lastUpdate: number = performance.now();
+  private lastDelta: number = 0;
 
-    const ctx = canvas.getContext(backend);
+  private signals: Signal<EngineSignals> = new Signal();
+
+  private constructor(canvas: HTMLCanvasElement, backend: "2d") {
+    const ctx = canvas.getContext(backend, { alpha: false });
     if (ctx === null) {
       throw new Error("Cannot get 2d ctx.");
     }
     this.ctx = ctx;
 
-    this.Update = this.Update.bind(this);
+    this.Loop = this.Loop.bind(this);
+
+    GlobalEvents.Connect("OnTreeUpdate", this.OnTreeUpdate, this);
+  }
+
+  public static Create(canvas: HTMLCanvasElement, backend: "2d"): Engine {
+    if (!Engine.me) {
+      Engine.me = new Engine(canvas, backend);
+    }
+
+    return Engine.me;
+  }
+
+  public static get Current(): Engine {
+    return Engine.me;
   }
 
   /**
@@ -32,7 +56,7 @@ export class Engine {
    * @memberof Engine
    */
   public static GetDelta(): number {
-    return _lastDelta;
+    return Engine.me.lastDelta;
   }
 
   /**
@@ -43,11 +67,8 @@ export class Engine {
    * @memberof Engine
    */
   public static GetDimension(): Vector2 {
-    if (_canvas == null) {
-      throw new Error("Canvas unset.");
-    }
-
-    return new Vector2(_canvas.clientWidth, _canvas.clientHeight);
+    const canvas = Engine.me.GetHost();
+    return new Vector2(canvas.clientWidth, canvas.clientHeight);
   }
 
   /**
@@ -57,60 +78,78 @@ export class Engine {
    * @memberof Engine
    */
   public GetHost(): HTMLCanvasElement {
-    if (_canvas == null) {
-      throw new Error("Canvas unset.");
+    if (Engine.me == null) {
+      throw new Error("Engine uninitialized.");
     }
 
-    return _canvas;
+    return Engine.me.ctx.canvas;
   }
 
   public OnLoopEnd(cb: () => void) {
-    this.signals.Add("loopEnd", cb);
+    this.signals.Connect("LoopEnd", cb);
   }
 
   public OnLoopStart(cb: () => void) {
-    this.signals.Add("loopStart", cb);
+    this.signals.Connect("LoopStart", cb);
   }
 
   public SetRoot(root: Entity) {
-    if (this.rootNode) {
-      this.rootNode.Free();
+    if (this.nodeRoot) {
+      this.nodeRoot.Free();
     }
 
-    this.rootNode = root;
+    this.nodeRoot = root;
   }
 
   public Run() {
-    if (!this.rootNode) {
+    if (!this.nodeRoot) {
       throw new Error(
         "[wooly] A root node should be set before start the engine."
       );
     }
 
-    this.Update();
+    this.Loop();
+  }
+
+  private BatchFree() {
+    for (const node of this.nodeFreeQueue) {
+      node.$Destroy();
+    }
+
+    this.nodeFreeQueue.length = 0;
+  }
+
+  private Draw() {
+    const canvas = this.ctx.canvas;
+    this.ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+    this.canvasRoot.Draw(this.nodeRoot!, this.ctx);
   }
 
   private Loop() {
-    this.ctx.clearRect(0, 0, _canvas!.clientWidth, _canvas!.clientHeight);
+    this.signals.Emit("LoopStart");
 
-    const timestamp = Date.now();
-    _lastDelta = timestamp - _lastUpdate;
-    _lastUpdate = timestamp;
+    this.Update();
+    this.BatchFree();
+    this.Draw();
 
-    this.rootNode!.$Tick(this.ctx, _lastDelta);
+    this.signals.Emit("LoopEnd");
+
+    requestAnimationFrame(this.Loop);
+  }
+
+  private OnTreeUpdate(node: Node, type: "insert" | "delete") {
+    if (type === "delete") {
+      this.nodeFreeQueue.push(node);
+    }
   }
 
   private Update() {
-    if (this.signals.Has("loopStart")) {
-      this.signals.Emit("loopStart");
-    }
+    const timestamp = performance.now();
+    this.lastDelta = timestamp - this.lastUpdate;
 
-    this.Loop();
+    this.lastUpdate = timestamp;
 
-    if (this.signals.Has("loopEnd")) {
-      this.signals.Emit("loopEnd");
-    }
-
-    requestAnimationFrame(this.Update);
+    this.nodeRoot!.$Update(this.lastDelta);
   }
 }

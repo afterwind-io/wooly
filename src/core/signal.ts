@@ -34,17 +34,34 @@ export class Signal<SIGNALS> {
     signal: S,
     ...args: ParamType<SIGNALS[S]>
   ) {
-    const handlers = this.sigmap[signal];
+    this.InnerEmit(false, signal, ...args);
+  }
 
-    if (!handlers) {
-      // #!debug
-      console.warn(`[wooly] Signal "${signal}" undefined.`);
-    } else {
-      handlers.length !== 0 && handlers.forEach(s => s(...args));
-    }
+  public EmitWithWarning<S extends keyof SIGNALS>(
+    signal: S,
+    ...args: ParamType<SIGNALS[S]>
+  ) {
+    this.InnerEmit(true, signal, ...args);
   }
 
   public Has(name: keyof SIGNALS): boolean {
     return name in this.sigmap;
+  }
+
+  private InnerEmit<S extends keyof SIGNALS>(
+    warning: boolean,
+    signal: S,
+    ...args: ParamType<SIGNALS[S]>
+  ) {
+    const handlers = this.sigmap[signal];
+
+    if (!handlers) {
+      if (warning) {
+        // #!debug
+        console.warn(`[wooly] Signal "${signal}" undefined.`);
+      }
+    } else {
+      handlers.length !== 0 && handlers.forEach(s => s(...args));
+    }
   }
 }

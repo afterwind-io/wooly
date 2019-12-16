@@ -1,42 +1,106 @@
+import { CanvasTreeItem } from "./canvasTreeItem";
 import { Signal } from "./signal";
+import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
 
-type ParamType<T> = T extends (...args: infer R) => void ? R : any[];
-
+/**
+ * The global entity group map.
+ *
+ * It stores all group information generated
+ * throughout the lifecycle of the game.
+ */
 const EntityGroupMap: Record<string, Entity[]> = {};
 
+/**
+ * Build-in signal definitions.
+ *
+ * If your game entity has its own signals, you may consider writing you own
+ * definitions extends this interface, then provided as `Entity` signal type
+ * parameter, to gain more accurate IntelliSense experience.
+ *
+ * @example
+ * ```typescript
+ * interface MySignals extends EntitySignals {
+ *   MyEvent: () => void;
+ * }
+ *
+ * class MyEntity extends Entity<MySignals> {}
+ * ```
+ * @export
+ * @interface EntitySignals
+ */
 export interface EntitySignals {
-  OnEmitEntity: (surprise: Entity) => void;
-  OnDestroy: () => void;
+  /**
+   * A handy signal to present the situation when an `Entity` need to be added
+   * to somewhere in the tree.
+   *
+   * @tutorial
+   * For example, when the `player` emits `bullet`, you can't simply add `bullet`
+   * as the child of the `player`, because the `bullet` then moves relative to
+   * the position of the `player`, which may not what you want.
+   *
+   * Instead, you can make a virtual anchor as the sibling of the `player`, then
+   * connect to the `OnEmitEntity` signal of the `player`. Now every time you
+   * need a `bullet`, just call `Emit` on the `player`, pass the bullet instance
+   * and it is all done.
+   *
+   * @memberof EntitySignals
+   */
+  OnEmitEntity: (entity: Entity) => void;
 }
 
-export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
-  public id: number = 0;
-  public name: string = "";
-
-  public w: number = 0;
-  public h: number = 0;
-
-  public position: Vector2 = new Vector2();
-  public scale: Vector2 = new Vector2(1, 1);
-  public rotation: number = 0;
-
+/**
+ * The base class of everything (almost) in the game.
+ *
+ * @export
+ * @abstract
+ * @class Entity
+ * @extends {CanvasTreeItem}
+ * @template SIGNALS The type definition of the signals the `Entity` can emit.
+ */
+export abstract class Entity<
+  SIGNALS extends EntitySignals = EntitySignals
+> extends CanvasTreeItem {
   /**
-   * A flag indicates whether to enable the entity or not.
+   * [**Not Implemented**]
+   * The unique id.
    *
-   * When set to `false`, the entity is completely ignored. Both `_Update` and
-   * `_Draw` are skipped.
-   *
-   * @type {boolean}
+   * @type {number}
    * @memberof Entity
    */
-  public enabled: boolean = true;
+  public id: number = 0;
+
+  /**
+   * The name of the node.
+   *
+   * Currently it is only for debug purpose.
+   *
+   * @type {string}
+   * @memberof Entity
+   */
+  public name: string = "";
+
+  /**
+   * The width of the node.
+   *
+   * @type {number}
+   * @memberof Entity
+   */
+  public w: number = 0;
+
+  /**
+   * The height of the node.
+   *
+   * @type {number}
+   * @memberof Entity
+   */
+  public h: number = 0;
 
   /**
    * A flag indicates whether to update the entity or not.
    *
    * When set to `true`, the `_Update` cycle of the entity and its descendants
-   * is skipped, but they still get drawed.
+   * is skipped, but they still get drawn.
    *
    * @type {boolean}
    * @memberof Entity
@@ -44,68 +108,69 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   public paused: boolean = false;
 
   /**
-   * A flag indicates the visibility of the Entity.
+   * [**Internal**]
+   * **Do not modify this manually**
    *
-   * When set to `false`, the `_Draw` cycle of the entity and its descendants
-   * is skipped, but they still get updated.
+   * An array to store all the group names which the node is currently belongs.
    *
-   * @type {boolean}
+   * @private
+   * @type {string[]}
    * @memberof Entity
    */
-  public visible: boolean = true;
+  private groups: string[] = [];
 
-  public parent: Entity | null = null;
-  public children: Entity[] = [];
+  /**
+   * [**Internal**]
+   * **Do not modify this manually**
+   *
+   * The inner `Signal` instance.
+   *
+   * @private
+   * @type {Signal<SIGNALS>}
+   * @memberof Entity
+   */
+  private signals: Signal<SIGNALS> = new Signal();
 
-  public groups: string[] = [];
-
-  protected isDestoryed: boolean = false;
-
-  private signals: Signal = new Signal();
-
-  public get GlobalPosition(): Vector2 {
-    if (!this.parent) {
-      return this.position;
-    } else {
-      return this.position
-        .Dot(this.parent.GlobalScale)
-        .Rotate(this.parent.GlobalRotation)
-        .Add(this.parent.GlobalPosition);
-    }
-  }
-
-  public get GlobalRotation(): number {
-    if (!this.parent) {
-      return this.rotation;
-    } else {
-      return this.rotation + this.parent.GlobalRotation;
-    }
-  }
-
-  public get GlobalScale(): Vector2 {
-    if (!this.parent) {
-      return this.scale;
-    } else {
-      return this.scale.Dot(this.parent.GlobalScale);
-    }
-  }
-
+  /**
+   * Get the Orientation of the node.
+   *
+   * Note that the "forward" here is actually the right side of the node,
+   * more precisely, the direction of `Vector2D(1, 0)`.
+   *
+   * @readonly
+   * @type {Vector2}
+   * @memberof Entity
+   */
   public get Orientation(): Vector2 {
     return Vector2.Right.Rotate(this.rotation);
   }
 
-  public $Tick(ctx: CanvasRenderingContext2D, delta: number) {
-    this.$Update(delta);
-    this.$Draw(ctx);
+  /**
+   * [**Internal**]
+   * **Do not call this manually**
+   *
+   * Trigger the update process.
+   *
+   * @param {number} delta
+   * @memberof Entity
+   */
+  public $Update(delta: number) {
+    // @ts-ignore
+    this.Traverse((node: Entity) => {
+      if (!node.enabled || node.paused) {
+        return true;
+      }
+
+      node._Update(delta);
+    });
   }
 
-  public AddChild(entity: Entity) {
-    entity.parent = this;
-    this.children.push(entity);
-
-    entity._Ready();
-  }
-
+  /**
+   * And self to the specified group.
+   *
+   * @param {string} name The name of the group.
+   * @memberof Entity
+   */
   public AddToGroup(name: string) {
     if (this.groups.includes(name)) {
       return;
@@ -123,43 +188,26 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
 
   public Connect<S extends keyof SIGNALS>(
     signal: S,
-    cb: SIGNALS[S],
-    bind?: any
+    handler: SIGNALS[S],
+    context?: any
   ) {
-    // #!if debug
-    if (typeof cb !== "function") {
-      throw new Error("Not a function!");
-    }
-    // #!endif
-
-    this.signals.Add(signal as string, cb.bind(bind));
+    this.signals.Connect(signal, handler, context);
   }
 
   public Emit<S extends keyof SIGNALS>(
     signal: S,
     ...args: ParamType<SIGNALS[S]>
   ) {
-    this.signals.Emit(signal as string, ...args);
+    this.signals.EmitWithWarning(signal, ...args);
   }
 
   /**
-   * Synchronously remove self and its descendants from the Entity Tree.
+   * Get all Entities from the specified group.
    *
-   * @returns
+   * @param {string} name The name of the group.
+   * @returns {Entity[]} The collection of Entities.
    * @memberof Entity
    */
-  public Free() {
-    if (this.isDestoryed) {
-      return;
-    }
-
-    if (this.parent) {
-      this.parent.RemoveChild(this);
-    }
-
-    this.$Destory();
-  }
-
   public GetFromGroup(name: string): Entity[] {
     return EntityGroupMap[name] || [];
   }
@@ -175,18 +223,27 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
     return this.groups.includes(name);
   }
 
+  /**
+   * A helper method to rotate the node towards the target point.
+   *
+   * Note that the "forward" here is actually the right side of the node,
+   * more precisely, the direction of `Vector2D(1, 0)`.
+   *
+   * @param {Vector2} t
+   * The target point.
+   * Beware that the coordinate here should be `GlobalPosition`.
+   * @memberof Entity
+   */
   public LookAt(t: Vector2) {
     this.SetRotation(this.GlobalPosition.AngleTo(t));
   }
 
-  public RemoveChild(entity: Entity) {
-    const index = this.children.findIndex(c => c === entity);
-    if (index === -1) {
-      return;
-    }
-    this.children.splice(index, 1);
-  }
-
+  /**
+   * Remove self from the specified group.
+   *
+   * @param {string} name The name of group.
+   * @memberof Entity
+   */
   public RemoveFromGroup(name: string) {
     if (!this.groups.includes(name)) {
       return;
@@ -196,26 +253,13 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
     EntityGroupMap[name].splice(EntityGroupMap[name].indexOf(this), 1);
   }
 
-  public Rotate(rad: number) {
-    this.rotation += rad;
-  }
-
-  public Scale(sx: number, sy: number = sx) {
-    this.scale.x = this.scale.x * sx;
-    this.scale.y = this.scale.y * sy;
-  }
-
   /**
-   * Set the value of `enabled` property.
+   * Set the name of the `Entity`.
    *
-   * @param {boolean} f The flag.
+   * @param {string} name The name.
    * @returns {this} This instance of the entity.
    * @memberof Entity
    */
-  public SetEnabled(f: boolean): this {
-    return (this.enabled = f), this;
-  }
-
   public SetName(name: string): this {
     return (this.name = name), this;
   }
@@ -232,111 +276,19 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
   }
 
   /**
-   * Set the local position by vector.
+   * Set the size of the `Entity`.
    *
-   * @param {Vector2} pos Local position vector.
-   * @returns {this}
+   * @param {number} w The width, or the size along x-axis.
+   * @param {number} h The height, or the size along y-axis.
+   * @returns {this} This instance of the entity.
    * @memberof Entity
    */
-  public SetPosition(pos: Vector2): this;
-  /**
-   * Set the local position by specified value.
-   *
-   * @param {number} x The position on the x-axis.
-   * @param {number} y The position on the y-axis.
-   * @returns {this}
-   * @memberof Entity
-   */
-  public SetPosition(x: number, y: number): this;
-  public SetPosition(p1: number | Vector2, p2?: number) {
-    let pos: Vector2;
-    if (p1 instanceof Vector2) {
-      pos = p1;
-    } else {
-      pos = new Vector2(p1, p2);
-    }
-    return (this.position = pos), this;
-  }
-
-  public SetRotation(rad: number): this {
-    return (this.rotation = rad), this;
-  }
-
-  public SetScale(scale: Vector2): this {
-    return (this.scale = scale), this;
-  }
-
   public SetSize(w: number, h: number): this {
     return (this.w = w), (this.h = h), this;
   }
 
   /**
-   * Set the visiblity of the entity.
-   *
-   * @param {boolean} f The flag.
-   * @returns {this} This instance of the entity.
-   * @memberof Entity
-   */
-  public SetVisible(f: boolean): this {
-    return (this.visible = f), this;
-  }
-
-  /**
-   * Translate the entity by vector.
-   *
-   * @param {Vector2} v The offset vector.
-   * @memberof Entity
-   */
-  public Translate(v: Vector2): void;
-  /**
-   * Translate the entity by specified value.
-   *
-   * @param {number} x The offset along x-axis.
-   * @param {number} y The offset along y-axis.
-   * @memberof Entity
-   */
-  public Translate(x: number, y: number): void;
-  public Translate(x: number | Vector2, y?: number) {
-    let delta: Vector2;
-    if (x instanceof Vector2) {
-      delta = x;
-    } else {
-      delta = new Vector2(x, y);
-    }
-
-    this.position = this.position.Add(delta);
-  }
-
-  /**
-   * [Lifecycle]
-   * Called once before `Entity` removed from the tree.
-   *
-   * @protected
-   * @memberof Entity
-   */
-  protected _Destory() {}
-
-  /**
-   * [Lifecycle]
-   * Called on every draw updates, after the `_Update` call.
-   *
-   * @protected
-   * @param {CanvasRenderingContext2D} ctx The `canvas` context.
-   * @memberof Entity
-   */
-  protected _Draw(ctx: CanvasRenderingContext2D) {}
-
-  /**
-   * [Lifecycle]
-   * Called once right after `Entity` added to the tree.
-   *
-   * @protected
-   * @memberof Entity
-   */
-  protected _Ready() {}
-
-  /**
-   * [Lifecycle]
+   * [**Lifecycle**]
    * Called on every update.
    *
    * @protected
@@ -345,62 +297,21 @@ export abstract class Entity<SIGNALS extends EntitySignals = EntitySignals> {
    */
   protected _Update(delta: number) {}
 
-  private $Destory() {
-    this.parent = null;
-
-    if (this.signals.Has("OnDestroy")) {
-      this.signals.Emit("OnDestroy");
-    }
+  /**
+   * [**Internal**]
+   * **Do not call this manually**
+   *
+   * A destroy events hook for derived class to do their own house keeping.
+   *
+   * @memberof Entity
+   */
+  protected $SelfDestroy() {
     this.signals.Clear();
 
     for (const group of this.groups) {
       this.RemoveFromGroup(group);
     }
 
-    this._Destory();
-
-    for (const child of this.children) {
-      child.$Destory();
-    }
-
-    this.isDestoryed = true;
-  }
-
-  private $Draw(ctx: CanvasRenderingContext2D) {
-    if (!this.enabled) {
-      return;
-    }
-
-    ctx.save();
-
-    ctx.translate(this.position.x, this.position.y);
-    ctx.rotate(this.rotation);
-    ctx.scale(this.scale.x, this.scale.y);
-
-    if (this.visible) {
-      ctx.save();
-      this._Draw(ctx);
-      ctx.restore();
-
-      for (const child of this.children) {
-        child.$Draw(ctx);
-      }
-    }
-
-    ctx.restore();
-  }
-
-  private $Update(delta: number) {
-    if (!this.enabled) {
-      return;
-    }
-
-    if (!this.paused) {
-      this._Update(delta);
-
-      for (const child of this.children) {
-        child.$Update(delta);
-      }
-    }
+    super.$SelfDestroy();
   }
 }

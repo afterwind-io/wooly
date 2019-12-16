@@ -1,6 +1,9 @@
 import { Engine } from "./core/engine";
 import { Input } from "./buildin/media/input";
-import { Entity } from "./core/entity";
+import { CoolDown } from "./util/cooldown";
+
+const interval = new CoolDown(1000);
+interval.Activate();
 
 export const MONITOR_MOUSEPOS = 1 << 0;
 export const MONITOR_DETAILS = 1 << 1;
@@ -22,21 +25,28 @@ function DrawMouse(engine: Engine) {
   ctx.restore();
 }
 
+let fps = 0;
+let childCount = 0;
 function DrawDetails(engine: Engine) {
-  function getChildCount(entity: Entity): number {
-    return (
-      entity.children.length +
-      entity.children.reduce((s, c) => s + getChildCount(c), 0)
-    );
-  }
-
   const delta = Engine.GetDelta();
   const ctx = engine.ctx;
-  const childCount = getChildCount(engine.rootNode!);
+
+  interval.Cool(delta);
+  if (!interval.isCooling) {
+    fps = Math.round(100000 / delta) / 100;
+
+    childCount = 0;
+    engine.nodeRoot?.Traverse(_ => (childCount++, void 0));
+
+    interval.Activate();
+  }
 
   ctx.save();
-  ctx.fillStyle = "grey";
-  ctx.fillText(`FPS: ${Math.round(100000 / delta) / 100}`, 8, 16);
+  ctx.globalAlpha = 0.8;
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, 120, 40);
+  ctx.fillStyle = "black";
+  ctx.fillText(`FPS: ${fps}`, 8, 16);
   ctx.fillText(`Total Objects: ${childCount}`, 8, 32);
   ctx.restore();
 }

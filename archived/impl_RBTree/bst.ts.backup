@@ -1,0 +1,299 @@
+export type BSTValueComparator<T> = (v1: T, v2: T) => -1 | 0 | 1;
+
+export interface BST<T> {
+  Clear(): void;
+  Delete(key: T): void;
+  InorderTraverse(cb: (key: T) => void): void;
+  Insert(key: T): void;
+}
+
+function GetSelfSide<T>(node: RBTreeNode<T>, parent: RBTreeNode<T>): -1 | 1 {
+  return parent[LEFT] === node ? LEFT : RIGHT;
+}
+
+function GetRoot<T>(node: RBTreeNode<T>): RBTreeNode<T> {
+  let p: RBTreeNode<T> = node;
+  while (p.parent) {
+    p = p.parent;
+  }
+  return p;
+}
+
+function GetParent<T>(node: RBTreeNode<T> | null): RBTreeNode<T> | null {
+  return node == null ? null : node.parent;
+}
+
+function GetGrandParent<T>(node: RBTreeNode<T>): RBTreeNode<T> | null {
+  return GetParent(GetParent(node));
+}
+
+function GetUncle<T>(node: RBTreeNode<T>): RBTreeNode<T> | null {
+  const parent = GetParent(node);
+  const grandParent = GetParent(parent);
+
+  if (grandParent == null) {
+    return null;
+  } else if (parent === grandParent.Left) {
+    return grandParent.Right;
+  } else {
+    return grandParent.Left;
+  }
+}
+
+function RotateRight<T>(pivot: RBTreeNode<T>) {
+  const parent = GetParent(pivot);
+  const newPivot = pivot.Left;
+  if (newPivot == null) {
+    throw new Error("???");
+  }
+
+  pivot.Left = newPivot.Right;
+  newPivot.Right = pivot;
+  pivot.parent = newPivot;
+  if (pivot.Left != null) {
+    pivot.Left.parent = pivot;
+  }
+
+  if (parent != null) {
+    if (parent.Left === pivot) {
+      parent.Left = newPivot;
+    } else {
+      parent.Right = newPivot;
+    }
+  }
+
+  newPivot.parent = parent;
+}
+
+function RotateLeft<T>(pivot: RBTreeNode<T>) {
+  const parent = GetParent(pivot);
+  const newPivot = pivot.Right;
+  if (newPivot == null) {
+    throw new Error("???");
+  }
+
+  pivot.Right = newPivot.Left;
+  newPivot.Left = pivot;
+  pivot.parent = newPivot;
+  if (pivot.Right != null) {
+    pivot.Right.parent = pivot;
+  }
+
+  if (parent != null) {
+    if (parent.Left === pivot) {
+      parent.Left = newPivot;
+    } else {
+      parent.Right = newPivot;
+    }
+  }
+
+  newPivot.parent = parent;
+}
+
+const enum RBColor {
+  Red,
+  Black
+}
+
+const LEFT = -1;
+const RIGHT = 1;
+
+/**
+ * The general implementation of Red-Black tree.
+ *
+ * @export
+ * @class RBTree
+ * @template T The type of the node value.
+ */
+export class RBTree<T> implements BST<T> {
+  private root: RBTreeNode<T> | null = null;
+  private comparator: BSTValueComparator<T>;
+
+  public constructor(comparator: BSTValueComparator<T>) {
+    this.comparator = comparator;
+  }
+
+  public Clear() {
+    this.root = null;
+  }
+
+  public Delete(key: T): void {
+    // const node = this.Search(key);
+    // if (node == null) {
+    //   return;
+    // }
+    // if (node.Right == null) {
+    //   if (node.parent) {
+    //     const side = GetSelfSide(node, node.parent);
+    //     node.parent[side] = node.Left;
+    //     node.Left?.parent =
+    //   }
+    // } else {
+    //   let t: RBColor;
+    //   const right: RBTreeNode<T> = node.Right;
+    //   if (right.Left == null) {
+    //   }
+    // }
+    // this.DeleteRebalance(node);
+    // this.root = GetRoot( node)
+  }
+
+  public InorderTraverse(
+    cb: (key: T) => void,
+    node: RBTreeNode<T> | null = this.root
+  ): void {
+    if (node == null) {
+      return;
+    }
+
+    this.InorderTraverse(cb, node[LEFT]);
+    cb(node.key);
+    this.InorderTraverse(cb, node[RIGHT]);
+  }
+
+  public Insert(key: T): void {
+    if (this.root == null) {
+      this.root = new RBTreeNode(key);
+      return;
+    }
+
+    let node: RBTreeNode<T> = this.root;
+
+    while (true) {
+      const side = this.comparator(node.key, key);
+      if (side === 0) {
+        throw new Error("Equal keys are not allowed.");
+      }
+
+      let leaf = node[side];
+      if (leaf == null) {
+        leaf = new RBTreeNode<T>(key);
+        leaf.parent = node;
+        node[side] = leaf;
+        break;
+      }
+
+      node = leaf;
+    }
+
+    this.InsertRebalance(node);
+
+    this.root = GetRoot(this.root);
+  }
+
+  public Search(target: T): RBTreeNode<T> | null {
+    let node: RBTreeNode<T> | null = this.root;
+
+    if (node == null) {
+      return null;
+    }
+
+    while (node != null) {
+      const side = this.comparator(node.key!, target);
+      if (side === 0) {
+        return node;
+      } else {
+        node = node[side];
+      }
+    }
+
+    return null;
+  }
+
+  private InsertRebalance(node: RBTreeNode<T>) {
+    const parent = GetParent(node);
+    const uncle = GetUncle(node);
+
+    if (parent == null) {
+      this.InsertRebalanceCase1(node);
+    } else if (parent.color === RBColor.Black) {
+      return;
+    } else if (uncle != null && uncle.color === RBColor.Red) {
+      this.InsertRebalanceCase2(node);
+    } else {
+      this.InsertRebalanceCase3(node);
+    }
+  }
+
+  private InsertRebalanceCase1(node: RBTreeNode<T>) {
+    node.color = RBColor.Black;
+  }
+
+  private InsertRebalanceCase2(node: RBTreeNode<T>) {
+    GetParent(node)!.color = RBColor.Black;
+    GetUncle(node)!.color = RBColor.Black;
+
+    const grandParent = GetGrandParent(node)!;
+    grandParent.color = RBColor.Red;
+    this.InsertRebalance(grandParent);
+  }
+
+  private InsertRebalanceCase3(node: RBTreeNode<T>) {
+    const grandParent = GetGrandParent(node)!;
+    let parent = GetParent(node)!;
+
+    // if (node === parent.Right) {
+    //   RotateLeft(parent);
+    //   node = parent;
+    //   parent = GetParent(node)!;
+    // }
+
+    // grandParent.color = RBColor.Black;
+    // parent.color = RBColor.Red;
+    // RotateRight(grandParent);
+
+    const g = GetGrandParent(node)!;
+    const p = GetParent(node)!;
+
+    if (node == p.Right && p == g.Left) {
+      RotateLeft(p);
+      node = node.Left!;
+    } else if (node == p.Left && p == g.Right) {
+      RotateRight(p);
+      node = node.Right!;
+    }
+
+    this.InsertRebalanceCase3Step2(node!);
+  }
+
+  private InsertRebalanceCase3Step2(node: RBTreeNode<T>) {
+    const p = GetParent(node)!;
+    const g = GetGrandParent(node)!;
+
+    if (node == p.Left) {
+      RotateRight(g);
+    } else {
+      RotateLeft(g);
+    }
+    p.color = RBColor.Black;
+    g.color = RBColor.Red;
+  }
+}
+
+export class RBTreeNode<T> {
+  public color: RBColor = RBColor.Red;
+  public key: T;
+  public parent: RBTreeNode<T> | null = null;
+  private [LEFT]: RBTreeNode<T> | null = null;
+  private [RIGHT]: RBTreeNode<T> | null = null;
+
+  public constructor(key: T) {
+    this.key = key;
+  }
+
+  public get Left() {
+    return this[LEFT];
+  }
+
+  public set Left(tree: RBTreeNode<T> | null) {
+    this[LEFT] = tree;
+  }
+
+  public get Right() {
+    return this[RIGHT];
+  }
+
+  public set Right(tree: RBTreeNode<T> | null) {
+    this[RIGHT] = tree;
+  }
+}

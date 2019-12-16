@@ -22,5 +22,5 @@ export function Create(
 
   container.appendChild(canvas);
 
-  return new Engine(canvas, backend);
+  return Engine.Create(canvas, backend);
 }
