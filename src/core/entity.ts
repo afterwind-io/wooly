@@ -47,6 +47,14 @@ export interface EntitySignals {
    * @memberof EntitySignals
    */
   OnEmitEntity: (entity: Entity) => void;
+
+  /**
+   * This signal emits once right after the `_Destroy` phase of the `Entity`.
+   * You can hook into it to do some additional house keeping.
+   *
+   * @memberof EntitySignals
+   */
+  OnDestroy: () => void;
 }
 
 /**
@@ -306,6 +314,9 @@ export abstract class Entity<
    * @memberof Entity
    */
   protected $SelfDestroy() {
+    // @ts-ignore
+    this.Emit("OnDestroy");
+
     this.signals.Clear();
 
     for (const group of this.groups) {
