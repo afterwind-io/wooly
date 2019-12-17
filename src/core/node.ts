@@ -137,7 +137,7 @@ export abstract class Node {
         return;
       }
 
-      node._Destory();
+      node._Destroy();
 
       node.$SelfDestroy();
 
@@ -278,7 +278,7 @@ export abstract class Node {
    * @protected
    * @memberof Node
    */
-  protected _Destory() {}
+  protected _Destroy() {}
 
   /**
    * [**Lifecycle**]

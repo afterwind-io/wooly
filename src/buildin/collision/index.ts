@@ -52,7 +52,7 @@ export class Collision extends Entity {
     return [];
   }
 
-  public _Destory() {
+  public _Destroy() {
     this.RemoveFromMap();
   }
 
