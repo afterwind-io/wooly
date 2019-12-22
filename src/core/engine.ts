@@ -120,9 +120,6 @@ export class Engine {
   }
 
   private Draw() {
-    const canvas = this.ctx.canvas;
-    this.ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
     this.canvasRoot.Draw(this.nodeRoot!, this.ctx);
   }
 

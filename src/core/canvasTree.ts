@@ -1,5 +1,7 @@
 import { CanvasTreeItem } from "./canvasTreeItem";
 import { CachedList } from "./struct/cachedList";
+import { Viewport } from "./viewport";
+import { GetTransformMatrix } from "../util/common";
 
 function ZIndexSortFunction(a: number, b: number): number {
   return a - b;
@@ -13,6 +15,13 @@ export class CanvasTree {
 
   public Draw(root: CanvasTreeItem, ctx: CanvasRenderingContext2D) {
     this.Clear();
+
+    const canvas = ctx.canvas;
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+    ctx.setTransform(
+      ...GetTransformMatrix(Viewport.Current.Offset, 0, Viewport.Current.Zoom)
+    );
 
     // @ts-ignore
     root.Traverse((node: CanvasTreeItem) => {

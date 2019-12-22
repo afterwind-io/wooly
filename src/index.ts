@@ -31,6 +31,7 @@ export {
 } from "./buildin/animation";
 export { State, StateMachine } from "./buildin/fsm";
 export { Timer, TimerBehavior } from "./buildin/timer";
+export { Camera } from "./buildin/camera";
 
 // UI
 export { Label } from "./buildin/ui/label";

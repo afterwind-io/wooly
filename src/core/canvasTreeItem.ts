@@ -1,4 +1,6 @@
 import { Node } from "./node";
+import { Viewport } from "./viewport";
+import { GetTransformMatrix } from "../util/common";
 import { Vector2 } from "../util/vector2";
 
 /**
@@ -238,20 +240,15 @@ export abstract class CanvasTreeItem extends Node {
 
     ctx.save();
 
-    const position = this.GlobalPosition;
-    const rotation = this.GlobalRotation;
-    const scale = this.GlobalScale;
+    const viewportOrigin = Viewport.Current.Origin;
+    const viewportRotation = Viewport.Current.Rotation;
 
-    const sin = Math.sin(rotation);
-    const cos = Math.cos(rotation);
-    ctx.setTransform(
-      cos * scale.x,
-      sin,
-      -sin,
-      cos * scale.y,
-      position.x,
-      position.y
+    const position = this.GlobalPosition.Substract(viewportOrigin).Rotate(
+      -viewportRotation
     );
+    const rotation = this.GlobalRotation - viewportRotation;
+    const scale = this.GlobalScale;
+    ctx.transform(...GetTransformMatrix(position, rotation, scale));
 
     this._Draw(ctx);
 
