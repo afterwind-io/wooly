@@ -49,9 +49,9 @@ export class Shape extends Entity {
   }
 
   private DrawCircle(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = this.color.ToString();
     ctx.beginPath();
     ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
     ctx.fill();
+    ctx.closePath();
   }
 }
