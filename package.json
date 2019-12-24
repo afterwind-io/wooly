@@ -1,0 +1,28 @@
+{
+  "name": "wooly",
+  "version": "0.1.0",
+  "description": "An Experimental Javascript 2D Game Framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "test:watch": "mocha  -watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afterwind-io/wooly.git"
+  },
+  "author": "Afterwind",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/afterwind-io/wooly/issues"
+  },
+  "homepage": "https://github.com/afterwind-io/wooly#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.5",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.2.2",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.2"
+  }
+}
