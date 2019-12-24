@@ -315,7 +315,7 @@ export abstract class Entity<
    */
   protected $SelfDestroy() {
     // @ts-ignore
-    this.Emit("OnDestroy");
+    this.signals.Emit("OnDestroy");
 
     this.signals.Clear();
 
