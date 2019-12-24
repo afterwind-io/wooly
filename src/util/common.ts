@@ -1,6 +1,7 @@
 import { Vector2 } from "./vector2";
 
 export type ParamType<T> = T extends (...args: infer R) => void ? R : any[];
+export type Nullable<T> = T | null;
 
 export function Blackhole(): void {
   return;

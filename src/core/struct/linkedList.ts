@@ -1,60 +1,126 @@
 import { LinkedNode } from "./linkedNode";
+import { Nullable } from "../../util/common";
 
-export class LinkedList<T> {
-  private head: LinkedNode<T> | null = null;
-  private tail: LinkedNode<T> | null = null;
+export class LinkedList<V, K = null> {
+  protected head: LinkedNode<V, K> = new LinkedNode<V, K>();
+  protected cursor: LinkedNode<V, K> = this.head;
 
-  public Peek(): T | null {
-    return this.InnerPop(false);
+  public get Head(): LinkedNode<V, K> {
+    return this.head;
   }
 
-  public Pop(): T | null {
-    return this.InnerPop();
+  public get Tail(): Nullable<LinkedNode<V, K>> {
+    return this.cursor.prev;
   }
 
-  public Push(value: T) {
-    const node = new LinkedNode(value);
+  public Clear() {
+    this.cursor = this.head;
 
-    if (this.head == null) {
-      this.head = node;
-    }
-
-    if (this.tail == null) {
-      this.tail = node;
-    } else {
-      node.prev = this.tail;
-      this.tail.next = node;
-      this.tail = node;
-    }
-  }
-
-  public Traverse(cb: (value: T) => void) {
-    let node = this.head;
+    let node: Nullable<LinkedNode<V, K>> = this.head;
     while (node != null) {
-      cb(node.value!);
+      node.Clear();
       node = node.next;
     }
   }
 
-  private InnerPop(removeTail: boolean = true): T | null {
-    const tail = this.tail;
+  public GetByKey(key: K): V | null {
+    let value: V | null = null;
+
+    this.Traverse((v, k) => {
+      if (k === key) {
+        value = v;
+        return false;
+      }
+    });
+
+    return value;
+  }
+
+  public GetLength(): number {
+    return this.InnerGetLength();
+  }
+
+  public GetRawLength(): number {
+    return this.InnerGetLength(true);
+  }
+
+  public Has(key: K): boolean {
+    let flag = false;
+
+    this.Traverse((_, k) => {
+      if (k === key) {
+        flag = true;
+        return false;
+      }
+    });
+
+    return flag;
+  }
+
+  public Peek(): Nullable<V> {
+    return this.InnerPop(false);
+  }
+
+  public Pop(): Nullable<V> {
+    return this.InnerPop();
+  }
+
+  public Push(value: V, key: Nullable<K> = null) {
+    const tail = this.cursor;
+    tail.value = value;
+    tail.key = key;
+
+    if (this.cursor.next == null) {
+      this.cursor = new LinkedNode();
+      tail.next = this.cursor;
+      this.cursor.prev = tail;
+    } else {
+      this.cursor = this.cursor.next;
+    }
+  }
+
+  public Traverse(cb: (value: V, key: Nullable<K>) => boolean | void) {
+    let node: Nullable<LinkedNode<V, K>> = this.head;
+    while (node != null && !node.IsEmpty()) {
+      const next = cb(node.value!, node.key);
+      if (next === false) {
+        break;
+      }
+
+      node = node.next;
+    }
+  }
+
+  private InnerGetLength(isContainsEmpty: boolean = false): number {
+    let len = 0;
+    let node: Nullable<LinkedNode<V, K>> = this.head;
+    while (node != null) {
+      if (!isContainsEmpty && node.IsEmpty()) {
+        break;
+      }
+
+      len++;
+
+      node = node.next;
+    }
+
+    return len;
+  }
+
+  private InnerPop(clearTail: boolean = true): Nullable<V> {
+    const tail = this.Tail;
 
     if (tail == null) {
       return null;
     }
 
-    if (removeTail) {
-      const prev = tail.prev;
+    const value = tail.value;
 
-      if (prev != null) {
-        prev.next = null;
-      } else {
-        this.head = null;
-      }
-
-      this.tail = prev;
+    if (clearTail) {
+      tail.Clear();
+      this.cursor = tail;
     }
 
-    return tail.value;
+    return value;
   }
 }

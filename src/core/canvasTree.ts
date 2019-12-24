@@ -1,33 +1,17 @@
 import { CanvasTreeItem } from "./canvasTreeItem";
-import { CachedList } from "./struct/cachedList";
 import { Viewport } from "./viewport";
 import { GetTransformMatrix } from "../util/common";
-
-function ZIndexSortFunction(a: number, b: number): number {
-  return a - b;
-}
+import { OrderedLinkedList } from "./struct/orderedLinkedList";
+import { LinkedList } from "./struct/linkedList";
 
 export class CanvasTree {
-  private layerMap: { [key: number]: CachedList<CanvasTreeItem> } = {};
-  private layers: number[] = [];
-
-  private isDirty: boolean = false;
+  private layerMap: OrderedLinkedList<
+    LinkedList<CanvasTreeItem>
+  > = new OrderedLinkedList();
 
   public Draw(root: CanvasTreeItem, ctx: CanvasRenderingContext2D) {
-    this.Clear();
-
-    const canvas = ctx.canvas;
-    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
-    ctx.setTransform(
-      ...GetTransformMatrix(Viewport.Current.Offset, 0, Viewport.Current.Zoom)
-    );
-
-    // @ts-ignore
-    root.Traverse((node: CanvasTreeItem) => {
-      node.$Freeze();
-      this.Add(node as CanvasTreeItem);
-    });
+    this.ResetCanvas(ctx);
+    this.RebuildTree(root);
 
     this.Traverse((node: CanvasTreeItem) => {
       node.$Draw(ctx);
@@ -38,38 +22,39 @@ export class CanvasTree {
   private Add(value: CanvasTreeItem) {
     const key = value.GlobalZIndex;
 
-    let list: CachedList<CanvasTreeItem>;
-    if (this.layers.includes(key)) {
-      list = this.layerMap[key];
-    } else {
-      this.isDirty = true;
-      this.layers.push(key);
-      list = this.layerMap[key] = new CachedList<CanvasTreeItem>();
+    let layer = this.layerMap.GetByKey(key);
+    if (layer == null) {
+      layer = new LinkedList<CanvasTreeItem>();
+      this.layerMap.Insert(layer, key);
     }
 
-    list.Push(value);
+    layer.Push(value);
   }
 
   private Clear() {
-    for (const zIndex of this.layers) {
-      this.layerMap[zIndex].Clear();
-    }
+    this.layerMap.Traverse(layer => layer.Clear());
+  }
 
-    this.layers.length = 0;
+  private RebuildTree(root: CanvasTreeItem) {
+    this.Clear();
+
+    // @ts-ignore
+    root.Traverse((node: CanvasTreeItem) => {
+      node.$Freeze();
+      this.Add(node as CanvasTreeItem);
+    });
+  }
+
+  private ResetCanvas(ctx: CanvasRenderingContext2D) {
+    const canvas = ctx.canvas;
+    ctx.resetTransform();
+    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    ctx.transform(
+      ...GetTransformMatrix(Viewport.Current.Offset, 0, Viewport.Current.Zoom)
+    );
   }
 
   private Traverse(cb: (value: CanvasTreeItem) => void) {
-    if (this.isDirty) {
-      this.layers.sort(ZIndexSortFunction);
-      this.isDirty = false;
-    }
-
-    for (const key of this.layers) {
-      const list = this.layerMap[key];
-      list.Traverse(cb);
-    }
+    this.layerMap.Traverse(layer => layer.Traverse(cb));
   }
 }
-
-// @ts-ignore
-window.CanvasTree = CanvasTree;
