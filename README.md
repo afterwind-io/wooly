@@ -22,7 +22,7 @@ It is rather simple, but still battery-included. Built-in functions including:
 - State Machine Model
 - Scene / Scene Manager
 - Camera
-- Diagnosis (FPS | Object Counter | Mouse Position Indicator)
+- Inspector (FPS | Entity Counter | Mouse Indicator)
 - ~~Physical Simulation~~ (Never Happens)
 - And other goodies...
 
