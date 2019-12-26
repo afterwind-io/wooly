@@ -1,7 +1,9 @@
 import { Node } from "./node";
 import { Signal } from "./signal";
 
-interface SystemSignals {
+export interface SystemSignals {
+  OnLoopEnd: () => void;
+  OnLoopStart: () => void;
   OnTreeUpdate: (node: Node, type: "insert" | "delete") => void;
 }
 

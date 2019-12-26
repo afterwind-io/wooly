@@ -2,14 +2,8 @@ import { CanvasTree } from "./canvasTree";
 import { Entity } from "./entity";
 import { SystemSignal } from "./systemSignal";
 import { Node } from "./node";
-import { Signal } from "./signal";
 import { Vector2 } from "../util/vector2";
 import { SystemTimer } from "./systemTimer";
-
-interface EngineSignals {
-  LoopEnd: () => void;
-  LoopStart: () => void;
-}
 
 export class Engine {
   private static me: Engine;
@@ -20,8 +14,6 @@ export class Engine {
 
   private timer: SystemTimer = new SystemTimer();
   private nodeFreeQueue: Node[] = [];
-
-  private signals: Signal<EngineSignals> = new Signal();
 
   private constructor(canvas: HTMLCanvasElement, backend: "2d") {
     const ctx = canvas.getContext(backend, { alpha: false });
@@ -84,14 +76,6 @@ export class Engine {
     return Engine.me.ctx.canvas;
   }
 
-  public OnLoopEnd(cb: () => void) {
-    this.signals.Connect("LoopEnd", cb);
-  }
-
-  public OnLoopStart(cb: () => void) {
-    this.signals.Connect("LoopStart", cb);
-  }
-
   public SetRoot(root: Entity) {
     if (this.nodeRoot) {
       this.nodeRoot.Free();
@@ -123,13 +107,13 @@ export class Engine {
   }
 
   private Loop() {
-    this.signals.Emit("LoopStart");
+    SystemSignal.Emit("OnLoopStart");
 
     this.Update();
     this.BatchFree();
     this.Draw();
 
-    this.signals.Emit("LoopEnd");
+    SystemSignal.Emit("OnLoopEnd");
 
     requestAnimationFrame(this.Loop);
   }
