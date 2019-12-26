@@ -32,6 +32,7 @@ export {
 export { State, StateMachine } from "./buildin/fsm";
 export { Timer, TimerBehavior } from "./buildin/timer";
 export { Camera } from "./buildin/camera";
+export { Inspector } from "./buildin/inspector";
 
 // UI
 export { Label } from "./buildin/ui/label";
@@ -42,6 +43,3 @@ export { Color } from "./util/color";
 export { CoolDown } from "./util/cooldown";
 export { Dice } from "./util/dice";
 export * from "./util/common";
-
-// diagnosis
-export { Monitor, MONITOR_MOUSEPOS, MONITOR_DETAILS } from "./diagnosis";
