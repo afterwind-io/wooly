@@ -4,6 +4,7 @@ import { GlobalEvents } from "./globals";
 import { Node } from "./node";
 import { Signal } from "./signal";
 import { Vector2 } from "../util/vector2";
+import { SystemTimer } from "./systemTimer";
 
 interface EngineSignals {
   LoopEnd: () => void;
@@ -17,10 +18,8 @@ export class Engine {
   public nodeRoot: Entity | null = null;
   public canvasRoot: CanvasTree = new CanvasTree();
 
+  private timer: SystemTimer = new SystemTimer();
   private nodeFreeQueue: Node[] = [];
-
-  private lastUpdate: number = performance.now();
-  private lastDelta: number = 0;
 
   private signals: Signal<EngineSignals> = new Signal();
 
@@ -56,7 +55,7 @@ export class Engine {
    * @memberof Engine
    */
   public static GetDelta(): number {
-    return Engine.me.lastDelta;
+    return Engine.me.timer.Delta;
   }
 
   /**
@@ -142,11 +141,6 @@ export class Engine {
   }
 
   private Update() {
-    const timestamp = performance.now();
-    this.lastDelta = timestamp - this.lastUpdate;
-
-    this.lastUpdate = timestamp;
-
-    this.nodeRoot!.$Update(this.lastDelta);
+    this.nodeRoot!.$Update(this.timer.Tick());
   }
 }
