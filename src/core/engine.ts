@@ -1,6 +1,6 @@
 import { CanvasTree } from "./canvasTree";
 import { Entity } from "./entity";
-import { GlobalEvents } from "./globals";
+import { GlobalEvents } from "./systemSignal";
 import { Node } from "./node";
 import { Signal } from "./signal";
 import { Vector2 } from "../util/vector2";

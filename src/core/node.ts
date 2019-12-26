@@ -1,4 +1,4 @@
-import { GlobalEvents } from "./globals";
+import { GlobalEvents } from "./systemSignal";
 import { LinkedList } from "./struct/linkedList";
 
 /**
