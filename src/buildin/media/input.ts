@@ -25,8 +25,8 @@ function OnMouseUp(e: MouseEvent) {
 }
 
 function OnMouseMove(e: MouseEvent) {
-  mousePos.x = e.x;
-  mousePos.y = e.y;
+  mousePos.x = e.offsetX;
+  mousePos.y = e.offsetY;
 }
 
 let lastKey: string = "";
