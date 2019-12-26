@@ -67,6 +67,36 @@ export abstract class CanvasTreeItem extends Node {
   public zIndex: number = 0;
 
   /**
+   * Indicate whether to enable custom drawing.
+   * 
+   * In other words, if you need to override the `_Draw` method,
+   * remember setting this flag to `true`.
+   * 
+   * @example
+   * ```typescript
+   * export class MyEntity extends Entity {
+   *   // Directly declare a property...
+   *   public readonly customDrawing: boolean = true;
+   * 
+   *   public _Ready() {
+   *     // ...**Or** do it here ...
+   *     this.customDrawing = true;
+   *   }
+   *   
+   *   public _Draw(ctx: CanvasRenderingContext2D) {
+   *     // ...If you need some custom drawing
+   * 
+   *     // blahblah...
+   *   }
+   * }
+   * ```
+   *
+   * @type {boolean}
+   * @memberof CanvasTreeItem
+   */
+  protected customDrawing: boolean = false;
+
+  /**
    * [**Internal**]
    * **Do not modify this manually**
    *
@@ -233,8 +263,16 @@ export abstract class CanvasTreeItem extends Node {
    * @memberof CanvasTreeItem
    */
   public $Draw(ctx: CanvasRenderingContext2D) {
+    if (!this.enabled) {
+      return;
+    }
+
     // FIXME 子代不知道祖先节点是否设置了visible
-    if (!this.enabled || !this.visible) {
+    if (!this.visible) {
+      return;
+    }
+
+    if (!this.customDrawing) {
       return;
     }
 

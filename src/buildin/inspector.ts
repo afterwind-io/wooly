@@ -45,6 +45,7 @@ export class Inspector extends Entity {
   public static ENTITY_COUNTER: number = 1 << 2;
 
   public readonly name: string = "Inspector";
+  public readonly customDrawing: boolean = true;
 
   private mode: number = 0;
 

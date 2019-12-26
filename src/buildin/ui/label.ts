@@ -1,6 +1,7 @@
 import { Entity } from "../../core/entity";
 
 export class Label extends Entity {
+  public readonly customDrawing: boolean = true;
   public name: string = "Label";
 
   public content: string = "";

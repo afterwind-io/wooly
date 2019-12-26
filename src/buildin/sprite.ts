@@ -2,7 +2,9 @@ import { Entity } from "../core/entity";
 import { Vector2 } from "../util/vector2";
 
 export class Sprite extends Entity {
+  public readonly customDrawing: boolean = true;
   public name: string = "Sprite";
+
   public offset: Vector2 = new Vector2();
 
   protected image: HTMLImageElement = new Image();
