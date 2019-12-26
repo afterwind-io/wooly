@@ -1,6 +1,6 @@
 import { CanvasTree } from "./canvasTree";
 import { Entity } from "./entity";
-import { GlobalEvents } from "./systemSignal";
+import { SystemSignal } from "./systemSignal";
 import { Node } from "./node";
 import { Signal } from "./signal";
 import { Vector2 } from "../util/vector2";
@@ -32,7 +32,7 @@ export class Engine {
 
     this.Loop = this.Loop.bind(this);
 
-    GlobalEvents.Connect("OnTreeUpdate", this.OnTreeUpdate, this);
+    SystemSignal.Connect("OnTreeUpdate", this.OnTreeUpdate, this);
   }
 
   public static Create(canvas: HTMLCanvasElement, backend: "2d"): Engine {

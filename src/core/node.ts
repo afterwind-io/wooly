@@ -1,4 +1,4 @@
-import { GlobalEvents } from "./systemSignal";
+import { SystemSignal } from "./systemSignal";
 import { LinkedList } from "./struct/linkedList";
 
 /**
@@ -210,7 +210,7 @@ export abstract class Node {
 
     this.state = NodeState.Destroying;
 
-    GlobalEvents.Emit("OnTreeUpdate", this, "delete");
+    SystemSignal.Emit("OnTreeUpdate", this, "delete");
   }
 
   /**
