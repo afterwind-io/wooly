@@ -1,6 +1,6 @@
 import { Entity } from "../core/entity";
 import { Engine } from "../core/engine";
-import { Viewport } from "../core/viewport";
+import { Viewport, ViewportRegistry } from "../core/viewport";
 import { Vector2 } from "../util/vector2";
 
 export class Camera extends Entity {
@@ -8,6 +8,13 @@ export class Camera extends Entity {
 
   private isCentered: boolean = false;
   private offset: Vector2 = new Vector2();
+  private targetViewport: number = 0;
+
+  public constructor(targetViewport: number = 0) {
+    super();
+
+    this.targetViewport = targetViewport;
+  }
 
   public _Ready() {
     this.visible = false;
@@ -15,20 +22,24 @@ export class Camera extends Entity {
 
   public _Update() {
     const position = this.GlobalPosition;
-    Viewport.Current.SetOrigin(position);
+    this.Viewport.SetOrigin(position);
 
     const rotation = this.GlobalRotation;
-    Viewport.Current.SetRotation(rotation);
+    this.Viewport.SetRotation(rotation);
 
     let offset = this.offset;
     if (this.isCentered) {
       offset = offset.Add(Engine.GetDimension().Multiply(0.5));
     }
-    Viewport.Current.SetOffset(offset);
+    this.Viewport.SetOffset(offset);
   }
 
   public SetIsCentered(f: boolean): this {
     return (this.isCentered = f), this;
+  }
+
+  public SetTargetViewport(id: number): this {
+    return (this.targetViewport = id), this;
   }
 
   public Pan(delta: Vector2) {
@@ -36,12 +47,16 @@ export class Camera extends Entity {
   }
 
   public Rotate(delta: number) {
-    const rotation = Viewport.Current.Rotation + delta;
-    Viewport.Current.SetRotation(rotation);
+    const rotation = this.Viewport.rotation + delta;
+    this.Viewport.SetRotation(rotation);
   }
 
   public Zoom(delta: Vector2) {
-    const zoom = Viewport.Current.Zoom.Add(delta);
-    Viewport.Current.SetZoom(zoom);
+    const zoom = this.Viewport.zoom.Add(delta);
+    this.Viewport.SetZoom(zoom);
+  }
+
+  private get Viewport(): Viewport {
+    return ViewportRegistry.Get(this.targetViewport);
   }
 }
