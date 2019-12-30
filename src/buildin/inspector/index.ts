@@ -1,8 +1,9 @@
-import { Input } from "./media/input";
-import { Timer } from "./timer";
-import { Label } from "./ui/label";
-import { Engine } from "../core/engine";
-import { Entity } from "../core/entity";
+import { MouseIndicator } from "./mouseIndicator";
+import { Layer } from "../layer";
+import { Timer } from "../timer";
+import { Label } from "../ui/label";
+import { Engine } from "../../core/engine";
+import { Entity } from "../../core/entity";
 
 /**
  * A utility to provide some insights of the engine.
@@ -45,34 +46,38 @@ export class Inspector extends Entity {
   public static ENTITY_COUNTER: number = 1 << 2;
 
   public readonly name: string = "Inspector";
-  public readonly customDrawing: boolean = true;
 
   private mode: number = 0;
+  private timer: Timer = new Timer(1000, true);
 
   private labelFPS: Label = new Label();
   private labelEntityCounter = new Label();
-  private timer: Timer = new Timer(1000, true);
+  private mouseIndicator = new MouseIndicator();
 
   public _Ready() {
-    // TODO 应该通过专门的UI层来控制置顶
-    this.SetZIndex(1 << 16);
-
-    this.AddChild(this.timer);
     this.timer.Connect("OnTimeout", this.Refresh, this);
+    this.AddChild(this.timer);
 
-    this.AddChild(this.labelFPS.SetPosition(8, 16));
-    this.AddChild(this.labelEntityCounter.SetPosition(8, 32));
+    this.labelFPS.SetPosition(8, 16);
+    this.labelEntityCounter.SetPosition(8, 32);
+
+    // 既然调试图层必须始终置顶，何不来个`Infinity`?
+    const layer = new Layer(Infinity).SetName("Inspector Layer");
+    layer.AddChild(this.labelFPS);
+    layer.AddChild(this.labelEntityCounter);
+    layer.AddChild(this.mouseIndicator);
+    this.AddChild(layer);
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    if (this.mode & Inspector.MOUSE_INDICATOR) {
-      this.DrawMouseIndicator(ctx);
+  public _Update() {
+    if (!(this.mode & Inspector.MOUSE_INDICATOR)) {
+      this.mouseIndicator.enabled = false;
     }
   }
 
   /**
    * Control the utilities displaying flags.
-   * 
+   *
    * You can use bitwise OR operator "`|`" to chain multiple goodies.
    *
    * @example
@@ -88,15 +93,6 @@ export class Inspector extends Entity {
    */
   public SetMode(mode: number): this {
     return (this.mode = mode), this;
-  }
-
-  private DrawMouseIndicator(ctx: CanvasRenderingContext2D) {
-    const { x, y } = Input.GetMousePosition();
-
-    ctx.fillStyle = "grey";
-    ctx.fillRect(x, y - 16, 1, 32);
-    ctx.fillRect(x - 16, y, 32, 1);
-    ctx.fillText(`${x},${y}`, x + 5, y - 5);
   }
 
   private Refresh() {

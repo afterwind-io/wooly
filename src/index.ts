@@ -32,7 +32,7 @@ export {
 export { State, StateMachine } from "./buildin/fsm";
 export { Timer, TimerBehavior } from "./buildin/timer";
 export { Camera } from "./buildin/camera";
-export { Inspector } from "./buildin/inspector";
+export { Inspector } from "./buildin/inspector/index";
 export { Layer } from "./buildin/layer";
 
 // UI
