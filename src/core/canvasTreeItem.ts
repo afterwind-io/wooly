@@ -466,8 +466,11 @@ export abstract class CanvasTreeItem extends Node {
   public SetScale(p1: Vector2 | number, p2?: number): this {
     if (p1 instanceof Vector2) {
       this.scale = p1;
-    } else if (p2 === void 0) {
-      p2 = p1;
+    } else {
+      if (p2 === void 0) {
+        p2 = p1;
+      }
+
       this.scale = new Vector2(p1, p2);
     }
 
