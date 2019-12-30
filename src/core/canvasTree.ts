@@ -83,6 +83,8 @@ export class CanvasTree {
   private ResetCanvas(ctx: CanvasRenderingContext2D) {
     const canvas = ctx.canvas;
     ctx.resetTransform();
-    ctx.clearRect(0, 0, canvas.clientWidth * DPR, canvas.clientHeight * DPR);
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.clientWidth * DPR, canvas.clientHeight * DPR);
   }
 }
