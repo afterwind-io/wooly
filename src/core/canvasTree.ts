@@ -1,4 +1,5 @@
 import { CanvasTreeItem } from "./canvasTreeItem";
+import { DPR } from "./globals";
 import { ViewportRegistry } from "./viewport";
 import { GetTransformMatrix } from "../util/common";
 import { OrderedLinkedList } from "./struct/orderedLinkedList";
@@ -47,7 +48,7 @@ export class CanvasTree {
       const viewport = ViewportRegistry.Get(layerIndex!);
 
       ctx.setTransform(
-        ...GetTransformMatrix(viewport.offset, 0, viewport.zoom)
+        ...GetTransformMatrix(viewport.offset, 0, viewport.zoom.Multiply(DPR))
       );
 
       layer.Traverse(stack =>
@@ -82,6 +83,6 @@ export class CanvasTree {
   private ResetCanvas(ctx: CanvasRenderingContext2D) {
     const canvas = ctx.canvas;
     ctx.resetTransform();
-    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+    ctx.clearRect(0, 0, canvas.clientWidth * DPR, canvas.clientHeight * DPR);
   }
 }

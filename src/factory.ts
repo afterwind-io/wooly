@@ -1,4 +1,5 @@
 import { Engine } from "./core/engine";
+import { DPR } from "./core/globals";
 
 /**
  * Initialize a new engine instance.
@@ -17,8 +18,10 @@ export function Create(
   h: number = 480
 ): Engine {
   const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = w * DPR;
+  canvas.height = h * DPR;
+  canvas.style.width = `${w}px`;
+  canvas.style.height = `${h}px`;
 
   container.appendChild(canvas);
 
