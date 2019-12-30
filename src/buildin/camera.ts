@@ -21,11 +21,9 @@ export class Camera extends Entity {
   }
 
   public _Update() {
-    const position = this.GlobalPosition;
-    this.Viewport.SetOrigin(position);
-
-    const rotation = this.GlobalRotation;
-    this.Viewport.SetRotation(rotation);
+    this.Viewport.SetOrigin(this.GlobalPosition);
+    this.Viewport.SetRotation(this.GlobalRotation);
+    this.Viewport.SetZoom(this.scale);
 
     let offset = this.offset;
     if (this.isCentered) {
@@ -47,13 +45,11 @@ export class Camera extends Entity {
   }
 
   public Rotate(delta: number) {
-    const rotation = this.Viewport.rotation + delta;
-    this.Viewport.SetRotation(rotation);
+    this.rotation = this.rotation + delta;
   }
 
   public Zoom(delta: Vector2) {
-    const zoom = this.Viewport.zoom.Add(delta);
-    this.Viewport.SetZoom(zoom);
+    this.scale = this.scale.Add(delta);
   }
 
   private get Viewport(): Viewport {
