@@ -1,36 +1,10 @@
 import { Vector2 } from "../util/vector2";
 
 export class Viewport {
-  private static me: Viewport;
-
-  private offset: Vector2 = new Vector2();
-  private origin: Vector2 = new Vector2();
-  private rotation: number = 0;
-  private zoom: Vector2 = new Vector2(1, 1);
-
-  public static get Current(): Viewport {
-    if (Viewport.me === void 0) {
-      Viewport.me = new Viewport();
-    }
-
-    return Viewport.me;
-  }
-
-  public get Offset(): Vector2 {
-    return this.offset;
-  }
-
-  public get Origin(): Vector2 {
-    return this.origin;
-  }
-
-  public get Rotation(): number {
-    return this.rotation;
-  }
-
-  public get Zoom(): Vector2 {
-    return this.zoom;
-  }
+  public offset: Vector2 = new Vector2();
+  public origin: Vector2 = new Vector2();
+  public rotation: number = 0;
+  public zoom: Vector2 = new Vector2(1, 1);
 
   public SetOffset(offset: Vector2): this {
     return (this.offset = offset), this;
@@ -48,3 +22,28 @@ export class Viewport {
     return (this.zoom = zoom), this;
   }
 }
+
+export const ViewportRegistry = new (class ViewportRegistry {
+  private registry: Record<number, Viewport> = {};
+
+  public Add(id: number = 0, viewport?: Viewport) {
+    if (id in this.registry) {
+      throw new Error(`[wooly] Can not add duplicate viewport: ${id}.`);
+    }
+
+    this.registry[id] = viewport || new Viewport();
+  }
+
+  public Get(id: number): Viewport {
+    const viewport = this.registry[id];
+    if (!viewport) {
+      throw new Error(`[wooly] Viewport[${id}] not exists.`);
+    }
+
+    return viewport;
+  }
+
+  public Remove(id: number) {
+    delete this.registry[id];
+  }
+})();

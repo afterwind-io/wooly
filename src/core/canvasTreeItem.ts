@@ -1,5 +1,5 @@
 import { Node } from "./node";
-import { Viewport } from "./viewport";
+import { ViewportRegistry } from "./viewport";
 import { GetTransformMatrix } from "../util/common";
 import { Vector2 } from "../util/vector2";
 
@@ -12,6 +12,14 @@ import { Vector2 } from "../util/vector2";
  * @extends {Node}
  */
 export abstract class CanvasTreeItem extends Node {
+  /**
+   * Set or create the canvas layer the node currently at.
+   *
+   * @type {number}
+   * @memberof CanvasTreeItem
+   */
+  public layer: number = 0;
+
   /**
    * The local position relative to parent.
    *
@@ -68,24 +76,24 @@ export abstract class CanvasTreeItem extends Node {
 
   /**
    * Indicate whether to enable custom drawing.
-   * 
+   *
    * In other words, if you need to override the `_Draw` method,
    * remember setting this flag to `true`.
-   * 
+   *
    * @example
    * ```typescript
    * export class MyEntity extends Entity {
    *   // Directly declare a property...
    *   public readonly customDrawing: boolean = true;
-   * 
+   *
    *   public _Ready() {
    *     // ...**Or** do it here ...
    *     this.customDrawing = true;
    *   }
-   *   
+   *
    *   public _Draw(ctx: CanvasRenderingContext2D) {
    *     // ...If you need some custom drawing
-   * 
+   *
    *     // blahblah...
    *   }
    * }
@@ -119,6 +127,18 @@ export abstract class CanvasTreeItem extends Node {
    * @memberof CanvasTreeItem
    */
   protected parent: CanvasTreeItem | null = null;
+
+  /**
+   * [**Internal**]
+   * **Do not modify this manually**
+   *
+   * The cache value of `GlobalLayer`.
+   *
+   * @private
+   * @type {number}
+   * @memberof CanvasTreeItem
+   */
+  private $freezedGlobalLayer: number = 0;
 
   /**
    * [**Internal**]
@@ -167,6 +187,29 @@ export abstract class CanvasTreeItem extends Node {
    * @memberof CanvasTreeItem
    */
   private $freezedGlobalZIndex: number = 0;
+
+  /**
+   * The actual layer on screen.
+   *
+   * @readonly
+   * @type {number}
+   * @memberof CanvasTreeItem
+   */
+  public get GlobalLayer(): number {
+    if (this.isFreezed) {
+      return this.$freezedGlobalLayer;
+    }
+
+    if (this.layer !== 0) {
+      return this.layer;
+    }
+
+    if (this.parent) {
+      return this.parent.GlobalLayer;
+    }
+
+    return 0;
+  }
 
   /**
    * The actual position on screen.
@@ -278,13 +321,11 @@ export abstract class CanvasTreeItem extends Node {
 
     ctx.save();
 
-    const viewportOrigin = Viewport.Current.Origin;
-    const viewportRotation = Viewport.Current.Rotation;
-
-    const position = this.GlobalPosition.Substract(viewportOrigin).Rotate(
-      -viewportRotation
+    const viewport = ViewportRegistry.Get(this.GlobalLayer);
+    const position = this.GlobalPosition.Substract(viewport.origin).Rotate(
+      -viewport.rotation
     );
-    const rotation = this.GlobalRotation - viewportRotation;
+    const rotation = this.GlobalRotation - viewport.rotation;
     const scale = this.GlobalScale;
     ctx.transform(...GetTransformMatrix(position, rotation, scale));
 
@@ -308,6 +349,7 @@ export abstract class CanvasTreeItem extends Node {
    * @memberof CanvasTreeItem
    */
   public $Freeze() {
+    this.$freezedGlobalLayer = this.GlobalLayer;
     this.$freezedGlobalPosition = this.GlobalPosition;
     this.$freezedGlobalRotation = this.GlobalRotation;
     this.$freezedGlobalScale = this.GlobalScale;
@@ -350,6 +392,17 @@ export abstract class CanvasTreeItem extends Node {
   public Scale(scaleX: number, scaleY: number = scaleX) {
     this.scale.x = this.scale.x * scaleX;
     this.scale.y = this.scale.y * scaleY;
+  }
+
+  /**
+   * Set the layer of the node.
+   *
+   * @param {number} layer The index of the layer.
+   * @returns {this} This instance of the node.
+   * @memberof CanvasTreeItem
+   */
+  public SetLayer(layer: number): this {
+    return (this.layer = layer), this;
   }
 
   /**
