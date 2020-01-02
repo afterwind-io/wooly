@@ -39,6 +39,10 @@ export class Vector2 {
     return new Vector2(this.x - v.x, this.y - v.y);
   }
 
+  public Equals(v: Vector2): boolean {
+    return this.x === v.x && this.y === v.y;
+  }
+
   public Flip(): Vector2 {
     return new Vector2(-this.x, -this.y);
   }
