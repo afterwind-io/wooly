@@ -1,77 +1,103 @@
 import { Vector2 } from "../../util/vector2";
 
 export const BUTTON_LEFT = 0;
+export const BUTTON_MIDDLE = 1;
 export const BUTTON_RIGHT = 2;
 
-function Init(target: HTMLElement) {
-  target.oncontextmenu = e => e.preventDefault();
+export const Input = new (class Input {
+  private mouseButtonMap: Record<number, boolean> = {};
+  private mousePos: Vector2 = new Vector2();
+  private prevMousePos: Vector2 = new Vector2();
 
-  target.onmousedown = OnMouseDown;
-  target.onmouseup = OnMouseUp;
-  target.onmousemove = OnMouseMove;
-  document.onkeydown = OnKeyDown;
-  document.onkeyup = OnKeyUp;
-}
+  private keyDownMap: Record<string, boolean> = {};
+  private keyPressMap: Record<string, boolean> = {};
+  private prevKey: string = "";
 
-const mousePos: Vector2 = new Vector2();
-const buttonMap: Record<number, boolean> = {};
+  // FIXME 这个选项不应该放在这里设置
+  private isEnableContentMenu: boolean = false;
 
-function OnMouseDown(e: MouseEvent) {
-  buttonMap[e.button] = true;
-}
+  public Attach(target: HTMLElement) {
+    document.addEventListener("keydown", this.OnKeyDown);
+    document.addEventListener("keyup", this.OnKeyUp);
 
-function OnMouseUp(e: MouseEvent) {
-  buttonMap[e.button] = false;
-}
+    target.addEventListener("contextmenu", this.OnContextMenu);
 
-function OnMouseMove(e: MouseEvent) {
-  mousePos.x = e.offsetX;
-  mousePos.y = e.offsetY;
-}
+    target.addEventListener("mousedown", this.OnMouseDown, { passive: true });
+    target.addEventListener("mousemove", this.OnMouseMove, { passive: true });
+    target.addEventListener("mouseup", this.OnMouseUp, { passive: true });
+  }
 
-let lastKey: string = "";
-let switchMap: Record<string, boolean> = {};
-let pressMap: Record<string, boolean> = {};
+  public EnableContextMenu(f: boolean) {
+    this.isEnableContentMenu = f;
+  }
 
-function OnKeyDown(e: KeyboardEvent) {
-  const key = e.key;
+  public GetMousePosition(): Vector2 {
+    return this.mousePos.Clone();
+  }
 
-  switchMap[key] = true;
-  pressMap[key] = true;
-  pressMap[lastKey] = false;
+  public IsKeyDown(key: string): boolean {
+    return !!this.keyDownMap[key];
+  }
 
-  lastKey = key;
-}
-
-function OnKeyUp(e: KeyboardEvent) {
-  switchMap[e.key] = false;
-  pressMap[e.key] = false;
-
-  lastKey = "";
-}
-
-export const Input = {
-  Init,
-  GetMousePosition(): Vector2 {
-    return new Vector2(mousePos.x, mousePos.y);
-  },
-  IsKeyDown(key: string): boolean {
-    return !!switchMap[key];
-  },
-  IsKeyPress(key: string): boolean {
-    const f = !!pressMap[key];
+  public IsKeyPress(key: string): boolean {
+    const f = !!this.keyPressMap[key];
     /**
      * 如果按键查询发生频率很高(Entity的Update中)，
-     * 会发生OnKeyUp来不及重置pressMap的情况。
+     * 会发生OnKeyUp来不及重置keyPressMap的情况。
      * 因此在keypress为true的情况下，直接在查询中
      * 将值置为false，以防止下次查询出现伪真值的问题
      */
     if (f) {
-      pressMap[key] = false;
+      this.keyPressMap[key] = false;
     }
     return f;
-  },
-  IsMouseDown(btn: number): boolean {
-    return !!buttonMap[btn];
   }
-};
+
+  public IsMouseDown(btn: number): boolean {
+    return !!this.mouseButtonMap[btn];
+  }
+
+  public IsMouseMoved(): boolean {
+    return this.mousePos.Equals(this.prevMousePos);
+  }
+
+  private OnContextMenu = (e: MouseEvent) => {
+    if (this.isEnableContentMenu) {
+      return;
+    }
+
+    e.preventDefault();
+  };
+
+  private OnKeyDown = (e: KeyboardEvent) => {
+    const key = e.key;
+
+    this.keyDownMap[key] = true;
+    this.keyPressMap[key] = true;
+    this.keyPressMap[this.prevKey] = false;
+
+    this.prevKey = key;
+  };
+
+  private OnKeyUp = (e: KeyboardEvent) => {
+    this.keyDownMap[e.key] = false;
+    this.keyPressMap[e.key] = false;
+
+    this.prevKey = "";
+  };
+
+  private OnMouseDown = (e: MouseEvent) => {
+    this.mouseButtonMap[e.button] = true;
+  };
+
+  private OnMouseMove = (e: MouseEvent) => {
+    this.prevMousePos.x = this.mousePos.x;
+    this.prevMousePos.y = this.mousePos.y;
+    this.mousePos.x = e.offsetX;
+    this.mousePos.y = e.offsetY;
+  };
+
+  private OnMouseUp = (e: MouseEvent) => {
+    this.mouseButtonMap[e.button] = false;
+  };
+})();

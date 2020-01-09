@@ -1,3 +1,4 @@
+import { Input } from "./buildin/media/input";
 import { Engine } from "./core/engine";
 import { DPR } from "./core/globals";
 
@@ -25,5 +26,6 @@ export function Create(
 
   container.appendChild(canvas);
 
+  Input.Attach(canvas);
   return Engine.Create(canvas, backend);
 }
