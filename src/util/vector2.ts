@@ -23,6 +23,10 @@ export class Vector2 {
     return Math.atan2(p.y - this.y, p.x - this.x);
   }
 
+  public Clone(): Vector2 {
+    return new Vector2(this.x, this.y);
+  }
+
   public DistanceTo(v: Vector2): number {
     return this.Substract(v).Length;
   }
