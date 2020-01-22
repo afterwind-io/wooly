@@ -19,8 +19,8 @@ export class Collision extends Entity {
 
   public type: CollisionType = COLLISION_CIRCLE;
   public radius: number = 0;
-  public layer!: CollisionLayer;
-  public mask: CollisionMask = -1;
+  public collisionLayer!: CollisionLayer;
+  public collisionMask: CollisionMask = -1;
   public owner: Entity | null = null;
 
   private rectVerticesGetter: (
@@ -37,7 +37,7 @@ export class Collision extends Entity {
     this.visible = false;
 
     this.rectVerticesGetter = Memorize(GetRectangleVertices);
-    this.SetLayer(0);
+    this.SetCollisionLayer(0);
   }
 
   public get Vertices(): Vector2[] {
@@ -85,7 +85,7 @@ export class Collision extends Entity {
     let collisions = [];
 
     for (const layer of CollisionLayers) {
-      if (this.mask === -1 || this.mask & layer) {
+      if (this.collisionMask === -1 || this.collisionMask & layer) {
         for (const obj of CollisionLayerMap[layer]) {
           obj !== this && this.IsCollidedWith(obj) && collisions.push(obj);
         }
@@ -99,8 +99,8 @@ export class Collision extends Entity {
     return (this.radius = r), this;
   }
 
-  public SetLayer(l: CollisionLayer): this {
-    if (l !== this.layer) {
+  public SetCollisionLayer(l: CollisionLayer): this {
+    if (l !== this.collisionLayer) {
       this.RemoveFromMap();
     } else {
       return this;
@@ -115,11 +115,11 @@ export class Collision extends Entity {
     }
 
     CollisionLayerMap[l].push(this);
-    return (this.layer = l), this;
+    return (this.collisionLayer = l), this;
   }
 
-  public SetMask(m: number): this {
-    return (this.mask = m), this;
+  public SetCollisionMask(m: number): this {
+    return (this.collisionMask = m), this;
   }
 
   public SetOwner(o: Entity): this {
@@ -139,13 +139,13 @@ export class Collision extends Entity {
   }
 
   private RemoveFromMap() {
-    const layer = CollisionLayerMap[this.layer];
+    const layer = CollisionLayerMap[this.collisionLayer];
     if (!layer) {
       return;
     }
 
     const index = layer.findIndex(o => o === this);
-    index !== -1 && CollisionLayerMap[this.layer].splice(index, 1);
+    index !== -1 && CollisionLayerMap[this.collisionLayer].splice(index, 1);
   }
 
   private TestCircle2Circle(target: Collision): boolean {
