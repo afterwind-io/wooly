@@ -10,6 +10,8 @@ export class Sprite extends Entity {
   public offset: Vector2 = new Vector2();
 
   protected image: HTMLImageElement = new Image();
+  protected isFlipH: boolean = false;
+  protected isFlipV: boolean = false;
   protected isImageLoaded: boolean = false;
   protected isSmoothImage: boolean = true;
   protected isCentered: boolean = false;
@@ -35,16 +37,25 @@ export class Sprite extends Entity {
     const dw = this.w || sw;
     const dh = this.h || sh;
 
+    const fh = this.isFlipH;
+    const fv = this.isFlipV;
+    if (fh || fv) {
+      ctx.scale(fh ? -1 : 1, fv ? -1 : 1);
+    }
+
+    const ddx = fh ? -dx - dw : dx;
+    const ddy = fv ? -dy - dh : dy;
+
     ctx.imageSmoothingEnabled = this.isSmoothImage;
-    ctx.drawImage(this.image, sx, sy, sw, sh, dx, dy, dw, dh);
+    ctx.drawImage(this.image, sx, sy, sw, sh, ddx, ddy, dw, dh);
   }
 
   /**
    * Set the actual display region from the source image.
-   * 
+   *
    * You can **clip** a sub-rectangle from the source image, by specifying
    * a top-left starting point, and the width and height of the region.
-   * 
+   *
    * If the `sw` is not specified, the entire width from the `sx` to the right
    * will be applied. Also, if the `sh` is not specified, the entire height from
    * the `sy` to the bottom will be applied.
@@ -57,7 +68,7 @@ export class Sprite extends Entity {
    * The width of the sub-rectangle of the source image;
    * @param {number} [sh=0]
    * The height of the sub-rectangle of the source image;
-   * 
+   *
    * @returns {this}
    * @memberof Sprite
    */
@@ -68,6 +79,28 @@ export class Sprite extends Entity {
     this.clipSize.y = sh;
 
     return this;
+  }
+
+  /**
+   * Determine whether the image should be flipped horizontally.
+   *
+   * @param {boolean} f The flag. If `true`, the image flipped horizontally.
+   * @returns {this} This instance of the `Sprite`.
+   * @memberof Sprite
+   */
+  public SetFlipH(f: boolean): this {
+    return (this.isFlipH = f), this;
+  }
+
+  /**
+   * Determine whether the image should be flipped vertically.
+   *
+   * @param {boolean} f The flag. If `true`, the image flipped vertically.
+   * @returns {this} This instance of the `Sprite`.
+   * @memberof Sprite
+   */
+  public SetFlipV(f: boolean): this {
+    return (this.isFlipV = f), this;
   }
 
   /**
