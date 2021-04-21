@@ -31,6 +31,10 @@ export const Input = new (class Input {
     this.isEnableContentMenu = f;
   }
 
+  public GetMouseDelta(): Vector2 {
+    return this.mousePos.Substract(this.prevMousePos);
+  }
+
   public GetMousePosition(): Vector2 {
     return this.mousePos.Clone();
   }
