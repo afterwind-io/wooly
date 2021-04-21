@@ -3,7 +3,7 @@ import { Vector2 } from "../util/vector2";
 
 export class Sprite extends Entity {
   public readonly customDrawing: boolean = true;
-  public name: string = "Sprite";
+  public readonly name: string = "Sprite";
 
   public clipOrigin: Vector2 = new Vector2();
   public clipSize: Vector2 = new Vector2();
@@ -16,10 +16,20 @@ export class Sprite extends Entity {
   protected isSmoothImage: boolean = true;
   protected isCentered: boolean = false;
 
-  public constructor() {
+  /**
+   * Creates an instance of Sprite.
+   *
+   * @param {string} [path] Anything fits into DOM `Image.src` property.
+   * @memberof Sprite
+   */
+  public constructor(path?: string) {
     super();
 
     this.image.onload = this.onImageLoad.bind(this);
+
+    if (path !== undefined) {
+      this.SetImage(path);
+    }
   }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
