@@ -7,8 +7,8 @@ export class SystemTimer {
   }
 
   public Tick(): number {
-    const timestamp = performance.now();
-    
+    const timestamp = performance.now() / 1000;
+
     this.lastDelta = timestamp - this.lastUpdate;
     this.lastUpdate = timestamp;
 

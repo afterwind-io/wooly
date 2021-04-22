@@ -48,7 +48,7 @@ export class Inspector extends Entity {
   public readonly name: string = "Inspector";
 
   private mode: number = 0;
-  private timer: Timer = new Timer(1000, true);
+  private timer: Timer = new Timer(1, true);
 
   private labelFPS: Label = new Label();
   private labelEntityCounter = new Label();
@@ -107,7 +107,7 @@ export class Inspector extends Entity {
 
   private RefreshFPS() {
     const delta = Engine.GetDelta();
-    const fps = Math.round(100000 / delta) / 100;
+    const fps = Math.round(100 / delta) / 100;
 
     this.labelFPS.SetContent(`FPS: ${fps}`);
   }

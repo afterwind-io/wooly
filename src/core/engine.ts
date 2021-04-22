@@ -44,7 +44,7 @@ export class Engine {
    * Get last frame delta time.
    *
    * @static
-   * @returns {number} Delta time in `ms`.
+   * @returns {number} Delta time in seconds.
    * @memberof Engine
    */
   public static GetDelta(): number {
