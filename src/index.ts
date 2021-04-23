@@ -6,12 +6,7 @@ export { Engine } from "./core/engine";
 export { Entity, EntitySignals } from "./core/entity";
 
 // media
-export {
-  Input,
-  BUTTON_LEFT,
-  BUTTON_MIDDLE,
-  BUTTON_RIGHT
-} from "./buildin/media/input";
+export { Input } from "./buildin/media/input";
 export { _Audio as Audio } from "./buildin/media/audio";
 
 // buildins

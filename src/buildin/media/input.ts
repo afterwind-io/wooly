@@ -1,10 +1,10 @@
 import { Vector2 } from "../../util/vector2";
 
-export const BUTTON_LEFT = 0;
-export const BUTTON_MIDDLE = 1;
-export const BUTTON_RIGHT = 2;
-
 export const Input = new (class Input {
+  public readonly BUTTON_LEFT: number = 0;
+  public readonly BUTTON_MIDDLE: number = 1;
+  public readonly BUTTON_RIGHT: number = 2;
+
   private mouseButtonMap: Record<number, boolean> = {};
   private mousePos: Vector2 = new Vector2();
   private prevMousePos: Vector2 = new Vector2();
