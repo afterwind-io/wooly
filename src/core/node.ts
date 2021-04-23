@@ -150,6 +150,29 @@ export abstract class Node {
   }
 
   /**
+   * [**Internal**]
+   * **Do not call this manually**
+   *
+   * Trigger the `_Ready` lifecycle.
+   *
+   * @internal
+   * @returns
+   * @memberof Node
+   */
+  public $Ready() {
+    if (this.state === NodeState.Ready) {
+      return;
+    }
+
+    this.state = NodeState.Ready;
+    this._Ready();
+
+    for (const child of this.children) {
+      child.$Ready();
+    }
+  }
+
+  /**
    * Add a child node to the tree. Usually You may call this method during
    * lifecycle events such as `_Ready` and `_Update`, or other callbacks.
    *
@@ -184,8 +207,9 @@ export abstract class Node {
 
     this.children.push(item);
 
-    item.state = NodeState.Ready;
-    item._Ready();
+    if (this.state === NodeState.Ready) {
+      item.$Ready();
+    }
   }
 
   /**

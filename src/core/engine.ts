@@ -104,6 +104,8 @@ export class Engine {
       );
     }
 
+    this.nodeRoot.$Ready();
+
     this.Loop();
   }
 
