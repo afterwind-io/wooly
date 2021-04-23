@@ -77,6 +77,18 @@ export class Engine {
     return Engine.me.ctx.canvas;
   }
 
+  /**
+   * Specify the color to clear the canvas.
+   *
+   * @param {string} color
+   * A string value fits the `CanvasRenderingContext2D.fillStyle` property.
+   *
+   * @memberof Engine
+   */
+  public SetClearColor(color: string) {
+    this.canvasRoot.SetClearColor(color);
+  }
+
   public SetRoot(root: Entity) {
     if (this.nodeRoot) {
       this.nodeRoot.Free();

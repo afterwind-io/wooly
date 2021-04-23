@@ -6,6 +6,7 @@ import { OrderedLinkedList } from "./struct/orderedLinkedList";
 import { LinkedList } from "./struct/linkedList";
 
 export class CanvasTree {
+  private clearColor: string = "white";
   private layerMap: OrderedLinkedList<
     OrderedLinkedList<LinkedList<CanvasTreeItem>>
   > = new OrderedLinkedList();
@@ -20,6 +21,10 @@ export class CanvasTree {
     this.ClearTree();
     this.RebuildTree(root);
     this.DrawTree(ctx);
+  }
+
+  public SetClearColor(color: string) {
+    this.clearColor = color;
   }
 
   private Add(value: CanvasTreeItem, layerIndex: number) {
@@ -84,7 +89,7 @@ export class CanvasTree {
     const canvas = ctx.canvas;
     ctx.resetTransform();
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = this.clearColor;
     ctx.fillRect(0, 0, canvas.clientWidth * DPR, canvas.clientHeight * DPR);
   }
 }
