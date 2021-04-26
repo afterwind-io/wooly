@@ -51,6 +51,12 @@ export class Vector2 {
     return new Vector2(-this.x, -this.y);
   }
 
+  public Lerp(target: Vector2, t: number): Vector2 {
+    const x = (1 - t) * this.x + t * target.x;
+    const y = (1 - t) * this.y + t * target.y;
+    return new Vector2(x, y);
+  }
+
   public Multiply(r: number): Vector2 {
     return new Vector2(this.x * r, this.y * r);
   }
