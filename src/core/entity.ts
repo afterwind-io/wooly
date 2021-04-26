@@ -2,6 +2,9 @@ import { CanvasTreeItem } from "./canvasTreeItem";
 import { Signal } from "./signal";
 import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
+import { Input } from "../buildin/media/input";
+import { ViewportRegistry } from "./viewport";
+import { DPR } from "./globals";
 
 /**
  * The global entity group map.
@@ -232,6 +235,38 @@ export abstract class Entity<
   }
 
   /**
+   * Check if the cursor hovering over the rect of the Entity,
+   * aka hit test.
+   *
+   * @returns {boolean}
+   * @memberof Entity
+   */
+  public IsMouseWithin(): boolean {
+    const B = this.GetScreenPosition();
+    const A = this.GetScreenPosition(this.position.Add(new Vector2(0, this.h)));
+    const C = this.GetScreenPosition(this.position.Add(new Vector2(this.w, 0)));
+    const M = Input.GetMousePosition();
+
+    let projection: number = 0;
+
+    const ab = B.Substract(A);
+    const am = M.Substract(A);
+    projection = ab.DotProduct(am);
+    if (projection < 0 || ab.DotProduct(ab) < projection) {
+      return false;
+    }
+
+    const bc = C.Substract(B);
+    const bm = M.Substract(B);
+    projection = bc.DotProduct(bm);
+    if (projection < 0 || bc.DotProduct(bc) < projection) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * A helper method to rotate the node towards the target point.
    *
    * Note that the "forward" here is actually the right side of the node,
@@ -324,5 +359,38 @@ export abstract class Entity<
     }
 
     super.$SelfDestroy();
+  }
+
+  /**
+   * [**Internal**]
+   * **Do not call this manually**
+   *
+   * Calculate the actual screen position of a specified point relative to the
+   * current entity.
+   *
+   * @protected
+   * @internal
+   * @param {Vector2} [point]
+   * The point relative to the current entity. If not given, returns the result
+   * of current local position.
+   * 
+   * @returns {Vector2}
+   * @memberof Entity
+   */
+  protected GetScreenPosition(point?: Vector2): Vector2 {
+    let position: Vector2 = point || this.position;
+    if (this.parent) {
+      position = position
+        .Dot(this.parent.GlobalScale)
+        .Rotate(this.parent.GlobalRotation)
+        .Add(this.parent.GlobalPosition);
+    }
+
+    const viewport = ViewportRegistry.Get(this.GlobalLayer);
+    return position
+      .Substract(viewport.origin)
+      .Rotate(-viewport.rotation)
+      .Dot(viewport.zoom)
+      .Add(viewport.offset.Multiply(1 / DPR));
   }
 }
