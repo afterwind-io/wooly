@@ -327,7 +327,10 @@ export abstract class CanvasTreeItem extends Node {
     );
     const rotation = this.GlobalRotation - viewport.rotation;
     const scale = this.GlobalScale;
-    ctx.transform(...GetTransformMatrix(position, rotation, scale));
+
+    ctx.translate(position.x, position.y);
+    ctx.rotate(rotation);
+    ctx.scale(scale.x, scale.y);
 
     this._Draw(ctx);
 
