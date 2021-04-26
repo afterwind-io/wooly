@@ -1,6 +1,5 @@
 import { CanvasTree } from "./canvasTree";
 import { Entity } from "./entity";
-import { DPR } from "./globals";
 import { SystemSignal } from "./systemSignal";
 import { Node } from "./node";
 import { Vector2 } from "../util/vector2";
@@ -60,7 +59,7 @@ export class Engine {
    */
   public static GetDimension(): Vector2 {
     const canvas = Engine.me.GetHost();
-    return new Vector2(canvas.clientWidth / DPR, canvas.clientHeight / DPR);
+    return new Vector2(canvas.clientWidth, canvas.clientHeight);
   }
 
   /**
