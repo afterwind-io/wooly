@@ -1,21 +1,22 @@
 import { SingleChildWidget } from '../ui/foundation/singleChildWidget';
-import { Input } from '../media/input';
 import { Container } from '../ui/container';
 import { Edge } from '../ui/common/edge';
+import { Text } from '../ui/text';
+import { Timer } from '../timer';
+import { Engine } from '../../core/engine';
 import { Flex } from '../ui/flex';
 import { Checkbox } from '../ui/checkbox';
-import { Text } from '../ui/text';
 
-export class InspectorMouseIndicator extends SingleChildWidget {
-  public readonly name: string = 'InspectorMouseIndicator';
+export class InspectorFPS extends SingleChildWidget {
+  public readonly name: string = 'InspectorFPS';
 
-  protected isLooseBox: boolean = false;
+  protected readonly isLooseBox: boolean = false;
 
   private $checkbox!: Checkbox;
+  private $label!: Text;
+  private $timer!: Timer;
 
   private _enabled: boolean = true;
-  private _x: number = 0;
-  private _y: number = 0;
 
   public _Ready() {
     this.AddChild(
@@ -31,9 +32,9 @@ export class InspectorMouseIndicator extends SingleChildWidget {
                 checked: this._enabled,
               })),
             }),
-            new Text({
-              content: 'Mouse Indicator',
-            }),
+            (this.$label = new Text({
+              content: 'FPS',
+            })),
           ],
         }),
       })
@@ -42,29 +43,20 @@ export class InspectorMouseIndicator extends SingleChildWidget {
     this.$checkbox.Connect('OnToggle', (checked) => {
       this._enabled = checked;
     });
+
+    this.$timer = new Timer(1, true);
+    this.$timer.Connect('OnTimeout', this.Refresh, this);
+    this.AddChild(this.$timer);
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    super._Draw(ctx);
+  private Refresh() {
+    let content = '-';
 
-    if (!this._enabled) {
-      return;
+    if (this._enabled) {
+      const delta = Engine.GetDelta();
+      content = `${Math.round(100 / delta) / 100}`;
     }
 
-    const x = this._x;
-    const y = this._y;
-
-    ctx.fillStyle = 'grey';
-    ctx.fillRect(x, y - 16, 1, 32);
-    ctx.fillRect(x - 16, y, 32, 1);
-    ctx.fillText(`${x},${y}`, x + 5, y - 5);
-  }
-
-  public _Update(delta: number) {
-    super._Update(delta);
-
-    const { x, y } = Input.GetMousePosition();
-    this._x = x;
-    this._y = y;
+    this.$label.SetContent(`FPS: ${content}`);
   }
 }
