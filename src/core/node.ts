@@ -93,7 +93,7 @@ export abstract class Node {
    * @type {Node[]}
    * @memberof Node
    */
-  private children: Node[] = [];
+  protected children: Node[] = [];
 
   /**
    * [**Internal**]

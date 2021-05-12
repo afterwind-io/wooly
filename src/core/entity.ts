@@ -1,10 +1,10 @@
-import { CanvasTreeItem } from "./canvasTreeItem";
-import { Signal } from "./signal";
-import { ParamType } from "../util/common";
-import { Vector2 } from "../util/vector2";
-import { Input } from "../buildin/media/input";
-import { ViewportRegistry } from "./viewport";
-import { DPR } from "./globals";
+import { CanvasTreeItem } from './canvasTreeItem';
+import { Signal } from './signal';
+import { ParamType } from '../util/common';
+import { Vector2 } from '../util/vector2';
+import { Input } from '../buildin/media/input';
+import { ViewportRegistry } from './viewport';
+import { DPR } from './globals';
 
 /**
  * The global entity group map.
@@ -89,7 +89,7 @@ export abstract class Entity<
    * @type {string}
    * @memberof Entity
    */
-  public name: string = "";
+  public name: string = '';
 
   /**
    * The width of the node.
@@ -241,10 +241,13 @@ export abstract class Entity<
    * @returns {boolean}
    * @memberof Entity
    */
-  public IsMouseWithin(): boolean {
+  public IsMouseWithin(
+    width: number = this.w,
+    height: number = this.h
+  ): boolean {
     const B = this.GetScreenPosition();
-    const A = this.GetScreenPosition(this.position.Add(new Vector2(0, this.h)));
-    const C = this.GetScreenPosition(this.position.Add(new Vector2(this.w, 0)));
+    const A = this.GetScreenPosition(this.position.Add(new Vector2(0, height)));
+    const C = this.GetScreenPosition(this.position.Add(new Vector2(width, 0)));
     const M = Input.GetMousePosition();
 
     let projection: number = 0;
@@ -350,7 +353,7 @@ export abstract class Entity<
    */
   protected $SelfDestroy() {
     // @ts-ignore
-    this.signals.Emit("OnDestroy");
+    this.signals.Emit('OnDestroy');
 
     this.signals.Clear();
 
@@ -373,7 +376,7 @@ export abstract class Entity<
    * @param {Vector2} [point]
    * The point relative to the current entity. If not given, returns the result
    * of current local position.
-   * 
+   *
    * @returns {Vector2}
    * @memberof Entity
    */
