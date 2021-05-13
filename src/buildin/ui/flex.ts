@@ -20,7 +20,7 @@ export const enum FlexCrossAxisAlignment {
   Start,
   Center,
   End,
-  stretch,
+  Stretch,
 }
 
 interface FlexOptions extends WidgetOptions {
@@ -98,7 +98,7 @@ export class Flex extends Widget {
           case FlexDirection.Horizontal:
             childConstraint = new Constraint({
               minHeight:
-                crossAxisAlignment === FlexCrossAxisAlignment.stretch
+                crossAxisAlignment === FlexCrossAxisAlignment.Stretch
                   ? localConstraint.maxHeight
                   : 0,
               maxHeight: localConstraint.maxHeight,
@@ -108,7 +108,7 @@ export class Flex extends Widget {
           case FlexDirection.Vertical:
             childConstraint = new Constraint({
               minWidth:
-                crossAxisAlignment === FlexCrossAxisAlignment.stretch
+                crossAxisAlignment === FlexCrossAxisAlignment.Stretch
                   ? localConstraint.maxWidth
                   : 0,
               maxWidth: localConstraint.maxWidth,
@@ -154,7 +154,7 @@ export class Flex extends Widget {
           childConstraint = new Constraint({
             maxWidth: flexLength,
             minHeight:
-              crossAxisAlignment === FlexCrossAxisAlignment.stretch
+              crossAxisAlignment === FlexCrossAxisAlignment.Stretch
                 ? localConstraint.maxHeight
                 : 0,
             maxHeight: localConstraint.maxHeight,
@@ -164,7 +164,7 @@ export class Flex extends Widget {
         case FlexDirection.Vertical:
           childConstraint = new Constraint({
             minWidth:
-              crossAxisAlignment === FlexCrossAxisAlignment.stretch
+              crossAxisAlignment === FlexCrossAxisAlignment.Stretch
                 ? localConstraint.maxWidth
                 : 0,
             maxWidth: localConstraint.maxWidth,
@@ -256,7 +256,7 @@ export class Flex extends Widget {
       let crossAxisLeading = 0;
       switch (this._crossAxisAlignment) {
         case FlexCrossAxisAlignment.Start:
-        case FlexCrossAxisAlignment.stretch:
+        case FlexCrossAxisAlignment.Stretch:
           crossAxisLeading = 0;
           break;
         case FlexCrossAxisAlignment.Center:
