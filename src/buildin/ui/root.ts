@@ -2,7 +2,7 @@ import { Widget } from './foundation/widget';
 import { Constraint } from './common/constraint';
 import { Engine } from '../../core/engine';
 
-export class WidgetRoot extends Widget<any> {
+export class WidgetRoot extends Widget {
   public readonly name: string = 'WidgetRoot';
   public readonly customDrawing: boolean = true;
 

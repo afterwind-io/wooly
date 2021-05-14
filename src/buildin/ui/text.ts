@@ -1,9 +1,10 @@
-import { Widget, WidgetOptions } from './foundation/widget';
+import { Widget } from './foundation/widget';
 import { Size } from './common/types';
 import { Constraint } from './common/constraint';
 import { Engine } from '../../core/engine';
+import { CommonWidgetOptions } from './foundation/types';
 
-interface TextOptions extends WidgetOptions {
+interface TextOptions extends CommonWidgetOptions {
   content?: string;
   fontName?: string;
   fontSize?: number;

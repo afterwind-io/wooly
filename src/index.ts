@@ -59,7 +59,7 @@ export {
   MouseAction,
   MouseDragDrop,
   MouseMovement,
-} from './buildin/ui/foundation/widget';
+} from './buildin/ui/foundation/types';
 export { SingleChildWidget } from './buildin/ui/foundation/singleChildWidget';
 
 // utils

@@ -1,6 +1,10 @@
-import { Widget, WidgetOptions } from './foundation/widget';
+import { Widget } from './foundation/widget';
 import { Constraint } from './common/constraint';
 import { Size, Length } from './common/types';
+import {
+  CommonWidgetOptions,
+  MultiChildWidgetOptions,
+} from './foundation/types';
 
 export const enum FlexDirection {
   Horizontal,
@@ -23,7 +27,7 @@ export const enum FlexCrossAxisAlignment {
   Stretch,
 }
 
-interface FlexOptions extends WidgetOptions {
+interface FlexOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
   direction?: FlexDirection;
   mainAxisAlignment?: FlexMainAxisAlignment;
   crossAxisAlignment?: FlexCrossAxisAlignment;

@@ -1,18 +1,18 @@
 import { Constraint } from './common/constraint';
 import { Size } from './common/types';
 import { EntitySignals } from '../../core/entity';
+import { Widget } from './foundation/widget';
 import {
-  Widget,
-  MouseAction,
   MouseMovement,
-  WidgetOptions,
-} from './foundation/widget';
+  MouseAction,
+  CommonWidgetOptions,
+} from './foundation/types';
 
 interface RadioSignals extends EntitySignals {
   OnToggle: (value: any) => void;
 }
 
-interface RadioOptions extends WidgetOptions {
+interface RadioOptions extends CommonWidgetOptions {
   toggled?: boolean;
   value?: any;
 }

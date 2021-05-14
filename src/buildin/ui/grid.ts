@@ -1,8 +1,12 @@
-import { Widget, WidgetOptions } from './foundation/widget';
+import { Widget } from './foundation/widget';
 import { Constraint } from './common/constraint';
 import { Size, Length } from './common/types';
+import {
+  CommonWidgetOptions,
+  MultiChildWidgetOptions,
+} from './foundation/types';
 
-interface GridOptions extends WidgetOptions {
+interface GridOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
   mainAxisSpacing?: number;
   crossAxisSpacing?: number;
   crossAxisCount?: number;

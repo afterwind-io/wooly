@@ -1,18 +1,19 @@
 import { EntitySignals } from '../../core/entity';
-import { MouseAction, MouseMovement } from './foundation/widget';
+import {
+  MouseAction,
+  MouseMovement,
+  CommonWidgetOptions,
+} from './foundation/types';
 import { Center } from './center';
 import { Text } from './text';
-import {
-  SingleChildWidget,
-  SingleChildWidgetOptions,
-} from './foundation/singleChildWidget';
+import { SingleChildWidget } from './foundation/singleChildWidget';
 
 interface ButtonSignals extends EntitySignals {
   OnClick: () => void;
 }
 
-interface ButtonOptions extends Omit<SingleChildWidgetOptions, 'child'> {
-  label: string;
+interface ButtonOptions extends CommonWidgetOptions {
+  label?: string;
 }
 
 export class Button extends SingleChildWidget<ButtonSignals> {
@@ -22,7 +23,7 @@ export class Button extends SingleChildWidget<ButtonSignals> {
 
   private _label: string;
 
-  public constructor(options: ButtonOptions) {
+  public constructor(options: ButtonOptions = {}) {
     super(options);
 
     const { label = 'button' } = options;

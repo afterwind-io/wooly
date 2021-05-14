@@ -1,18 +1,18 @@
 import { EntitySignals } from '../../core/entity';
-import {
-  Widget,
-  MouseMovement,
-  MouseAction,
-  WidgetOptions,
-} from './foundation/widget';
 import { Constraint } from './common/constraint';
 import { Size } from './common/types';
+import {
+  MouseMovement,
+  MouseAction,
+  CommonWidgetOptions,
+} from './foundation/types';
+import { Widget } from './foundation/widget';
 
 interface CheckboxSignals extends EntitySignals {
   OnToggle: (checked: boolean) => void;
 }
 
-interface CheckboxOptions extends WidgetOptions {
+interface CheckboxOptions extends CommonWidgetOptions {
   checked?: boolean;
 }
 

@@ -1,13 +1,17 @@
 import { EntitySignals } from '../../../core/entity';
-import { Widget, WidgetOptions } from './widget';
+import { Widget } from './widget';
 import { Constraint } from '../common/constraint';
 import { Size, Length } from '../common/types';
 import { Clamp } from '../common/utils';
+import {
+  SingleChildWidgetOptions as _SingleChildWidgetOptions,
+  CommonWidgetOptions,
+  ContainerWidgetOptions,
+} from './types';
 
-export interface SingleChildWidgetOptions
-  extends Omit<WidgetOptions, 'children'> {
-  child?: Widget;
-}
+type SingleChildWidgetOptions = CommonWidgetOptions &
+  _SingleChildWidgetOptions &
+  ContainerWidgetOptions;
 
 export abstract class SingleChildWidget<
   SIGNAL extends EntitySignals = EntitySignals

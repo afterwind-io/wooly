@@ -4,6 +4,14 @@ import { Vector2 } from '../../../util/vector2';
 import { Size, Length } from '../common/types';
 import { Constraint } from '../common/constraint';
 import { Edge } from '../common/edge';
+import {
+  MouseAction,
+  MouseDragDrop,
+  MouseMovement,
+  CommonWidgetOptions,
+  MultiChildWidgetOptions,
+  ContainerWidgetOptions,
+} from './types';
 
 const DRAG_START_THRESHOLD = 10;
 
@@ -39,42 +47,9 @@ const DragDropState = new (class DragDropState {
   }
 })();
 
-export const enum MouseAction {
-  None,
-  MouseDown,
-  MouseUp,
-  MouseClick,
-}
-
-export const enum MouseDragDrop {
-  None,
-  DragFocus,
-  DragPending,
-  DragStart,
-  DragEnd,
-  DragEnter,
-  DragLeave,
-  DragMove,
-  Drop,
-}
-
-export const enum MouseMovement {
-  None,
-  MouseEnter,
-  MouseLeave,
-  MouseHover,
-}
-
-export interface WidgetOptions {
-  children?: Widget[];
-  cursor?: 'default' | 'pointer';
-  border?: Edge;
-  height?: Length;
-  margin?: Edge;
-  padding?: Edge;
-  width?: Length;
-  tag?: string;
-}
+export type WidgetOptions = CommonWidgetOptions &
+  MultiChildWidgetOptions &
+  ContainerWidgetOptions;
 
 export abstract class Widget<
   SIGNAL extends EntitySignals = EntitySignals
@@ -86,7 +61,6 @@ export abstract class Widget<
   public _intrinsicHeight: number = 0;
 
   public readonly tag: string;
-  public cursor: 'default' | 'pointer';
   public border: Edge;
   public padding: Edge;
   public margin: Edge;
@@ -104,7 +78,6 @@ export abstract class Widget<
     const {
       tag = '',
       children = [],
-      cursor = 'default',
       border = Edge.None,
       padding = Edge.None,
       margin = Edge.None,
@@ -112,7 +85,6 @@ export abstract class Widget<
       height = 'shrink',
     } = options;
     this.tag = tag;
-    this.cursor = cursor;
     this.border = border;
     this.padding = padding;
     this.margin = margin;
