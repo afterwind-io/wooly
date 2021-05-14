@@ -4,7 +4,7 @@ import {
   MouseMovement,
   CommonWidgetOptions,
 } from './foundation/types';
-import { Center } from './center';
+import { Align } from './align';
 import { Text } from './text';
 import { SingleChildWidget } from './foundation/singleChildWidget';
 
@@ -32,7 +32,7 @@ export class Button extends SingleChildWidget<ButtonSignals> {
 
   public _Ready() {
     this.AddChild(
-      new Center({
+      Align.Center({
         width: 'stretch',
         height: 'stretch',
         child: new Text({

@@ -38,7 +38,6 @@ export { Layer } from './buildin/layer';
 // UI Widgets
 export { Align, Alignment } from './buildin/ui/align';
 export { Button } from './buildin/ui/button';
-export { Center } from './buildin/ui/center';
 export { Checkbox } from './buildin/ui/checkbox';
 export { Container } from './buildin/ui/container';
 export {
