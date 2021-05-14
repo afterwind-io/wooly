@@ -46,6 +46,7 @@ export {
   FlexCrossAxisAlignment,
   FlexDirection,
 } from './buildin/ui/flex';
+export { Grid } from './buildin/ui/grid';
 export { Radio } from './buildin/ui/radio';
 export { Text } from './buildin/ui/text';
 export { WidgetRoot } from './buildin/ui/root';
