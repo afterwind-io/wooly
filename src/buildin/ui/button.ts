@@ -42,9 +42,7 @@ export class Button extends SingleChildWidget<ButtonSignals> {
     );
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    super._Draw(ctx);
-
+  public _DrawWidget(ctx: CanvasRenderingContext2D) {
     if (this.mouseActionState === MouseAction.MouseDown) {
       this._Draw_MouseDown(ctx);
     } else if (this.mouseMovementState === MouseMovement.MouseHover) {

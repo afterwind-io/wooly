@@ -44,9 +44,7 @@ export class InspectorMouseIndicator extends SingleChildWidget {
     });
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    super._Draw(ctx);
-
+  public _DrawWidget(ctx: CanvasRenderingContext2D) {
     if (!this._enabled) {
       return;
     }

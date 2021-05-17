@@ -29,7 +29,7 @@ export class Checkbox extends Widget<CheckboxSignals> {
     this._checked = checked;
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
+  public _DrawWidget(ctx: CanvasRenderingContext2D) {
     if (this.mouseMovementState === MouseMovement.MouseHover) {
       ctx.fillStyle = 'whitesmoke';
     } else {

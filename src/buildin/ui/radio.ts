@@ -32,7 +32,7 @@ export class Radio extends Widget<RadioSignals> {
     this._value = value;
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
+  public _DrawWidget(ctx: CanvasRenderingContext2D) {
     if (this.mouseMovementState === MouseMovement.MouseHover) {
       ctx.fillStyle = 'whitesmoke';
     } else {

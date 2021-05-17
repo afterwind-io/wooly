@@ -34,9 +34,7 @@ export class Text extends Widget {
     this._fillStyle = fillStyle;
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    super._Draw(ctx);
-
+  public _DrawWidget(ctx: CanvasRenderingContext2D) {
     /**
      * FIXME
      *

@@ -101,6 +101,31 @@ export abstract class Widget<
   }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
+    this.DebugDraw(ctx);
+
+    this._DrawWidget(ctx);
+  }
+
+  public _DrawWidget(ctx: CanvasRenderingContext2D): void {}
+
+  public _Update(delta: number) {
+    const nextMovementState = this.StepMouseMovementState();
+    this.mouseMovementState = nextMovementState;
+
+    const nextActionState = this.StepMouseActionState();
+    this.mouseActionState = nextActionState;
+
+    if (this.draggable) {
+      // NOTE 应始终在移动和点击状态更新后执行
+      this.HandleDragDrop();
+    }
+  }
+
+  public _Input(e: InputEvent) {}
+
+  public abstract _Layout(constraint: Constraint): Size;
+
+  private DebugDraw(ctx: CanvasRenderingContext2D) {
     if (!this._debug) {
       return;
     }
@@ -192,23 +217,6 @@ export abstract class Widget<
 
     ctx.globalAlpha = 1;
   }
-
-  public _Update(delta: number) {
-    const nextMovementState = this.StepMouseMovementState();
-    this.mouseMovementState = nextMovementState;
-
-    const nextActionState = this.StepMouseActionState();
-    this.mouseActionState = nextActionState;
-
-    if (this.draggable) {
-      // NOTE 应始终在移动和点击状态更新后执行
-      this.HandleDragDrop();
-    }
-  }
-
-  public _Input(e: InputEvent) {}
-
-  public abstract _Layout(constraint: Constraint): Size;
 
   private HandleDragDrop() {
     this.mouseDragDropState = this.StepMouseDragDropState();
