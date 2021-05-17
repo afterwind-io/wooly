@@ -1,25 +1,36 @@
 import { Widget } from './foundation/widget';
 import { Constraint } from './common/constraint';
-import { Engine } from '../../core/engine';
+import { Entity } from '../../core/entity';
+import { SingleChildWidgetOptions } from './foundation/types';
 
-export class WidgetRoot extends Widget {
+interface WidgetRootOptions extends SingleChildWidgetOptions {}
+
+export class WidgetRoot extends Entity {
   public readonly name: string = 'WidgetRoot';
   public readonly customDrawing: boolean = true;
 
+  public constructor(options: WidgetRootOptions = {}) {
+    super();
+
+    const { child } = options;
+    if (child) {
+      this.AddChild(child);
+    }
+  }
+
   public _Layout() {
-    const { x: width, y: height } = Engine.GetDimension();
-
-    for (const child of this.children) {
-      if (!(child instanceof Widget)) {
-        throw new Error(
-          '[wooly] The child of the "WidgetRoot" must be an instance of "Widget".'
-        );
-      }
-
-      child._Layout(new Constraint({ maxWidth: width, maxHeight: height }));
+    const child = this.children[0];
+    if (!child) {
+      return;
     }
 
-    return { width: 0, height: 0 };
+    if (!(child instanceof Widget)) {
+      throw new Error(
+        '[wooly] The child of the "WidgetRoot" must be an instance of "Widget".'
+      );
+    }
+
+    child._Layout(new Constraint());
   }
 
   public _Draw() {

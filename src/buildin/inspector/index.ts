@@ -30,19 +30,17 @@ export class Inspector extends Entity {
 
     layer.AddChild(
       new WidgetRoot({
-        children: [
-          new Container({
-            padding: Edge.All(8),
-            child: new Flex({
-              direction: FlexDirection.Vertical,
-              children: [
-                new InspectorMouseIndicator(),
-                new InspectorFPS(),
-                new InspectorCounter(),
-              ],
-            }),
+        child: new Container({
+          padding: Edge.All(8),
+          child: new Flex({
+            direction: FlexDirection.Vertical,
+            children: [
+              new InspectorMouseIndicator(),
+              new InspectorFPS(),
+              new InspectorCounter(),
+            ],
           }),
-        ],
+        }),
       })
     );
   }
