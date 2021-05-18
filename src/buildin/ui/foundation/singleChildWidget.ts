@@ -41,21 +41,6 @@ export abstract class SingleChildWidget<
 
   protected _PerformLayout(): void {}
 
-  protected GetFirstChild(): Widget<SIGNAL> | null {
-    const child = this.children[0];
-    if (!child) {
-      return null;
-    }
-
-    if (!(child instanceof Widget)) {
-      throw new Error(
-        '[wooly] The child of the "Widget" must be an instance of "Widget".'
-      );
-    }
-
-    return child as Widget<SIGNAL>;
-  }
-
   private LayoutSingleChild(constraint: Constraint): Size {
     const desiredWidth = this.width as Length;
     const desiredHeight = this.height as Length;

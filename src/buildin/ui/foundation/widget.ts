@@ -125,6 +125,21 @@ export abstract class Widget<
 
   public abstract _Layout(constraint: Constraint): Size;
 
+  protected GetFirstChild(): Widget | null {
+    const child = this.children[0];
+    if (!child) {
+      return null;
+    }
+
+    if (!(child instanceof Widget)) {
+      throw new Error(
+        '[wooly] The child of the "Widget" must be an instance of "Widget".'
+      );
+    }
+
+    return child as Widget;
+  }
+
   private DebugDraw(ctx: CanvasRenderingContext2D) {
     if (!this._debug) {
       return;
