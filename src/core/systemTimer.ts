@@ -1,4 +1,4 @@
-export class SystemTimer {
+export const SystemTimer = new (class SystemTimer {
   public Tick: () => number;
 
   private lastUpdate: number = 0;
@@ -27,4 +27,4 @@ export class SystemTimer {
 
     return this.lastDelta;
   };
-}
+})();

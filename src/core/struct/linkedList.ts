@@ -1,5 +1,5 @@
-import { LinkedNode } from "./linkedNode";
-import { Nullable } from "../../util/common";
+import { LinkedNode } from './linkedNode';
+import { Nullable } from '../../util/common';
 
 export class LinkedList<V, K = null> {
   protected head: LinkedNode<V, K> = new LinkedNode<V, K>();
@@ -76,6 +76,32 @@ export class LinkedList<V, K = null> {
       this.cursor.prev = tail;
     } else {
       this.cursor = this.cursor.next;
+    }
+  }
+
+  public Remove(value: V) {
+    let node: Nullable<LinkedNode<V, K>> = null;
+    let cursor: Nullable<LinkedNode<V, K>> = this.head;
+    while (cursor != null && !cursor.IsEmpty()) {
+      if (cursor.value === value) {
+        node = cursor;
+        break;
+      }
+
+      cursor = cursor.next;
+    }
+
+    if (node == null) {
+      return;
+    }
+
+    const prev = node.prev;
+    const next = node.next;
+    if (prev != null) {
+      prev.next = next;
+    }
+    if (next != null) {
+      next.prev = prev;
     }
   }
 

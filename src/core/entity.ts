@@ -1,4 +1,4 @@
-import { CanvasTreeItem } from './canvasTreeItem';
+import { RenderItem } from './renderItem';
 import { Signal } from './signal';
 import { ParamType } from '../util/common';
 import { Vector2 } from '../util/vector2';
@@ -66,12 +66,12 @@ export interface EntitySignals {
  * @export
  * @abstract
  * @class Entity
- * @extends {CanvasTreeItem}
+ * @extends {RenderItem}
  * @template SIGNALS The type definition of the signals the `Entity` can emit.
  */
 export abstract class Entity<
   SIGNALS extends EntitySignals = EntitySignals
-> extends CanvasTreeItem {
+> extends RenderItem {
   /**
    * [**Not Implemented**]
    * The unique id.

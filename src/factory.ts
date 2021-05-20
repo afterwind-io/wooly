@@ -1,6 +1,7 @@
-import { Input } from "./buildin/media/input";
-import { Engine } from "./core/engine";
-import { DPR } from "./core/globals";
+import { Input } from './buildin/media/input';
+import { Engine } from './core/engine';
+import { DPR } from './core/globals';
+import { CanvasManager } from './core/manager/canvas';
 
 /**
  * Initialize a new engine instance.
@@ -14,11 +15,11 @@ import { DPR } from "./core/globals";
  */
 export function Create(
   container: HTMLElement,
-  backend: "2d",
+  backend: '2d',
   w: number = 640,
   h: number = 480
 ): Engine {
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   canvas.width = w * DPR;
   canvas.height = h * DPR;
   canvas.style.width = `${w}px`;
@@ -27,5 +28,7 @@ export function Create(
   container.appendChild(canvas);
 
   Input.Attach(canvas);
-  return Engine.Create(canvas, backend);
+  CanvasManager.SetHost(canvas, backend);
+
+  return Engine;
 }

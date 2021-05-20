@@ -1,144 +1,35 @@
-import { CanvasTree } from "./canvasTree";
-import { Entity } from "./entity";
-import { SystemSignal } from "./systemSignal";
-import { Node } from "./node";
-import { Vector2 } from "../util/vector2";
-import { SystemTimer } from "./systemTimer";
+import { Pipeline } from './pipeline';
+import { EntityTreeManager } from './manager/entityTree';
+import { Entity } from './entity';
+import { TaskUpdate } from './task/update';
+import { TaskBatchFree } from './task/batchFree';
+import { TaskBuildRenderTree } from './task/buildRenderTree';
+import { TaskPaint } from './task/paint';
 
-export class Engine {
-  private static me: Engine;
+export const Engine = new (class Engine {
+  public readonly pipeline: Pipeline = new Pipeline();
 
-  public ctx: CanvasRenderingContext2D;
-  public nodeRoot: Entity | null = null;
-  public canvasRoot: CanvasTree = new CanvasTree();
-
-  private timer: SystemTimer = new SystemTimer();
-  private nodeFreeQueue: Node[] = [];
-
-  private constructor(canvas: HTMLCanvasElement, backend: "2d") {
-    const ctx = canvas.getContext(backend, { alpha: false });
-    if (ctx === null) {
-      throw new Error("Cannot get 2d ctx.");
-    }
-    this.ctx = ctx;
-
-    this.Loop = this.Loop.bind(this);
-
-    SystemSignal.Connect("OnTreeUpdate", this.OnTreeUpdate, this);
-  }
-
-  public static Create(canvas: HTMLCanvasElement, backend: "2d"): Engine {
-    if (!Engine.me) {
-      Engine.me = new Engine(canvas, backend);
-    }
-
-    return Engine.me;
-  }
-
-  public static get Current(): Engine {
-    return Engine.me;
-  }
-
-  /**
-   * Get last frame delta time.
-   *
-   * @static
-   * @returns {number} Delta time in seconds.
-   * @memberof Engine
-   */
-  public static GetDelta(): number {
-    return Engine.me.timer.Delta;
-  }
-
-  /**
-   * Get current size of the canvas.
-   *
-   * @static
-   * @returns {Vector2} The size object.
-   * @memberof Engine
-   */
-  public static GetDimension(): Vector2 {
-    const canvas = Engine.me.GetHost();
-    return new Vector2(canvas.clientWidth, canvas.clientHeight);
-  }
-
-  /**
-   * Get host canvas instance.
-   *
-   * @returns {HTMLCanvasElement} The canvas element.
-   * @memberof Engine
-   */
-  public GetHost(): HTMLCanvasElement {
-    if (Engine.me == null) {
-      throw new Error("Engine uninitialized.");
-    }
-
-    return Engine.me.ctx.canvas;
-  }
-
-  /**
-   * Specify the color to clear the canvas.
-   *
-   * @param {string} color
-   * A string value fits the `CanvasRenderingContext2D.fillStyle` property.
-   *
-   * @memberof Engine
-   */
-  public SetClearColor(color: string) {
-    this.canvasRoot.SetClearColor(color);
+  public constructor() {
+    this.pipeline.Register(new TaskUpdate());
+    this.pipeline.Register(new TaskBatchFree());
+    this.pipeline.Register(new TaskBuildRenderTree());
+    this.pipeline.Register(new TaskPaint());
   }
 
   public SetRoot(root: Entity) {
-    if (this.nodeRoot) {
-      this.nodeRoot.Free();
-    }
-
-    this.nodeRoot = root;
+    EntityTreeManager.SetRoot(root);
   }
 
-  public Run() {
-    if (!this.nodeRoot) {
-      throw new Error(
-        "[wooly] A root node should be set before start the engine."
-      );
-    }
-
-    this.nodeRoot.$Ready();
+  public Start() {
+    EntityTreeManager.Init();
 
     this.Loop();
   }
 
-  private BatchFree() {
-    for (const node of this.nodeFreeQueue) {
-      node.$Destroy();
-    }
-
-    this.nodeFreeQueue.length = 0;
-  }
-
-  private Draw() {
-    this.canvasRoot.Draw(this.nodeRoot!, this.ctx);
-  }
-
-  private Loop() {
-    SystemSignal.Emit("OnLoopStart");
-
-    this.Update();
-    this.BatchFree();
-    this.Draw();
-
-    SystemSignal.Emit("OnLoopEnd");
-
+  private Loop = () => {
+    this.pipeline.Run({});
     requestAnimationFrame(this.Loop);
-  }
+  };
+})();
 
-  private OnTreeUpdate(node: Node, type: "insert" | "delete") {
-    if (type === "delete") {
-      this.nodeFreeQueue.push(node);
-    }
-  }
-
-  private Update() {
-    this.nodeRoot!.$Update(this.timer.Tick());
-  }
-}
+export type Engine = typeof Engine;

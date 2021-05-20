@@ -4,6 +4,7 @@ export default { Create };
 // core
 export { Engine } from './core/engine';
 export { Entity, EntitySignals } from './core/entity';
+export { Insights } from './core/insights';
 
 // media
 export { Input } from './buildin/media/input';

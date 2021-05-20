@@ -1,4 +1,4 @@
-import { Vector2 } from "../util/vector2";
+import { Vector2 } from '../util/vector2';
 
 export class Viewport {
   public offset: Vector2 = new Vector2();
@@ -25,6 +25,11 @@ export class Viewport {
 
 export const ViewportRegistry = new (class ViewportRegistry {
   private registry: Record<number, Viewport> = {};
+
+  public constructor() {
+    // FIXME 是否应该如此初始化默认layer？
+    this.Add(0);
+  }
 
   public Add(id: number = 0, viewport?: Viewport) {
     if (id in this.registry) {

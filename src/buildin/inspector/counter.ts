@@ -3,10 +3,10 @@ import { Container } from '../ui/container';
 import { Edge } from '../ui/common/edge';
 import { Text } from '../ui/text';
 import { Timer } from '../timer';
-import { Engine } from '../../core/engine';
 import { Flex, FlexDirection } from '../ui/flex';
 import { Checkbox } from '../ui/checkbox';
 import { Widget } from '../ui/foundation/widget';
+import { EntityTreeManager } from '../../core/manager/entityTree';
 
 export class InspectorCounter extends SingleChildWidget {
   public readonly name: string = 'InspectorCounter';
@@ -72,11 +72,12 @@ export class InspectorCounter extends SingleChildWidget {
   }
 
   private Refresh() {
+    // FIXME high performance impact
     let entity = 0;
     let widget = 0;
 
     if (this._enable) {
-      Engine.Current.nodeRoot!.Traverse((node) => {
+      EntityTreeManager.entityRoot.Traverse((node) => {
         entity++;
         if (node instanceof Widget) {
           widget++;

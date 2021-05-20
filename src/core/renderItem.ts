@@ -1,22 +1,21 @@
-import { Node } from "./node";
-import { ViewportRegistry } from "./viewport";
-import { GetTransformMatrix } from "../util/common";
-import { Vector2 } from "../util/vector2";
+import { Node } from './node';
+import { ViewportRegistry } from './viewport';
+import { Vector2 } from '../util/vector2';
 
 /**
  * Base class of everything relates to drawing.
  *
  * @export
  * @abstract
- * @class CanvasTreeItem
+ * @class RenderItem
  * @extends {Node}
  */
-export abstract class CanvasTreeItem extends Node {
+export abstract class RenderItem extends Node {
   /**
    * Set or create the canvas layer the node currently at.
    *
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public layer: number = 0;
 
@@ -24,7 +23,7 @@ export abstract class CanvasTreeItem extends Node {
    * The local position relative to parent.
    *
    * @type {Vector2}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public position: Vector2 = new Vector2();
 
@@ -32,7 +31,7 @@ export abstract class CanvasTreeItem extends Node {
    * The local rotation in radians relative to parent.
    *
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public rotation: number = 0;
 
@@ -40,7 +39,7 @@ export abstract class CanvasTreeItem extends Node {
    * The local scale relative to parent.
    *
    * @type {Vector2}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public scale: Vector2 = new Vector2(1, 1);
 
@@ -51,7 +50,7 @@ export abstract class CanvasTreeItem extends Node {
    * is skipped, but they still get updated.
    *
    * @type {boolean}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public visible: boolean = true;
 
@@ -70,7 +69,7 @@ export abstract class CanvasTreeItem extends Node {
    * In this way you can "hide" the node behind the parent.
    *
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public zIndex: number = 0;
 
@@ -100,7 +99,7 @@ export abstract class CanvasTreeItem extends Node {
    * ```
    *
    * @type {boolean}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   protected customDrawing: boolean = false;
 
@@ -112,7 +111,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @protected
    * @type {boolean}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   protected isFreezed: boolean = false;
 
@@ -123,10 +122,10 @@ export abstract class CanvasTreeItem extends Node {
    * The pointer to the parent node.
    *
    * @protected
-   * @type {(CanvasTreeItem | null)}
-   * @memberof CanvasTreeItem
+   * @type {(RenderItem | null)}
+   * @memberof RenderItem
    */
-  protected parent: CanvasTreeItem | null = null;
+  protected parent: RenderItem | null = null;
 
   /**
    * [**Internal**]
@@ -136,7 +135,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @private
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   private $freezedGlobalLayer: number = 0;
 
@@ -148,7 +147,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @private
    * @type {Vector2}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   private $freezedGlobalPosition: Vector2 = new Vector2();
 
@@ -160,7 +159,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @private
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   private $freezedGlobalRotation: number = 0;
 
@@ -172,7 +171,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @private
    * @type {Vector2}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   private $freezedGlobalScale: Vector2 = new Vector2(1, 1);
 
@@ -184,7 +183,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @private
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   private $freezedGlobalZIndex: number = 0;
 
@@ -193,7 +192,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @readonly
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public get GlobalLayer(): number {
     if (this.isFreezed) {
@@ -216,7 +215,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @readonly
    * @type {Vector2}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public get GlobalPosition(): Vector2 {
     if (this.isFreezed) {
@@ -238,7 +237,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @readonly
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public get GlobalRotation(): number {
     if (this.isFreezed) {
@@ -257,7 +256,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @readonly
    * @type {Vector2}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public get GlobalScale(): Vector2 {
     if (this.isFreezed) {
@@ -280,7 +279,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @readonly
    * @type {number}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public get GlobalZIndex(): number {
     if (this.isFreezed) {
@@ -303,7 +302,7 @@ export abstract class CanvasTreeItem extends Node {
    * @param {CanvasRenderingContext2D} ctx
    * The `CanvasRenderingContext2D` interface.
    * @returns
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public $Draw(ctx: CanvasRenderingContext2D) {
     if (!this.enabled) {
@@ -349,7 +348,7 @@ export abstract class CanvasTreeItem extends Node {
    * no entity property manipulation should present in the `Draw` phase,
    * thus all values are fixed already.
    *
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public $Freeze() {
     this.$freezedGlobalLayer = this.GlobalLayer;
@@ -367,7 +366,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * Rewind the freeze state.
    *
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public $Melt() {
     this.isFreezed = false;
@@ -377,7 +376,7 @@ export abstract class CanvasTreeItem extends Node {
    * Rotate the node based on current ratation.
    *
    * @param {number} rad The angle in radians.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public Rotate(rad: number) {
     this.rotation += rad;
@@ -390,7 +389,7 @@ export abstract class CanvasTreeItem extends Node {
    * @param {number} [scaleY=scaleX]
    * The scale factor along y-axis.
    * If not given, the value will be considered equal to `scaleX`.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public Scale(scaleX: number, scaleY: number = scaleX) {
     this.scale.x = this.scale.x * scaleX;
@@ -402,7 +401,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {number} layer The index of the layer.
    * @returns {this} This instance of the node.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetLayer(layer: number): this {
     return (this.layer = layer), this;
@@ -413,7 +412,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {Vector2} pos Local position vector.
    * @returns {this}
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetPosition(pos: Vector2): this;
   /**
@@ -422,7 +421,7 @@ export abstract class CanvasTreeItem extends Node {
    * @param {number} x The position on the x-axis.
    * @param {number} y The position on the y-axis.
    * @returns {this} This instance of the entity.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetPosition(x: number, y: number): this;
   public SetPosition(p1: number | Vector2, p2?: number) {
@@ -440,7 +439,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {number} rad The angle, in radians.
    * @returns {this} This instance of the entity.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetRotation(rad: number): this {
     return (this.rotation = rad), this;
@@ -451,7 +450,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {Vector2} scale The scale vector.
    * @returns {this} This instance of the entity.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetScale(scale: Vector2): this;
   /**
@@ -463,7 +462,7 @@ export abstract class CanvasTreeItem extends Node {
    * The scale factor along y-axis.
    * If not given, the value will be considered equal to `scaleX`.
    * @returns {this} This instance of the entity.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetScale(scaleX: number, scaleY?: number): this;
   public SetScale(p1: Vector2 | number, p2?: number): this {
@@ -485,7 +484,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {number} zIndex The zIndex.
    * @returns {this} This instance of the entity.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetZIndex(zIndex: number): this {
     return (this.zIndex = zIndex), this;
@@ -496,7 +495,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {boolean} f The flag.
    * @returns {this} This instance of the entity.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public SetVisible(f: boolean): this {
     return (this.visible = f), this;
@@ -506,7 +505,7 @@ export abstract class CanvasTreeItem extends Node {
    * Translate the entity by vector.
    *
    * @param {Vector2} v The offset vector.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public Translate(v: Vector2): void;
   /**
@@ -514,7 +513,7 @@ export abstract class CanvasTreeItem extends Node {
    *
    * @param {number} x The offset along x-axis.
    * @param {number} y The offset along y-axis.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   public Translate(x: number, y: number): void;
   public Translate(p1: number | Vector2, p2?: number) {
@@ -535,7 +534,7 @@ export abstract class CanvasTreeItem extends Node {
    * @protected
    * @param {CanvasRenderingContext2D} ctx
    * The `CanvasRenderingContext2D` interface.
-   * @memberof CanvasTreeItem
+   * @memberof RenderItem
    */
   protected _Draw(ctx: CanvasRenderingContext2D) {}
 }

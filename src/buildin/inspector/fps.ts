@@ -3,9 +3,9 @@ import { Container } from '../ui/container';
 import { Edge } from '../ui/common/edge';
 import { Text } from '../ui/text';
 import { Timer } from '../timer';
-import { Engine } from '../../core/engine';
 import { Flex } from '../ui/flex';
 import { Checkbox } from '../ui/checkbox';
+import { SystemTimer } from '../../core/systemTimer';
 
 export class InspectorFPS extends SingleChildWidget {
   public readonly name: string = 'InspectorFPS';
@@ -53,7 +53,7 @@ export class InspectorFPS extends SingleChildWidget {
     let content = '-';
 
     if (this._enabled) {
-      const delta = Engine.GetDelta();
+      const delta = SystemTimer.Delta;
       content = `${Math.round(100 / delta) / 100}`;
     }
 
