@@ -1,8 +1,9 @@
 import { Widget } from './foundation/widget';
 import { Size } from './common/types';
 import { Constraint } from './common/constraint';
-import { Engine } from '../../core/engine';
 import { CommonWidgetOptions } from './foundation/types';
+
+const offscreenContext = new OffscreenCanvas(0, 0).getContext('2d')!;
 
 interface TextOptions extends CommonWidgetOptions {
   content?: string;
@@ -52,15 +53,9 @@ export class Text extends Widget {
   }
 
   public _Layout(constraint: Constraint): Size {
-    const ctx = Engine.Current.ctx;
-
-    ctx.save();
-
     const height = this._fontSize;
-    ctx.font = `${height}px ${this._fontName}`;
-    const { width } = ctx.measureText(this._content);
-
-    ctx.restore();
+    offscreenContext.font = `${height}px ${this._fontName}`;
+    const { width } = offscreenContext.measureText(this._content);
 
     const { width: constrainedWidth, height: constrainedHeight } =
       constraint.constrainSize(width, height);
