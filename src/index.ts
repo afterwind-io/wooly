@@ -20,7 +20,7 @@ export {
   COLLISION_RECTANGLE,
 } from './buildin/collision/type';
 export { Anchor } from './buildin/anchor';
-export { Particals } from './buildin/particals';
+export { Particles } from './buildin/particle';
 export {
   AnimationPlayer,
   Animation,

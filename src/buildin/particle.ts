@@ -1,14 +1,14 @@
-import { Entity, EntitySignals } from "../core/entity";
-import { CoolDown } from "../util/cooldown";
-import { Vector2 } from "../util/vector2";
-import { Dice } from "../util/dice";
-import { Blackhole } from "../util/common";
+import { Entity, EntitySignals } from '../core/entity';
+import { CoolDown } from '../util/cooldown';
+import { Vector2 } from '../util/vector2';
+import { Dice } from '../util/dice';
+import { Blackhole } from '../util/common';
 
-export type ParticalsShape = 0;
-export const PARTICALS_SHAPE_SPHERE = 0;
+export type ParticlesShape = 0;
+export const PARTICLES_SHAPE_SPHERE = 0;
 
-export class Particals extends Entity {
-  private shape: ParticalsShape = PARTICALS_SHAPE_SPHERE;
+export class Particles extends Entity {
+  private shape: ParticlesShape = PARTICLES_SHAPE_SPHERE;
   private enable: boolean = false;
   private amount: number = 16;
   private oneshot: boolean = false;
@@ -26,12 +26,12 @@ export class Particals extends Entity {
   private rotationMax: number = 0;
 
   private materialFn!: () => Entity;
-  private transformFn: (p: Partical) => void = Blackhole;
-  private particalAlive: number = 0;
+  private transformFn: (p: Particle) => void = Blackhole;
+  private particleAlive: number = 0;
 
   public _Update(delta: number) {
     if (this.oneshot && this.hasShot) {
-      if (this.particalAlive === 0) {
+      if (this.particleAlive === 0) {
         this.Free();
       }
     } else if (this.enable) {
@@ -71,7 +71,7 @@ export class Particals extends Entity {
     return (this.speedMin = min), (this.speedMax = max), this;
   }
 
-  private AddPartical() {
+  private AddParticle() {
     const lifetime = Dice.NextFloat(this.lifetimeMin, this.lifetimeMax);
     const angle = Dice.NextFloat(this.angleMin, this.angleMax);
     const speed = Dice.NextFloat(this.speedMin, this.speedMax);
@@ -79,45 +79,45 @@ export class Particals extends Entity {
     const rotation = Dice.NextFloat(this.rotationMin, this.rotationMax);
 
     const m = this.materialFn().SetRotation(rotation);
-    const p = new Partical(lifetime, m, this.transformFn)
+    const p = new Particle(lifetime, m, this.transformFn)
       .SetSpeed(speed)
       .SetRotation(angle)
       .SetScale(new Vector2(scale, scale));
-    p.Connect("OnVanish", () => this.particalAlive--);
-    this.particalAlive++;
+    p.Connect('OnVanish', () => this.particleAlive--);
+    this.particleAlive++;
     this.AddChild(p);
   }
 
   private Shoot(delta: number) {
-    if (this.particalAlive > this.amount) {
+    if (this.particleAlive > this.amount) {
       return;
     }
 
     if (this.oneshot) {
-      for (let i = 0; i < this.amount - this.particalAlive; i++) {
-        this.AddPartical();
+      for (let i = 0; i < this.amount - this.particleAlive; i++) {
+        this.AddParticle();
       }
       this.hasShot = true;
       return;
     }
 
-    this.AddPartical();
+    this.AddParticle();
   }
 }
 
-interface ParticalSignals extends EntitySignals {
+interface ParticleSignals extends EntitySignals {
   OnVanish: () => void;
 }
 
-class Partical extends Entity<ParticalSignals> {
+class Particle extends Entity<ParticleSignals> {
   private speed: number = 0.1;
   private lifetime: CoolDown;
-  private transform!: (p: Partical) => void;
+  private transform!: (p: Particle) => void;
 
   public constructor(
     lifetime: number,
     material: Entity,
-    transformFn: (p: Partical) => void
+    transformFn: (p: Particle) => void
   ) {
     super();
 
@@ -136,7 +136,7 @@ class Partical extends Entity<ParticalSignals> {
       this.transform(this);
       this.Translate(this.Orientation.Multiply(this.speed * delta));
     } else {
-      this.Emit("OnVanish");
+      this.Emit('OnVanish');
       this.Free();
     }
   }
