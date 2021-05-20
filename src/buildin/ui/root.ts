@@ -2,12 +2,15 @@ import { Widget } from './foundation/widget';
 import { Constraint } from './common/constraint';
 import { Entity } from '../../core/entity';
 import { SingleChildWidgetOptions } from './foundation/types';
+import { Engine } from '../../core/engine';
+import { PipeLineTask } from '../../core/pipeline';
 
 interface WidgetRootOptions extends SingleChildWidgetOptions {}
 
 export class WidgetRoot extends Entity {
   public readonly name: string = 'WidgetRoot';
-  public readonly customDrawing: boolean = true;
+
+  private _task: PipeLineTask;
 
   public constructor(options: WidgetRootOptions = {}) {
     super();
@@ -16,6 +19,16 @@ export class WidgetRoot extends Entity {
     if (child) {
       this.AddChild(child);
     }
+
+    this._task = new TaskWidgetLayout(this);
+  }
+
+  public _Ready() {
+    Engine.pipeline.Register(this._task);
+  }
+
+  public _Destroy() {
+    Engine.pipeline.Unregister(this._task);
   }
 
   public _Layout() {
@@ -32,8 +45,18 @@ export class WidgetRoot extends Entity {
 
     child._Layout(new Constraint());
   }
+}
 
-  public _Draw() {
-    this._Layout();
+class TaskWidgetLayout implements PipeLineTask {
+  public readonly priority: number = 301;
+
+  private _root: WidgetRoot;
+
+  public constructor(root: WidgetRoot) {
+    this._root = root;
   }
+
+  public Run = () => {
+    this._root._Layout();
+  };
 }
