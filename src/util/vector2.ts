@@ -67,6 +67,9 @@ export class Vector2 {
 
   public Normalize(): Vector2 {
     const length = this.Length;
+    if (length === 0) {
+      return new Vector2(this.x, this.y);
+    }
     return new Vector2(this.x / length, this.y / length);
   }
 
