@@ -11,6 +11,10 @@ export class Vector2 {
     return new Vector2(1, 0);
   }
 
+  public static get Zero(): Vector2 {
+    return new Vector2();
+  }
+
   public get Length(): number {
     return Math.hypot(this.x, this.y);
   }
