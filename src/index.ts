@@ -11,6 +11,7 @@ export { Input } from './buildin/media/input';
 export { _Audio as Audio } from './buildin/media/audio';
 
 // buildins
+export { ResourceManager } from './buildin/resource';
 export { Scene, SceneInitPolicy, SceneManager } from './buildin/scene';
 export { Shape } from './buildin/shape';
 export { Sprite } from './buildin/sprite';

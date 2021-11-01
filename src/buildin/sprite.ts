@@ -1,6 +1,14 @@
 import { Entity } from "../core/entity";
 import { Vector2 } from "../util/vector2";
+import { ImageResource } from "./resource";
 
+/**
+ * An entity to display a static image.
+ *
+ * @export
+ * @class Sprite
+ * @extends {Entity}
+ */
 export class Sprite extends Entity {
   public readonly customDrawing: boolean = true;
   public readonly name: string = "Sprite";
@@ -12,31 +20,22 @@ export class Sprite extends Entity {
   protected image: HTMLImageElement = new Image();
   protected isFlipH: boolean = false;
   protected isFlipV: boolean = false;
-  protected isImageLoaded: boolean = false;
   protected isSmoothImage: boolean = true;
   protected isCentered: boolean = false;
 
   /**
    * Creates an instance of Sprite.
    *
-   * @param {string} [path] Anything fits into DOM `Image.src` property.
+   * @param {ImageResource} imageSource An image source (usually `HTMLImageElement`) fetched by `ResourceManager`.
    * @memberof Sprite
    */
-  public constructor(path?: string) {
+  public constructor(imageSource: ImageResource) {
     super();
 
-    this.image.onload = this.onImageLoad.bind(this);
-
-    if (path !== undefined) {
-      this.SetImage(path);
-    }
+    this.SetImage(imageSource);
   }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
-    if (!this.isImageLoaded) {
-      return;
-    }
-
     const sx = this.clipOrigin.x;
     const sy = this.clipOrigin.y;
     const sw = this.clipSize.x || this.image.naturalWidth;
@@ -58,6 +57,10 @@ export class Sprite extends Entity {
 
     ctx.imageSmoothingEnabled = this.isSmoothImage;
     ctx.drawImage(this.image, sx, sy, sw, sh, ddx, ddy, dw, dh);
+  }
+
+  public _Destroy() {
+    this.image = null!;
   }
 
   /**
@@ -129,12 +132,12 @@ export class Sprite extends Entity {
   /**
    * Set image path.
    *
-   * @param {string} path Anything fits into DOM `Image.src` property.
+   * @param {ImageResource} imageSource An image source (usually `HTMLImageElement`) fetched by `ResourceManager`.
    * @returns {this}
    * @memberof Sprite
    */
-  public SetImage(path: string): this {
-    return (this.image.src = path), (this.isImageLoaded = false), this;
+  public SetImage(imageSource: ImageResource): this {
+    return (this.image = imageSource.container), this;
   }
 
   /**
@@ -162,9 +165,5 @@ export class Sprite extends Entity {
    */
   public SetOffset(o: Vector2): this {
     return (this.offset = o), this;
-  }
-
-  private onImageLoad() {
-    this.isImageLoaded = true;
   }
 }
