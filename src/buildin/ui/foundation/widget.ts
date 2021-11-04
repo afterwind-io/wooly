@@ -56,7 +56,7 @@ export abstract class Widget<
 > extends Entity<SIGNAL> {
   public readonly customDrawing: boolean = true;
 
-  public _debug: boolean = true;
+  public _debug: boolean = false;
   public _intrinsicWidth: number = 0;
   public _intrinsicHeight: number = 0;
 
@@ -109,16 +109,16 @@ export abstract class Widget<
   public _DrawWidget(ctx: CanvasRenderingContext2D): void {}
 
   public _Update(delta: number) {
-    const nextMovementState = this.StepMouseMovementState();
-    this.mouseMovementState = nextMovementState;
+    // const nextMovementState = this.StepMouseMovementState();
+    // this.mouseMovementState = nextMovementState;
 
-    const nextActionState = this.StepMouseActionState();
-    this.mouseActionState = nextActionState;
+    // const nextActionState = this.StepMouseActionState();
+    // this.mouseActionState = nextActionState;
 
-    if (this.draggable) {
-      // NOTE 应始终在移动和点击状态更新后执行
-      this.HandleDragDrop();
-    }
+    // if (this.draggable) {
+    //   // NOTE 应始终在移动和点击状态更新后执行
+    //   this.HandleDragDrop();
+    // }
   }
 
   public _Input(e: InputEvent) {}

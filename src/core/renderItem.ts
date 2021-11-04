@@ -1,6 +1,6 @@
 import { Node } from './node';
-import { ViewportRegistry } from './viewport';
 import { Vector2 } from '../util/vector2';
+import { CompositionManager } from './manager/composition';
 
 /**
  * Base class of everything relates to drawing.
@@ -11,6 +11,16 @@ import { Vector2 } from '../util/vector2';
  * @extends {Node}
  */
 export abstract class RenderItem extends Node {
+  public composition: boolean = false;
+
+  /**
+   * The height of the node.
+   *
+   * @type {number}
+   * @memberof RenderItem
+   */
+  public h: number = 0;
+
   /**
    * Set or create the canvas layer the node currently at.
    *
@@ -53,6 +63,14 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   public visible: boolean = true;
+
+  /**
+   * The width of the node.
+   *
+   * @type {number}
+   * @memberof RenderItem
+   */
+  public w: number = 0;
 
   /**
    * The value indicates the rendering order, relative to parant.
@@ -149,7 +167,7 @@ export abstract class RenderItem extends Node {
    * @type {Vector2}
    * @memberof RenderItem
    */
-  private $freezedGlobalPosition: Vector2 = new Vector2();
+  private $freezedCompositionPosition: Vector2 = new Vector2();
 
   /**
    * [**Internal**]
@@ -161,7 +179,7 @@ export abstract class RenderItem extends Node {
    * @type {number}
    * @memberof RenderItem
    */
-  private $freezedGlobalRotation: number = 0;
+  private $freezedCompositionRotation: number = 0;
 
   /**
    * [**Internal**]
@@ -173,7 +191,7 @@ export abstract class RenderItem extends Node {
    * @type {Vector2}
    * @memberof RenderItem
    */
-  private $freezedGlobalScale: Vector2 = new Vector2(1, 1);
+  private $freezedCompositionScale: Vector2 = new Vector2(1, 1);
 
   /**
    * [**Internal**]
@@ -186,6 +204,51 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   private $freezedGlobalZIndex: number = 0;
+
+  public get CompositionPosition(): Vector2 {
+    if (this.isFreezed) {
+      return this.$freezedCompositionPosition;
+    }
+
+    if (!this.parent) {
+      return this.position;
+    } else if (this.composition) {
+      return new Vector2();
+    } else {
+      return this.position
+        .Dot(this.parent.GlobalScale)
+        .Rotate(this.parent.CompositionRotation)
+        .Add(this.parent.CompositionPosition);
+    }
+  }
+
+  public get CompositionRotation(): number {
+    if (this.isFreezed) {
+      return this.$freezedCompositionRotation;
+    }
+
+    if (!this.parent) {
+      return this.rotation;
+    } else if (this.composition) {
+      return 0;
+    } else {
+      return this.rotation + this.parent.CompositionRotation;
+    }
+  }
+
+  public get CompositionScale(): Vector2 {
+    if (this.isFreezed) {
+      return this.$freezedCompositionScale;
+    }
+
+    if (!this.parent) {
+      return this.scale;
+    } else if (this.composition) {
+      return new Vector2(1, 1);
+    } else {
+      return this.scale.Dot(this.parent.CompositionScale);
+    }
+  }
 
   /**
    * The actual layer on screen.
@@ -218,10 +281,6 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   public get GlobalPosition(): Vector2 {
-    if (this.isFreezed) {
-      return this.$freezedGlobalPosition;
-    }
-
     if (!this.parent) {
       return this.position;
     } else {
@@ -240,10 +299,6 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   public get GlobalRotation(): number {
-    if (this.isFreezed) {
-      return this.$freezedGlobalRotation;
-    }
-
     if (!this.parent) {
       return this.rotation;
     } else {
@@ -259,10 +314,6 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   public get GlobalScale(): Vector2 {
-    if (this.isFreezed) {
-      return this.$freezedGlobalScale;
-    }
-
     if (!this.parent) {
       return this.scale;
     } else {
@@ -282,10 +333,6 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   public get GlobalZIndex(): number {
-    if (this.isFreezed) {
-      return this.$freezedGlobalZIndex;
-    }
-
     if (this.parent == null) {
       return this.zIndex;
     } else {
@@ -318,22 +365,7 @@ export abstract class RenderItem extends Node {
       return;
     }
 
-    ctx.save();
-
-    const viewport = ViewportRegistry.Get(this.GlobalLayer);
-    const position = this.GlobalPosition.Substract(viewport.origin).Rotate(
-      -viewport.rotation
-    );
-    const rotation = this.GlobalRotation - viewport.rotation;
-    const scale = this.GlobalScale;
-
-    ctx.translate(position.x, position.y);
-    ctx.rotate(rotation);
-    ctx.scale(scale.x, scale.y);
-
     this._Draw(ctx);
-
-    ctx.restore();
   }
 
   /**
@@ -352,9 +384,9 @@ export abstract class RenderItem extends Node {
    */
   public $Freeze() {
     this.$freezedGlobalLayer = this.GlobalLayer;
-    this.$freezedGlobalPosition = this.GlobalPosition;
-    this.$freezedGlobalRotation = this.GlobalRotation;
-    this.$freezedGlobalScale = this.GlobalScale;
+    this.$freezedCompositionPosition = this.CompositionPosition;
+    this.$freezedCompositionRotation = this.CompositionRotation;
+    this.$freezedCompositionScale = this.CompositionScale;
     this.$freezedGlobalZIndex = this.GlobalZIndex;
 
     this.isFreezed = true;
@@ -525,6 +557,14 @@ export abstract class RenderItem extends Node {
     }
 
     this.position = this.position.Add(delta);
+  }
+
+  protected $SelfDestroy() {
+    super.$SelfDestroy();
+
+    if (this.composition) {
+      CompositionManager.ReleaseComposition(this.id);
+    }
   }
 
   /**

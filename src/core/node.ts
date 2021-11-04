@@ -1,5 +1,6 @@
-import { SystemSignal } from "./systemSignal";
-import { LinkedList } from "./struct/linkedList";
+import { SystemSignal } from './systemSignal';
+import { LinkedList } from './struct/linkedList';
+import { getUID } from '../util/idgen';
 
 /**
  * The flag indicates the lifecycle of the node.
@@ -26,7 +27,7 @@ export const enum NodeState {
   /**
    * Node has been removed from the tree.
    */
-  Destroyed
+  Destroyed,
 }
 
 /**
@@ -37,6 +38,14 @@ export const enum NodeState {
  * @class Node
  */
 export abstract class Node {
+  /**
+   * The unique id.
+   *
+   * @type {number}
+   * @memberof Entity
+   */
+  public id: number;
+
   /**
    * A flag indicates whether to enable the entity or not.
    *
@@ -95,6 +104,10 @@ export abstract class Node {
    */
   protected children: Node[] = [];
 
+  public constructor() {
+    this.id = getUID();
+  }
+
   /**
    * [**Internal**]
    *
@@ -132,7 +145,7 @@ export abstract class Node {
    * @memberof Node
    */
   public $Destroy() {
-    this.Traverse(node => {
+    this.Traverse((node) => {
       if (node.state === NodeState.Destroyed) {
         return;
       }
@@ -234,7 +247,22 @@ export abstract class Node {
 
     this.state = NodeState.Destroying;
 
-    SystemSignal.Emit("OnTreeUpdate", this, "delete");
+    SystemSignal.Emit('OnTreeUpdate', this, 'delete');
+  }
+
+  public GetTreeHeight(): number {
+    if (this.children.length === 0) {
+      return 1;
+    }
+
+    let height = 0;
+    for (const child of this.children) {
+      const h = child.GetTreeHeight();
+      if (h > height) {
+        height = h;
+      }
+    }
+    return height + 1;
   }
 
   /**
@@ -265,8 +293,8 @@ export abstract class Node {
     while (true) {
       if (next == null) {
         throw new Error(
-          "[wooly] A null pointer error occurs during the node traverse" +
-            " and it should not happen."
+          '[wooly] A null pointer error occurs during the node traverse' +
+            ' and it should not happen.'
         );
       }
 
@@ -331,7 +359,7 @@ export abstract class Node {
    * @memberof Node
    */
   private RemoveChild(item: Node) {
-    const index = this.children.findIndex(c => c === item);
+    const index = this.children.findIndex((c) => c === item);
     if (index === -1) {
       return;
     }

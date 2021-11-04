@@ -20,6 +20,8 @@ export const EntityTreeManager = new (class EntityTreeManager {
     }
 
     this.entityRoot = root;
+    // @ts-ignore
+    window.root = root;
   }
 
   public Update() {

@@ -73,15 +73,6 @@ export abstract class Entity<
   SIGNALS extends EntitySignals = EntitySignals
 > extends RenderItem {
   /**
-   * [**Not Implemented**]
-   * The unique id.
-   *
-   * @type {number}
-   * @memberof Entity
-   */
-  public id: number = 0;
-
-  /**
    * The name of the node.
    *
    * Currently it is only for debug purpose.
@@ -90,22 +81,6 @@ export abstract class Entity<
    * @memberof Entity
    */
   public name: string = '';
-
-  /**
-   * The width of the node.
-   *
-   * @type {number}
-   * @memberof Entity
-   */
-  public w: number = 0;
-
-  /**
-   * The height of the node.
-   *
-   * @type {number}
-   * @memberof Entity
-   */
-  public h: number = 0;
 
   /**
    * A flag indicates whether to update the entity or not.
