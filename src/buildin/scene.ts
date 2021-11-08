@@ -1,4 +1,4 @@
-import { Entity, EntitySignals } from "../core/entity";
+import { Entity, EntitySignals } from '../core/entity';
 
 interface SceneCtor {
   new (): Scene;
@@ -6,6 +6,8 @@ interface SceneCtor {
 
 interface SceneSignals extends EntitySignals {
   OnSwitch: (next: string) => void;
+  OnPush: (next: string) => void;
+  OnPop: () => void;
 }
 
 /**
@@ -18,13 +20,35 @@ interface SceneSignals extends EntitySignals {
  */
 export abstract class Scene extends Entity<SceneSignals> {
   /**
-   * Switch to the scene by specified name.
+   * Switch to the scene by the specified name.
    *
-   * @param {string} next The name of the scene.
+   * @param {string} next The name of the next scene.
    * @memberof Scene
    */
   public SwitchScene(next: string) {
-    this.Emit("OnSwitch", next);
+    this.Emit('OnSwitch', next);
+  }
+
+  /**
+   * Switch to the scene by the specified name, and push the scene onto stack.
+   *
+   * You can use `PopScene()` to quickly switch back to the last scene on the stack.
+   *
+   * @param {string} next The name of the next scene.
+   * @memberof Scene
+   */
+  public PushScene(next: string) {
+    this.Emit('OnPush', next);
+  }
+
+  /**
+   * Leave the current scene and pop it from the stack,
+   * then switch to the last scene on the stack, which is pushed by `PushScene()`.
+   *
+   * @memberof Scene
+   */
+  public PopScene() {
+    this.Emit('OnPop');
   }
 }
 
@@ -45,7 +69,7 @@ export const enum SceneInitPolicy {
    * You can use this flag to keep all the state of the scene
    * through the whole lifecycle of the game.
    */
-  Persist
+  Persist,
 }
 
 interface SceneRegistry {
@@ -55,17 +79,17 @@ interface SceneRegistry {
 }
 
 /**
- * A helper class to manage scenes
+ * A stack-based helper class to manage scenes
  *
  * @export
  * @class SceneManager
  * @extends {Entity}
  */
 export class SceneManager extends Entity {
-  public readonly name: string = "SceneManager";
+  public readonly name: string = 'SceneManager';
 
   private registry: Record<string, SceneRegistry> = {};
-  private current: string = "";
+  private stack: string[] = [];
 
   /**
    * Register a scene.
@@ -89,7 +113,7 @@ export class SceneManager extends Entity {
     this.registry[name] = {
       policy,
       ctor,
-      instance: null
+      instance: null,
     };
     return this;
   }
@@ -106,7 +130,7 @@ export class SceneManager extends Entity {
    */
   public SetEntry(name: string): this {
     this.InitScene(this.GetSceneRegistry(name));
-    this.current = name;
+    this.stack = [name];
 
     return this;
   }
@@ -145,15 +169,52 @@ export class SceneManager extends Entity {
 
   private InitScene(registry: SceneRegistry) {
     const { ctor } = registry;
+
     const instance = (registry.instance = new ctor());
-    instance.Connect("OnSwitch", this.OnSwitch, this);
+    instance.Connect('OnSwitch', this.OnSwitchTo, this);
+    instance.Connect('OnPush', this.OnPush, this);
+    instance.Connect('OnPop', this.OnPop, this);
+
     this.AddChild(instance);
   }
 
-  private OnSwitch(name: string) {
-    this.ExitScene(this.current);
+  private GetCurrentScene(): string {
+    const count = this.stack.length;
+    if (count === 0) {
+      throw new Error('');
+    }
 
-    this.EnterScene(name);
-    this.current = name;
+    return this.stack[count - 1];
+  }
+
+  private OnSwitchTo(name: string) {
+    const from = this.GetCurrentScene();
+    const to = name;
+
+    this.stack = [to];
+    this.OnSwitch(from, to);
+  }
+
+  private OnPush(name: string) {
+    const from = this.GetCurrentScene();
+    const to = name;
+
+    this.stack.push(to);
+    this.OnSwitch(from, name);
+  }
+
+  private OnPop() {
+    const from = this.stack.pop();
+    if (!from) {
+      throw new Error('[wooly] No more scene on stack.');
+    }
+
+    const to = this.GetCurrentScene();
+    this.OnSwitch(from, to);
+  }
+
+  private OnSwitch(from: string, to: string) {
+    this.ExitScene(from);
+    this.EnterScene(to);
   }
 }
