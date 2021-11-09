@@ -70,4 +70,5 @@ export { Vector2 } from './util/vector2';
 export { Color } from './util/color';
 export { CoolDown } from './util/cooldown';
 export { Dice } from './util/dice';
+export { GetUniqId } from './util/idgen';
 export * from './util/common';
