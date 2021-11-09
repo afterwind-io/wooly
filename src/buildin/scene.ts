@@ -142,7 +142,7 @@ export class SceneManager extends Entity {
     if (!instance) {
       this.InitScene(registry);
     } else if (policy === SceneInitPolicy.Persist) {
-      instance.SetEnabled(true);
+      instance.SetVisible(true);
     }
   }
 
@@ -154,7 +154,7 @@ export class SceneManager extends Entity {
       instance!.Free();
       registry.instance = null;
     } else {
-      instance!.SetEnabled(false);
+      instance!.SetVisible(false);
     }
   }
 
@@ -200,7 +200,7 @@ export class SceneManager extends Entity {
     const to = name;
 
     this.stack.push(to);
-    this.OnSwitch(from, name);
+    this.OnSwitch(from, to);
   }
 
   private OnPop() {
