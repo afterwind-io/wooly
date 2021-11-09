@@ -4,7 +4,7 @@ export interface ImageResource {
 }
 
 interface Resource {
-  type: "image";
+  type: 'image';
   key: string;
   url: string;
 }
@@ -16,7 +16,7 @@ export const ResourceManager = new (class ResourceManager {
     const res: Promise<void>[] = [];
 
     for (const resource of resources) {
-      if (resource.type === "image") {
+      if (resource.type === 'image') {
         res.push(this.LoadImage(resource));
       }
     }
@@ -25,7 +25,12 @@ export const ResourceManager = new (class ResourceManager {
   }
 
   public GetImageSource(key: string): ImageResource {
-    return this.images[key];
+    const source = this.images[key];
+    if (!source) {
+      throw new Error(`[wooly] ImageSource "${key}" not found.`);
+    }
+
+    return source;
   }
 
   private LoadImage(resource: Resource): Promise<void> {
