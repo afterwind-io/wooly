@@ -1,4 +1,5 @@
-import { SingleChildWidget } from './foundation/singleChildWidget';
+import { Vector2 } from "../../util/vector2";
+import { SingleChildWidget } from "./foundation/singleChildWidget";
 
 /**
  * Provide basic container for controls.
@@ -10,16 +11,19 @@ import { SingleChildWidget } from './foundation/singleChildWidget';
  * @extends {SingleChildWidget}
  */
 export class Container extends SingleChildWidget {
-  public readonly name: string = 'Container';
+  public readonly name: string = "Container";
 
   protected readonly isLooseBox: boolean = true;
 
   protected _PerformLayout() {
     const child = this.GetFirstChild();
     if (child) {
-      child.position.x =
-        this.margin.left + this.border.left + this.padding.left;
-      child.position.y = this.margin.top + this.border.top + this.padding.top;
+      const childPosition = new Vector2(
+        this.margin.left + this.border.left + this.padding.left,
+        this.margin.top + this.border.top + this.padding.top
+      );
+
+      child.position = childPosition;
     }
   }
 }

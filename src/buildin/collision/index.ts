@@ -3,7 +3,7 @@ import {
   CollisionMask,
   CollisionType,
   COLLISION_CIRCLE,
-  COLLISION_RECTANGLE
+  COLLISION_RECTANGLE,
 } from "./type";
 import { Memorize, GetRectangleVertices } from "./util";
 import { IsOverlapsedByAABB } from "./aabb";
@@ -45,9 +45,9 @@ export class Collision extends Entity {
       return this.rectVerticesGetter(
         this.w,
         this.h,
-        this.GlobalPosition,
-        this.GlobalRotation,
-        this.GlobalScale
+        this.globalPosition,
+        this.globalRotation,
+        this.globalScale
       );
     }
 
@@ -144,13 +144,13 @@ export class Collision extends Entity {
       return;
     }
 
-    const index = layer.findIndex(o => o === this);
+    const index = layer.findIndex((o) => o === this);
     index !== -1 && CollisionLayerMap[this.collisionLayer].splice(index, 1);
   }
 
   private TestCircle2Circle(target: Collision): boolean {
     return (
-      this.GlobalPosition.DistanceTo(target.GlobalPosition) <=
+      this.globalPosition.DistanceTo(target.globalPosition) <=
       this.radius + target.radius
     );
   }

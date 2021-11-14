@@ -1,7 +1,7 @@
 import { Collision } from ".";
 import { COLLISION_CIRCLE } from "./type";
 import { GetIntersectionLength, IsIntersected } from "./util";
-import { Vector2 } from "../..//util/vector2";
+import { Vector2 } from "../../util/vector2";
 
 export function IsOverlapsedBySAT(c1: Collision, c2: Collision): boolean {
   if (!IsOverlapsed(GetTestAxis(c1, c2), c1, c2)) {
@@ -36,16 +36,16 @@ function IsOverlapsed(axiss: Vector2[], c1: Collision, c2: Collision): boolean {
 }
 
 function GetTestVertices(c: Collision) {
-  return c.type === COLLISION_CIRCLE ? [c.GlobalPosition] : c.Vertices;
+  return c.type === COLLISION_CIRCLE ? [c.globalPosition] : c.Vertices;
 }
 
 function GetTestAxis(c1: Collision, c2: Collision): Vector2[] {
   if (c1.type === COLLISION_CIRCLE) {
-    const center = c1.GlobalPosition;
+    const center = c1.globalPosition;
     return [center.Substract(GetNearestPoint(center, c2.Vertices)).Normalize()];
   }
 
-  return GetEdges(c1.Vertices).map(e => e.Normal().Normalize());
+  return GetEdges(c1.Vertices).map((e) => e.Normal().Normalize());
 }
 
 function GetNearestPoint(target: Vector2, points: Vector2[]): Vector2 {
@@ -97,5 +97,5 @@ function ProjectOntoAxis(c: Collision, axis: Vector2) {
 
 function GetTransformedRadius(c: Collision): number {
   // FIXME: 暂时无法支持水平及垂直缩放不一致的情况
-  return c.radius * c.GlobalScale.x;
+  return c.radius * c.globalScale.x;
 }

@@ -1,10 +1,10 @@
-import { RenderItem } from './renderItem';
-import { Signal } from './signal';
-import { ParamType } from '../util/common';
-import { Vector2 } from '../util/vector2';
-import { Input } from '../buildin/media/input';
-import { ViewportRegistry } from './viewport';
-import { DPR } from './globals';
+import { RenderItem } from "./renderItem";
+import { Signal } from "./signal";
+import { ParamType } from "../util/common";
+import { Vector2 } from "../util/vector2";
+import { Input } from "../buildin/media/input";
+import { ViewportRegistry } from "./viewport";
+import { DPR } from "./globals";
 
 /**
  * The global entity group map.
@@ -89,7 +89,7 @@ export abstract class Entity<
    * @type {string}
    * @memberof Entity
    */
-  public name: string = '';
+  public name: string = "";
 
   /**
    * The width of the node.
@@ -245,9 +245,11 @@ export abstract class Entity<
     width: number = this.w,
     height: number = this.h
   ): boolean {
+    const position = this.position;
+
     const B = this.GetScreenPosition();
-    const A = this.GetScreenPosition(this.position.Add(new Vector2(0, height)));
-    const C = this.GetScreenPosition(this.position.Add(new Vector2(width, 0)));
+    const A = this.GetScreenPosition(position.Add(new Vector2(0, height)));
+    const C = this.GetScreenPosition(position.Add(new Vector2(width, 0)));
     const M = Input.GetMousePosition();
 
     let projection: number = 0;
@@ -281,7 +283,7 @@ export abstract class Entity<
    * @memberof Entity
    */
   public LookAt(t: Vector2) {
-    this.SetRotation(this.GlobalPosition.AngleTo(t));
+    this.SetRotation(this.globalPosition.AngleTo(t));
   }
 
   /**
@@ -353,7 +355,7 @@ export abstract class Entity<
    */
   protected $SelfDestroy() {
     // @ts-ignore
-    this.signals.Emit('OnDestroy');
+    this.signals.Emit("OnDestroy");
 
     this.signals.Clear();
 
@@ -383,10 +385,7 @@ export abstract class Entity<
   protected GetScreenPosition(point?: Vector2): Vector2 {
     let position: Vector2 = point || this.position;
     if (this.parent) {
-      position = position
-        .Dot(this.parent.GlobalScale)
-        .Rotate(this.parent.GlobalRotation)
-        .Add(this.parent.GlobalPosition);
+      position = position.Transform(this.globalTransformMatrix);
     }
 
     const viewport = ViewportRegistry.Get(this.GlobalLayer);

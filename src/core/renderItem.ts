@@ -1,6 +1,6 @@
-import { Node } from './node';
-import { ViewportRegistry } from './viewport';
-import { Vector2 } from '../util/vector2';
+import { ViewportRegistry } from "./viewport";
+import { Transform } from "./transform";
+import { Matrix2d } from "../util/matrix2d";
 
 /**
  * Base class of everything relates to drawing.
@@ -10,7 +10,7 @@ import { Vector2 } from '../util/vector2';
  * @class RenderItem
  * @extends {Node}
  */
-export abstract class RenderItem extends Node {
+export abstract class RenderItem extends Transform {
   /**
    * Set or create the canvas layer the node currently at.
    *
@@ -18,30 +18,6 @@ export abstract class RenderItem extends Node {
    * @memberof RenderItem
    */
   public layer: number = 0;
-
-  /**
-   * The local position relative to parent.
-   *
-   * @type {Vector2}
-   * @memberof RenderItem
-   */
-  public position: Vector2 = new Vector2();
-
-  /**
-   * The local rotation in radians relative to parent.
-   *
-   * @type {number}
-   * @memberof RenderItem
-   */
-  public rotation: number = 0;
-
-  /**
-   * The local scale relative to parent.
-   *
-   * @type {Vector2}
-   * @memberof RenderItem
-   */
-  public scale: Vector2 = new Vector2(1, 1);
 
   /**
    * A flag indicates the visibility of the Entity.
@@ -143,42 +119,6 @@ export abstract class RenderItem extends Node {
    * [**Internal**]
    * **Do not modify this manually**
    *
-   * The cache value of `GlobalPosition`.
-   *
-   * @private
-   * @type {Vector2}
-   * @memberof RenderItem
-   */
-  private $freezedGlobalPosition: Vector2 = new Vector2();
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
-   * The cache value of `GlobalRotation`.
-   *
-   * @private
-   * @type {number}
-   * @memberof RenderItem
-   */
-  private $freezedGlobalRotation: number = 0;
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
-   * The cache value of `GlobalScale`.
-   *
-   * @private
-   * @type {Vector2}
-   * @memberof RenderItem
-   */
-  private $freezedGlobalScale: Vector2 = new Vector2(1, 1);
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
    * The cache value of `GlobalZIndex`.
    *
    * @private
@@ -208,66 +148,6 @@ export abstract class RenderItem extends Node {
     }
 
     return 0;
-  }
-
-  /**
-   * The actual position on screen.
-   *
-   * @readonly
-   * @type {Vector2}
-   * @memberof RenderItem
-   */
-  public get GlobalPosition(): Vector2 {
-    if (this.isFreezed) {
-      return this.$freezedGlobalPosition;
-    }
-
-    if (!this.parent) {
-      return this.position;
-    } else {
-      return this.position
-        .Dot(this.parent.GlobalScale)
-        .Rotate(this.parent.GlobalRotation)
-        .Add(this.parent.GlobalPosition);
-    }
-  }
-
-  /**
-   * The actual rotation on screen, in radians.
-   *
-   * @readonly
-   * @type {number}
-   * @memberof RenderItem
-   */
-  public get GlobalRotation(): number {
-    if (this.isFreezed) {
-      return this.$freezedGlobalRotation;
-    }
-
-    if (!this.parent) {
-      return this.rotation;
-    } else {
-      return this.rotation + this.parent.GlobalRotation;
-    }
-  }
-
-  /**
-   * The acutal scale on screen.
-   *
-   * @readonly
-   * @type {Vector2}
-   * @memberof RenderItem
-   */
-  public get GlobalScale(): Vector2 {
-    if (this.isFreezed) {
-      return this.$freezedGlobalScale;
-    }
-
-    if (!this.parent) {
-      return this.scale;
-    } else {
-      return this.scale.Dot(this.parent.GlobalScale);
-    }
   }
 
   /**
@@ -321,15 +201,16 @@ export abstract class RenderItem extends Node {
     ctx.save();
 
     const viewport = ViewportRegistry.Get(this.GlobalLayer);
-    const position = this.GlobalPosition.Substract(viewport.origin).Rotate(
-      -viewport.rotation
-    );
-    const rotation = this.GlobalRotation - viewport.rotation;
-    const scale = this.GlobalScale;
 
-    ctx.translate(position.x, position.y);
-    ctx.rotate(rotation);
-    ctx.scale(scale.x, scale.y);
+    const position = this.globalPosition
+      .Substract(viewport.origin)
+      .Rotate(-viewport.rotation);
+    const rotation = this.globalRotation - viewport.rotation;
+    const scale = this.globalScale;
+
+    const matrix = Matrix2d.Create(position, rotation, scale);
+    // @ts-expect-error
+    ctx.transform(...matrix.data);
 
     this._Draw(ctx);
 
@@ -352,9 +233,6 @@ export abstract class RenderItem extends Node {
    */
   public $Freeze() {
     this.$freezedGlobalLayer = this.GlobalLayer;
-    this.$freezedGlobalPosition = this.GlobalPosition;
-    this.$freezedGlobalRotation = this.GlobalRotation;
-    this.$freezedGlobalScale = this.GlobalScale;
     this.$freezedGlobalZIndex = this.GlobalZIndex;
 
     this.isFreezed = true;
@@ -373,30 +251,6 @@ export abstract class RenderItem extends Node {
   }
 
   /**
-   * Rotate the node based on current ratation.
-   *
-   * @param {number} rad The angle in radians.
-   * @memberof RenderItem
-   */
-  public Rotate(rad: number) {
-    this.rotation += rad;
-  }
-
-  /**
-   * Scale the node based on current scale.
-   *
-   * @param {number} scaleX The scale factor along x-axis.
-   * @param {number} [scaleY=scaleX]
-   * The scale factor along y-axis.
-   * If not given, the value will be considered equal to `scaleX`.
-   * @memberof RenderItem
-   */
-  public Scale(scaleX: number, scaleY: number = scaleX) {
-    this.scale.x = this.scale.x * scaleX;
-    this.scale.y = this.scale.y * scaleY;
-  }
-
-  /**
    * Set the layer of the node.
    *
    * @param {number} layer The index of the layer.
@@ -405,78 +259,6 @@ export abstract class RenderItem extends Node {
    */
   public SetLayer(layer: number): this {
     return (this.layer = layer), this;
-  }
-
-  /**
-   * Set the local position relative to parent by vector.
-   *
-   * @param {Vector2} pos Local position vector.
-   * @returns {this}
-   * @memberof RenderItem
-   */
-  public SetPosition(pos: Vector2): this;
-  /**
-   * Set the local position by specified value.
-   *
-   * @param {number} x The position on the x-axis.
-   * @param {number} y The position on the y-axis.
-   * @returns {this} This instance of the entity.
-   * @memberof RenderItem
-   */
-  public SetPosition(x: number, y: number): this;
-  public SetPosition(p1: number | Vector2, p2?: number) {
-    let pos: Vector2;
-    if (p1 instanceof Vector2) {
-      pos = p1;
-    } else {
-      pos = new Vector2(p1, p2);
-    }
-    return (this.position = pos), this;
-  }
-
-  /**
-   * Set the local rotation relative to parent by radians.
-   *
-   * @param {number} rad The angle, in radians.
-   * @returns {this} This instance of the entity.
-   * @memberof RenderItem
-   */
-  public SetRotation(rad: number): this {
-    return (this.rotation = rad), this;
-  }
-
-  /**
-   * Set the local scale relative to parent by vector.
-   *
-   * @param {Vector2} scale The scale vector.
-   * @returns {this} This instance of the entity.
-   * @memberof RenderItem
-   */
-  public SetScale(scale: Vector2): this;
-  /**
-   * Set the local scale relative to parent
-   * by specific factor along x-axis and y-aixs.
-   *
-   * @param {number} scaleX The scale factor along x-axis.
-   * @param {number} [scaleY]
-   * The scale factor along y-axis.
-   * If not given, the value will be considered equal to `scaleX`.
-   * @returns {this} This instance of the entity.
-   * @memberof RenderItem
-   */
-  public SetScale(scaleX: number, scaleY?: number): this;
-  public SetScale(p1: Vector2 | number, p2?: number): this {
-    if (p1 instanceof Vector2) {
-      this.scale = p1;
-    } else {
-      if (p2 === void 0) {
-        p2 = p1;
-      }
-
-      this.scale = new Vector2(p1, p2);
-    }
-
-    return this;
   }
 
   /**
@@ -491,7 +273,7 @@ export abstract class RenderItem extends Node {
   }
 
   /**
-   * Set the visiblity of the entity.
+   * Set the visibility of the entity.
    *
    * @param {boolean} f The flag.
    * @returns {this} This instance of the entity.
@@ -499,32 +281,6 @@ export abstract class RenderItem extends Node {
    */
   public SetVisible(f: boolean): this {
     return (this.visible = f), this;
-  }
-
-  /**
-   * Translate the entity by vector.
-   *
-   * @param {Vector2} v The offset vector.
-   * @memberof RenderItem
-   */
-  public Translate(v: Vector2): void;
-  /**
-   * Translate the entity by specified value.
-   *
-   * @param {number} x The offset along x-axis.
-   * @param {number} y The offset along y-axis.
-   * @memberof RenderItem
-   */
-  public Translate(x: number, y: number): void;
-  public Translate(p1: number | Vector2, p2?: number) {
-    let delta: Vector2;
-    if (p1 instanceof Vector2) {
-      delta = p1;
-    } else {
-      delta = new Vector2(p1, p2);
-    }
-
-    this.position = this.position.Add(delta);
   }
 
   /**

@@ -1,10 +1,11 @@
-import { Widget } from './foundation/widget';
-import { Constraint } from './common/constraint';
-import { Size, Length } from './common/types';
+import { Widget } from "./foundation/widget";
+import { Constraint } from "./common/constraint";
+import { Size, Length } from "./common/types";
 import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
-} from './foundation/types';
+} from "./foundation/types";
+import { Vector2 } from "../../util/vector2";
 
 interface GridOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
   mainAxisSpacing?: number;
@@ -14,7 +15,7 @@ interface GridOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
 }
 
 export class Grid extends Widget {
-  public readonly name: string = 'Grid';
+  public readonly name: string = "Grid";
 
   private _mainAxisSpacing: number;
   private _crossAxisSpacing: number;
@@ -59,7 +60,7 @@ export class Grid extends Widget {
     const mainAxisLength = localConstraint.maxWidth;
     if (mainAxisLength === Infinity) {
       throw new Error(
-        '[wooly] The main axis length must not be an infinite value.'
+        "[wooly] The main axis length must not be an infinite value."
       );
     }
 
@@ -102,16 +103,19 @@ export class Grid extends Widget {
     } = this;
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i] as Widget;
+      const childPosition = Vector2.Zero;
 
       const mainAxisIndex = i % crossAxisCount;
-      child.position.x =
+      childPosition.x =
         mainAxisIndex * (child._intrinsicWidth + mainAxisSpacing);
 
       const crossAxisIndex = Math.round(
         (i - (i % crossAxisCount)) / crossAxisCount
       );
-      child.position.y =
+      childPosition.y =
         crossAxisIndex * (child._intrinsicHeight + crossAxisSpacing);
+
+      child.position = childPosition;
     }
   }
 }

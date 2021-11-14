@@ -1,10 +1,11 @@
-import { Widget } from './foundation/widget';
-import { Constraint } from './common/constraint';
-import { Size, Length } from './common/types';
+import { Widget } from "./foundation/widget";
+import { Constraint } from "./common/constraint";
+import { Size, Length } from "./common/types";
 import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
-} from './foundation/types';
+} from "./foundation/types";
+import { Vector2 } from "../../util/vector2";
 
 export const enum FlexDirection {
   Horizontal,
@@ -34,7 +35,7 @@ interface FlexOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
 }
 
 export class Flex extends Widget {
-  public readonly name: string = 'Flex';
+  public readonly name: string = "Flex";
 
   private _direction: FlexDirection;
   private _mainAxisAlignment: FlexMainAxisAlignment;
@@ -233,27 +234,29 @@ export class Flex extends Widget {
         break;
     }
 
-    let mainAxisLengthAttr: '_intrinsicWidth' | '_intrinsicHeight';
-    let crossAxisLengthAttr: '_intrinsicWidth' | '_intrinsicHeight';
-    let mainAxisPosAttr: 'x' | 'y';
-    let crossAxisPosAttr: 'x' | 'y';
+    let mainAxisLengthAttr: "_intrinsicWidth" | "_intrinsicHeight";
+    let crossAxisLengthAttr: "_intrinsicWidth" | "_intrinsicHeight";
+    let mainAxisPosAttr: "x" | "y";
+    let crossAxisPosAttr: "x" | "y";
     if (this._direction === FlexDirection.Horizontal) {
-      mainAxisLengthAttr = '_intrinsicWidth';
-      crossAxisLengthAttr = '_intrinsicHeight';
-      mainAxisPosAttr = 'x';
-      crossAxisPosAttr = 'y';
+      mainAxisLengthAttr = "_intrinsicWidth";
+      crossAxisLengthAttr = "_intrinsicHeight";
+      mainAxisPosAttr = "x";
+      crossAxisPosAttr = "y";
     } else {
-      mainAxisLengthAttr = '_intrinsicHeight';
-      crossAxisLengthAttr = '_intrinsicWidth';
-      mainAxisPosAttr = 'y';
-      crossAxisPosAttr = 'x';
+      mainAxisLengthAttr = "_intrinsicHeight";
+      crossAxisLengthAttr = "_intrinsicWidth";
+      mainAxisPosAttr = "y";
+      crossAxisPosAttr = "x";
     }
 
     let mainAxisPointer = mainAxisLeading;
     for (const child of this.children as Widget[]) {
+      const childPosition = Vector2.Zero;
+
       // Main axis positioning
       const mainAxisStep = child[mainAxisLengthAttr];
-      child.position[mainAxisPosAttr] = mainAxisPointer;
+      childPosition[mainAxisPosAttr] = mainAxisPointer;
       mainAxisPointer += mainAxisStep + mainAxisSpacing;
 
       // Cross axis positioning
@@ -272,7 +275,9 @@ export class Flex extends Widget {
         default:
           break;
       }
-      child.position[crossAxisPosAttr] = crossAxisLeading;
+      childPosition[crossAxisPosAttr] = crossAxisLeading;
+
+      child.position = childPosition;
     }
   }
 }
@@ -299,9 +304,9 @@ function GetCrossAxisLength(size: Size, direction: FlexDirection): number {
 }
 
 function GetMaxAxisLength(maxLength: number, desiredLength: Length): number {
-  if (desiredLength === 'stretch') {
+  if (desiredLength === "stretch") {
     return maxLength;
-  } else if (desiredLength === 'shrink') {
+  } else if (desiredLength === "shrink") {
     /**
      * If the width of `Flex` depends on the total width of children,
      * there should be no free room for flexable children.

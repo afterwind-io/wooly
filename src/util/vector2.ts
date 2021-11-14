@@ -1,3 +1,7 @@
+import { Matrix2d } from "./matrix2d";
+
+export type ReadonlyVector2 = Readonly<Vector2>;
+
 export class Vector2 {
   public x: number = 0;
   public y: number = 0;
@@ -13,6 +17,10 @@ export class Vector2 {
 
   public static get Zero(): Vector2 {
     return new Vector2();
+  }
+
+  public static get One(): Vector2 {
+    return new Vector2(1, 1);
   }
 
   public get Length(): number {
@@ -81,5 +89,15 @@ export class Vector2 {
     var ca = Math.cos(rad);
     var sa = Math.sin(rad);
     return new Vector2(ca * this.x - sa * this.y, sa * this.x + ca * this.y);
+  }
+
+  public Transform(matrix: Matrix2d): Vector2 {
+    const [a0, a1, a2, a3, a4, a5] = matrix.data;
+    const { x, y } = this;
+
+    return new Vector2(
+      a0 * x + a2 * y + a4, //
+      a1 * x + a3 * y + a5
+    );
   }
 }

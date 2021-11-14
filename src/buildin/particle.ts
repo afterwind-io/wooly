@@ -1,8 +1,8 @@
-import { Entity, EntitySignals } from '../core/entity';
-import { CoolDown } from '../util/cooldown';
-import { Vector2 } from '../util/vector2';
-import { Dice } from '../util/dice';
-import { Blackhole } from '../util/common';
+import { Entity, EntitySignals } from "../core/entity";
+import { CoolDown } from "../util/cooldown";
+import { Vector2 } from "../util/vector2";
+import { Dice } from "../util/dice";
+import { Blackhole } from "../util/common";
 
 export type ParticlesShape = 0;
 export const PARTICLES_SHAPE_SPHERE = 0;
@@ -83,7 +83,7 @@ export class Particles extends Entity {
       .SetSpeed(speed)
       .SetRotation(angle)
       .SetScale(new Vector2(scale, scale));
-    p.Connect('OnVanish', () => this.particleAlive--);
+    p.Connect("OnVanish", () => this.particleAlive--);
     this.particleAlive++;
     this.AddChild(p);
   }
@@ -112,7 +112,7 @@ interface ParticleSignals extends EntitySignals {
 class Particle extends Entity<ParticleSignals> {
   private speed: number = 0.1;
   private lifetime: CoolDown;
-  private transform!: (p: Particle) => void;
+  private transformFn!: (p: Particle) => void;
 
   public constructor(
     lifetime: number,
@@ -124,7 +124,7 @@ class Particle extends Entity<ParticleSignals> {
     this.lifetime = new CoolDown(lifetime);
     this.lifetime.Activate();
 
-    this.transform = transformFn;
+    this.transformFn = transformFn;
 
     this.AddChild(material);
   }
@@ -133,10 +133,10 @@ class Particle extends Entity<ParticleSignals> {
     this.lifetime.Cool(delta);
 
     if (this.lifetime.isCooling) {
-      this.transform(this);
+      this.transformFn(this);
       this.Translate(this.Orientation.Multiply(this.speed * delta));
     } else {
-      this.Emit('OnVanish');
+      this.Emit("OnVanish");
       this.Free();
     }
   }

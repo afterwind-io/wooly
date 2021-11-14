@@ -33,15 +33,15 @@ export class Layer extends Entity {
   }
 
   public get GlobalPosition(): Vector2 {
-    return this.position;
+    return Vector2.Zero;
   }
 
   public get GlobalRotation(): number {
-    return this.rotation;
+    return 0;
   }
 
   public get GlobalScale(): Vector2 {
-    return this.scale;
+    return Vector2.One;
   }
 
   public get GlobalZIndex(): number {

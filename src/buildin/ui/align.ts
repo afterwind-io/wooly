@@ -1,10 +1,10 @@
-import { SingleChildWidget } from './foundation/singleChildWidget';
+import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   SingleChildWidgetOptions,
   CommonWidgetOptions,
-} from './foundation/types';
-import { Clamp } from './common/utils';
-import { Vector2 } from '../../util/vector2';
+} from "./foundation/types";
+import { Clamp } from "./common/utils";
+import { Vector2 } from "../../util/vector2";
 
 interface AlignOptions extends SingleChildWidgetOptions, CommonWidgetOptions {
   alignment?: Alignment;
@@ -12,7 +12,7 @@ interface AlignOptions extends SingleChildWidgetOptions, CommonWidgetOptions {
 }
 
 export class Align extends SingleChildWidget {
-  public readonly name: string = 'Align';
+  public readonly name: string = "Align";
 
   protected readonly isLooseBox: boolean = true;
 
@@ -47,11 +47,15 @@ export class Align extends SingleChildWidget {
 
     const maxPosX = width - childWidth;
     const centerX = Clamp(width * alignment.x - childWidth / 2, 0, maxPosX);
-    child.position.x = Clamp(centerX + offset.x, 0, maxPosX);
 
     const maxPosY = height - childHeight;
     const centerY = Clamp(height * alignment.y - childHeight / 2, 0, maxPosY);
-    child.position.y = Clamp(centerY + offset.y, 0, maxPosY);
+
+    const childPosition = new Vector2(
+      Clamp(centerX + offset.x, 0, maxPosX),
+      Clamp(centerY + offset.y, 0, maxPosY)
+    );
+    child.position = childPosition;
   }
 }
 

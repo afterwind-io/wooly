@@ -1,10 +1,10 @@
-import { Entity } from '../core/entity';
-import { Viewport, ViewportRegistry } from '../core/viewport';
-import { Vector2 } from '../util/vector2';
-import { CanvasManager } from '../core/manager/canvas';
+import { Entity } from "../core/entity";
+import { Viewport, ViewportRegistry } from "../core/viewport";
+import { Vector2 } from "../util/vector2";
+import { CanvasManager } from "../core/manager/canvas";
 
 export class Camera extends Entity {
-  public readonly name: string = 'Camera';
+  public readonly name: string = "Camera";
 
   private isCentered: boolean = false;
   private offset: Vector2 = new Vector2();
@@ -21,8 +21,8 @@ export class Camera extends Entity {
   }
 
   public _Update() {
-    this.Viewport.SetOrigin(this.GlobalPosition);
-    this.Viewport.SetRotation(this.GlobalRotation);
+    this.Viewport.SetOrigin(this.globalPosition);
+    this.Viewport.SetRotation(this.globalRotation);
     this.Viewport.SetZoom(this.scale);
 
     let offset = this.offset;

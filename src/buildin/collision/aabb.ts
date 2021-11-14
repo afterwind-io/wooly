@@ -25,7 +25,7 @@ export function IsOverlapsedByAABB(c1: Collision, c2: Collision): boolean {
 
 function GetAABB(c: Collision): { min: Vector2; max: Vector2 } {
   if (c.type === COLLISION_CIRCLE) {
-    return GetCircleAABB(c.GlobalPosition, c.radius);
+    return GetCircleAABB(c.globalPosition, c.radius);
   }
 
   return GetPolygonAABB(c.Vertices);
@@ -37,7 +37,7 @@ function GetCircleAABB(
 ): { min: Vector2; max: Vector2 } {
   return {
     min: new Vector2(center.x - radius, center.y - radius),
-    max: new Vector2(center.x + radius, center.y + radius)
+    max: new Vector2(center.x + radius, center.y + radius),
   };
 }
 
