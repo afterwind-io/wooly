@@ -14,11 +14,11 @@ It is rather simple, but still battery-included. Built-in functions including:
 
 - Sprite
 - Animation
-- Collision Detact ([AABB][_aabb]/[SAT][_sat])
+- Collision Detect ([AABB][_aabb]/[SAT][_sat])
 - Input Handling
 - Audio Playback
 - UI Framework
-- Particals
+- Particle
 - State Machine Model
 - Scene / Scene Manager
 - Camera

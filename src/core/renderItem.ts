@@ -31,15 +31,15 @@ export abstract class RenderItem extends Transform {
   public visible: boolean = true;
 
   /**
-   * The value indicates the rendering order, relative to parant.
+   * The value indicates the rendering order, relative to parent.
    *
    * When nodes are overlapping with each others,
-   * the node with higher value will be drawed "later",
+   * the node with higher value will be drawn "later",
    * thus appears in front of those with lower value.
    *
    * Note that in the `Draw` phase, the actual value taken into calculation
    * is the `GlobalZIndex`, which means then final drawing order is affected
-   * by its parent. Details see the explaination of `GlobalZIndex`.
+   * by its parent. Details see the explanation of `GlobalZIndex`.
    *
    * Though it is not intended, you can set local `zIndex` to a minus value.
    * In this way you can "hide" the node behind the parent.
@@ -154,7 +154,7 @@ export abstract class RenderItem extends Transform {
    * The actual zIndex.
    *
    * It is calculated accumulatively from root through the ancestors.
-   * For example, if the `zIndex` of root is 0, grandparant is 1, parent
+   * For example, if the `zIndex` of root is 0, grandparent is 1, parent
    * is 2, local zIndex is 3, then the final value is 6.
    *
    * @readonly
@@ -203,7 +203,7 @@ export abstract class RenderItem extends Transform {
     const viewport = ViewportRegistry.Get(this.GlobalLayer);
 
     const position = this.globalPosition
-      .Substract(viewport.origin)
+      .Subtract(viewport.origin)
       .Rotate(-viewport.rotation);
     const rotation = this.globalRotation - viewport.rotation;
     const scale = this.globalScale;

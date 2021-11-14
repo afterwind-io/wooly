@@ -32,7 +32,7 @@ export const Input = new (class Input {
   }
 
   public GetMouseDelta(): Vector2 {
-    return this.mousePos.Substract(this.prevMousePos);
+    return this.mousePos.Subtract(this.prevMousePos);
   }
 
   public GetMousePosition(): Vector2 {

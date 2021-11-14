@@ -44,7 +44,7 @@ export abstract class State<T> {
    *
    * @abstract
    * @returns {(State<T> | string)} The next state.
-   * If a string is retured,
+   * If a string is returned,
    * the state machine will take it as the state name,
    * and fetch the corresponding state from its registry.
    * @memberof State
@@ -247,7 +247,7 @@ export class StateMachine<T> {
    * thus it won't call any lifecycle methods of the state (`Enter`, `Exit`).
    *
    * Call this during the machine initialization only.
-   * Otherwise, use it with causion.
+   * Otherwise, use it with caution.
    *
    * ```typescript
    * public _Ready() {

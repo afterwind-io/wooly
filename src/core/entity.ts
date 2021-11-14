@@ -254,15 +254,15 @@ export abstract class Entity<
 
     let projection: number = 0;
 
-    const ab = B.Substract(A);
-    const am = M.Substract(A);
+    const ab = B.Subtract(A);
+    const am = M.Subtract(A);
     projection = ab.DotProduct(am);
     if (projection < 0 || ab.DotProduct(ab) < projection) {
       return false;
     }
 
-    const bc = C.Substract(B);
-    const bm = M.Substract(B);
+    const bc = C.Subtract(B);
+    const bm = M.Subtract(B);
     projection = bc.DotProduct(bm);
     if (projection < 0 || bc.DotProduct(bc) < projection) {
       return false;
@@ -390,7 +390,7 @@ export abstract class Entity<
 
     const viewport = ViewportRegistry.Get(this.GlobalLayer);
     return position
-      .Substract(viewport.origin)
+      .Subtract(viewport.origin)
       .Rotate(-viewport.rotation)
       .Dot(viewport.zoom)
       .Add(viewport.offset.Multiply(1 / DPR));

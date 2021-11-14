@@ -6,8 +6,8 @@ import {
   COLLISION_RECTANGLE,
 } from "./type";
 import { Memorize, GetRectangleVertices } from "./util";
-import { IsOverlapsedByAABB } from "./aabb";
-import { IsOverlapsedBySAT } from "./sat";
+import { IsOverlappedByAABB } from "./aabb";
+import { IsOverlappedBySAT } from "./sat";
 import { Entity } from "../../core/entity";
 import { Vector2 } from "../../util/vector2";
 
@@ -156,10 +156,10 @@ export class Collision extends Entity {
   }
 
   private TestPolygon2Any(target: Collision): boolean {
-    if (!IsOverlapsedByAABB(this, target)) {
+    if (!IsOverlappedByAABB(this, target)) {
       return false;
     }
-    if (!IsOverlapsedBySAT(this, target)) {
+    if (!IsOverlappedBySAT(this, target)) {
       return false;
     }
 

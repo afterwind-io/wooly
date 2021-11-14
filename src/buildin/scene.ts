@@ -60,7 +60,7 @@ export abstract class Scene extends Entity<SceneSignals> {
  */
 export const enum SceneInitPolicy {
   /**
-   * Alawys creates a new instance.
+   * Always creates a new instance.
    */
   New,
   /**

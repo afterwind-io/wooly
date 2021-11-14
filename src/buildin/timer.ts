@@ -2,7 +2,7 @@ import { Entity, EntitySignals } from "../core/entity";
 import { CoolDown } from "../util/cooldown";
 
 /**
- * Define the behavior when timer reachs 0.
+ * Define the behavior when timer reaches 0.
  *
  * @enum {number}
  */
@@ -19,7 +19,7 @@ export const enum TimerBehavior {
 
 interface TimerSignals extends EntitySignals {
   /**
-   * Emits when timer reachs 0.
+   * Emits when timer reaches 0.
    *
    * @memberof TimerSignals
    */

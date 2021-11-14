@@ -3,7 +3,7 @@ import { COLLISION_CIRCLE } from "./type";
 import { GetIntersectionLength, IsIntersected } from "./util";
 import { Vector2 } from "../../util/vector2";
 
-export function IsOverlapsedByAABB(c1: Collision, c2: Collision): boolean {
+export function IsOverlappedByAABB(c1: Collision, c2: Collision): boolean {
   const aabb1 = GetAABB(c1);
   const aabb2 = GetAABB(c2);
 

@@ -3,20 +3,20 @@ import { COLLISION_CIRCLE } from "./type";
 import { GetIntersectionLength, IsIntersected } from "./util";
 import { Vector2 } from "../../util/vector2";
 
-export function IsOverlapsedBySAT(c1: Collision, c2: Collision): boolean {
-  if (!IsOverlapsed(GetTestAxis(c1, c2), c1, c2)) {
+export function IsOverlappedBySAT(c1: Collision, c2: Collision): boolean {
+  if (!IsOverlapped(GetTestAxis(c1, c2), c1, c2)) {
     return false;
   }
 
-  if (!IsOverlapsed(GetTestAxis(c2, c1), c1, c2)) {
+  if (!IsOverlapped(GetTestAxis(c2, c1), c1, c2)) {
     return false;
   }
 
   return true;
 }
 
-function IsOverlapsed(axiss: Vector2[], c1: Collision, c2: Collision): boolean {
-  for (const axis of axiss) {
+function IsOverlapped(axises: Vector2[], c1: Collision, c2: Collision): boolean {
+  for (const axis of axises) {
     const myProjection = ProjectOntoAxis(c1, axis);
     const thProjection = ProjectOntoAxis(c2, axis);
 
@@ -42,7 +42,7 @@ function GetTestVertices(c: Collision) {
 function GetTestAxis(c1: Collision, c2: Collision): Vector2[] {
   if (c1.type === COLLISION_CIRCLE) {
     const center = c1.globalPosition;
-    return [center.Substract(GetNearestPoint(center, c2.Vertices)).Normalize()];
+    return [center.Subtract(GetNearestPoint(center, c2.Vertices)).Normalize()];
   }
 
   return GetEdges(c1.Vertices).map((e) => e.Normal().Normalize());
@@ -70,7 +70,7 @@ function GetEdges(vertices: Vector2[]): Vector2[] {
   let currentVertex = vertices[0];
   let i = vertices.length;
   while (i--) {
-    edges.push(currentVertex.Substract(vertices[i]));
+    edges.push(currentVertex.Subtract(vertices[i]));
     currentVertex = vertices[i];
   }
   return edges;

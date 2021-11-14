@@ -132,7 +132,7 @@ export class Flex extends Widget {
     //#endregion
 
     //#region
-    // Distribute free space to all flexable children
+    // Distribute free space to all flexible children
     const maxMainAxisLength =
       direction === FlexDirection.Horizontal
         ? GetMaxAxisLength(constraint.maxWidth, desiredWidth)
@@ -309,7 +309,7 @@ function GetMaxAxisLength(maxLength: number, desiredLength: Length): number {
   } else if (desiredLength === "shrink") {
     /**
      * If the width of `Flex` depends on the total width of children,
-     * there should be no free room for flexable children.
+     * there should be no free room for flexible children.
      */
     return 0;
   } else {

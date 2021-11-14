@@ -40,7 +40,7 @@ export class Vector2 {
   }
 
   public DistanceTo(v: Vector2): number {
-    return this.Substract(v).Length;
+    return this.Subtract(v).Length;
   }
 
   public Dot(v: Vector2): Vector2 {
@@ -51,7 +51,7 @@ export class Vector2 {
     return this.x * v.x + this.y * v.y;
   }
 
-  public Substract(v: Vector2): Vector2 {
+  public Subtract(v: Vector2): Vector2 {
     return new Vector2(this.x - v.x, this.y - v.y);
   }
 

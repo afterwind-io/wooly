@@ -59,7 +59,7 @@ export class Particles extends Entity {
     return (this.oneshot = f), this;
   }
 
-  public SetRotaionRange(min: number, max: number): this {
+  public SetRotationRange(min: number, max: number): this {
     return (this.rotationMin = min), (this.rotationMax = max), this;
   }
 

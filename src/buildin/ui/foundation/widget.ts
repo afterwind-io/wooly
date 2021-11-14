@@ -29,7 +29,7 @@ const DragDropState = new (class DragDropState {
     this.data = null;
   }
 
-  public IsStartDraging(pos: Vector2): boolean {
+  public IsStartDragging(pos: Vector2): boolean {
     return this.dragStartPos.DistanceTo(pos) >= DRAG_START_THRESHOLD;
   }
 
@@ -295,7 +295,7 @@ export abstract class Widget<
       case MouseDragDrop.DragPending:
         if (!Input.IsMouseDown(Input.BUTTON_LEFT)) {
           return MouseDragDrop.None;
-        } else if (DragDropState.IsStartDraging(Input.GetMousePosition())) {
+        } else if (DragDropState.IsStartDragging(Input.GetMousePosition())) {
           return MouseDragDrop.DragStart;
         } else {
           return MouseDragDrop.DragPending;
