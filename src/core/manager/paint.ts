@@ -1,8 +1,6 @@
-import { DPR } from "../globals";
 import { RenderTreeManager } from "./renderTree";
 import { ViewportRegistry } from "../viewport";
 import { CanvasManager } from "./canvas";
-import { Matrix2d } from "../../util/matrix2d";
 
 export const PaintManager = new (class PaintManager {
   private clearColor: string = "white";
@@ -31,17 +29,9 @@ export const PaintManager = new (class PaintManager {
     RenderTreeManager.layerMap.Traverse((layer, layerIndex) => {
       const viewport = ViewportRegistry.Get(layerIndex!);
 
-      const m = Matrix2d.Create(
-        viewport.offset,
-        0,
-        viewport.zoom.Multiply(DPR)
-      );
-      // @ts-expect-error
-      ctx.setTransform(...m.data);
-
       layer.Traverse((stack) =>
         stack.Traverse((node) => {
-          node.$Draw(ctx);
+          node.$Draw(ctx, viewport);
           node.$Melt();
         })
       );
@@ -53,6 +43,6 @@ export const PaintManager = new (class PaintManager {
     ctx.resetTransform();
 
     ctx.fillStyle = this.clearColor;
-    ctx.fillRect(0, 0, canvas.clientWidth * DPR, canvas.clientHeight * DPR);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 })();

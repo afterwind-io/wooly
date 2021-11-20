@@ -4,7 +4,6 @@ import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
 import { Input } from "../buildin/media/input";
 import { ViewportRegistry } from "./viewport";
-import { DPR } from "./globals";
 
 /**
  * The global entity group map.
@@ -245,6 +244,10 @@ export abstract class Entity<
     width: number = this.w,
     height: number = this.h
   ): boolean {
+    if (width * height === 0) {
+      return false;
+    }
+
     const position = this.position;
 
     const B = this.GetScreenPosition();
@@ -384,15 +387,10 @@ export abstract class Entity<
    */
   protected GetScreenPosition(point?: Vector2): Vector2 {
     let position: Vector2 = point || this.position;
-    if (this.parent) {
-      position = position.Transform(this.globalTransformMatrix);
-    }
 
     const viewport = ViewportRegistry.Get(this.GlobalLayer);
-    return position
-      .Subtract(viewport.origin)
-      .Rotate(-viewport.rotation)
-      .Dot(viewport.zoom)
-      .Add(viewport.offset.Multiply(1 / DPR));
+    return position.Transform(
+      viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
+    );
   }
 }

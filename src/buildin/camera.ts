@@ -21,15 +21,15 @@ export class Camera extends Entity {
   }
 
   public _Update() {
-    this.Viewport.SetOrigin(this.globalPosition);
-    this.Viewport.SetRotation(this.globalRotation);
-    this.Viewport.SetZoom(this.scale);
+    this.Viewport.origin = this.globalPosition;
+    this.Viewport.rotation = this.globalRotation;
+    this.Viewport.zoom = this.scale;
 
     let offset = this.offset;
     if (this.isCentered) {
       offset = offset.Add(CanvasManager.Dimension.Multiply(0.5));
     }
-    this.Viewport.SetOffset(offset);
+    this.Viewport.offset = offset;
   }
 
   public SetIsCentered(f: boolean): this {

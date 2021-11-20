@@ -1,25 +1,53 @@
-import { Vector2 } from '../util/vector2';
+import { Matrix2d } from "../util/matrix2d";
+import { ReadonlyVector2, Vector2 } from "../util/vector2";
 
 export class Viewport {
-  public offset: Vector2 = new Vector2();
-  public origin: Vector2 = new Vector2();
-  public rotation: number = 0;
-  public zoom: Vector2 = new Vector2(1, 1);
+  private offsetMatrix: Matrix2d = Matrix2d.Identity();
+  private projectMatrix: Matrix2d = Matrix2d.Identity();
+  private transform: Matrix2d = Matrix2d.Identity();
 
-  public SetOffset(offset: Vector2): this {
-    return (this.offset = offset), this;
+  public get offset(): ReadonlyVector2 {
+    return this.offsetMatrix.translation;
   }
 
-  public SetOrigin(origin: Vector2): this {
-    return (this.origin = origin), this;
+  public set offset(offset: Vector2) {
+    this.offsetMatrix.translation = offset;
+    this.updateTransform();
   }
 
-  public SetRotation(rad: number): this {
-    return (this.rotation = rad), this;
+  public get origin(): ReadonlyVector2 {
+    return this.projectMatrix.translation;
   }
 
-  public SetZoom(zoom: Vector2): this {
-    return (this.zoom = zoom), this;
+  public set origin(origin: Vector2) {
+    this.projectMatrix.translation = origin;
+    this.updateTransform();
+  }
+
+  public get rotation(): number {
+    return this.projectMatrix.rotation;
+  }
+
+  public set rotation(rad: number) {
+    this.projectMatrix.rotation = rad;
+    this.updateTransform();
+  }
+
+  public get zoom(): Vector2 {
+    return this.offsetMatrix.scale;
+  }
+
+  public set zoom(scale: Vector2) {
+    this.offsetMatrix.scale = scale;
+    this.updateTransform();
+  }
+
+  public GetViewportTransform(): Matrix2d {
+    return this.transform;
+  }
+
+  private updateTransform() {
+    this.transform = this.offsetMatrix.Multiply(this.projectMatrix.Invert());
   }
 }
 

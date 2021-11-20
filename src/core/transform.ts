@@ -14,11 +14,11 @@ export class Transform extends Node {
    * The local position relative to parent.
    */
   public get position(): ReadonlyVector2 {
-    return this.localTransform.GetTranslation();
+    return this.localTransform.translation;
   }
 
   public set position(pos: ReadonlyVector2) {
-    this.localTransform.SetTranslation(pos);
+    this.localTransform.translation = pos;
     this.$UpdateCachedTransform();
   }
 
@@ -26,11 +26,11 @@ export class Transform extends Node {
    * The local rotation in radians relative to parent.
    */
   public get rotation(): number {
-    return this.localTransform.GetRotation();
+    return this.localTransform.rotation;
   }
 
   public set rotation(rad: number) {
-    this.localTransform.SetRotation(rad);
+    this.localTransform.rotation = rad;
     this.$UpdateCachedTransform();
   }
 
@@ -38,7 +38,7 @@ export class Transform extends Node {
    * The local scale relative to parent.
    */
   public get scale(): ReadonlyVector2 {
-    return this.localTransform.GetScale();
+    return this.localTransform.scale;
   }
 
   /**
@@ -47,7 +47,7 @@ export class Transform extends Node {
    * *Negative scale is not supported.*
    */
   public set scale(s: ReadonlyVector2) {
-    this.localTransform.SetScale(s);
+    this.localTransform.scale = s;
     this.$UpdateCachedTransform();
   }
 
@@ -70,7 +70,7 @@ export class Transform extends Node {
       return this.rotation;
     }
 
-    return this.globalTransformMatrix.GetRotation();
+    return this.globalTransformMatrix.rotation;
   }
 
   /**
@@ -81,7 +81,7 @@ export class Transform extends Node {
       return this.scale;
     }
 
-    return this.globalTransformMatrix.GetScale();
+    return this.globalTransformMatrix.scale;
   }
 
   /**

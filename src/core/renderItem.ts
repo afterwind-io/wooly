@@ -1,6 +1,6 @@
-import { ViewportRegistry } from "./viewport";
+import { Viewport } from "./viewport";
 import { Transform } from "./transform";
-import { Matrix2d } from "../util/matrix2d";
+import { DPRMatrix } from "./globals";
 
 /**
  * Base class of everything relates to drawing.
@@ -179,12 +179,12 @@ export abstract class RenderItem extends Transform {
    *
    * Trigger the draw process.
    *
-   * @param {CanvasRenderingContext2D} ctx
-   * The `CanvasRenderingContext2D` interface.
+   * @param ctx The `CanvasRenderingContext2D` interface.
+   * @param viewport The viewport of current item.
    * @returns
    * @memberof RenderItem
    */
-  public $Draw(ctx: CanvasRenderingContext2D) {
+  public $Draw(ctx: CanvasRenderingContext2D, viewport: Viewport) {
     if (!this.enabled) {
       return;
     }
@@ -198,23 +198,13 @@ export abstract class RenderItem extends Transform {
       return;
     }
 
-    ctx.save();
-
-    const viewport = ViewportRegistry.Get(this.GlobalLayer);
-
-    const position = this.globalPosition
-      .Subtract(viewport.origin)
-      .Rotate(-viewport.rotation);
-    const rotation = this.globalRotation - viewport.rotation;
-    const scale = this.globalScale;
-
-    const matrix = Matrix2d.Create(position, rotation, scale);
-    // @ts-expect-error
-    ctx.transform(...matrix.data);
+    // TODO 找个办法将dpr移出渲染逻辑
+    const matrix = DPRMatrix.Multiply(
+      viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
+    );
+    ctx.setTransform(...matrix.data);
 
     this._Draw(ctx);
-
-    ctx.restore();
   }
 
   /**
