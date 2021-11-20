@@ -1,6 +1,6 @@
 import { Entity } from "../core/entity";
-import { Vector2 } from "../util/vector2";
 import { ViewportRegistry } from "../core/viewport";
+import { Matrix2d } from "../util/matrix2d";
 
 /**
  * A utility entity to move its descendants into an separate canvas layer.
@@ -32,19 +32,7 @@ export class Layer extends Entity {
     ViewportRegistry.Remove(this.layer);
   }
 
-  public get GlobalPosition(): Vector2 {
-    return Vector2.Zero;
-  }
-
-  public get GlobalRotation(): number {
-    return 0;
-  }
-
-  public get GlobalScale(): Vector2 {
-    return Vector2.One;
-  }
-
-  public get GlobalZIndex(): number {
-    return 0;
+  public get globalTransformMatrix(): Matrix2d {
+    return Matrix2d.Identity();
   }
 }
