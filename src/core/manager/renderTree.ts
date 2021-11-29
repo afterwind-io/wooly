@@ -1,6 +1,6 @@
-import { OrderedLinkedList } from '../struct/orderedLinkedList';
-import { LinkedList } from '../struct/linkedList';
-import { RenderItem } from '../renderItem';
+import { OrderedLinkedList } from "../struct/orderedLinkedList";
+import { LinkedList } from "../struct/linkedList";
+import { RenderItem } from "../renderItem";
 
 export const RenderTreeManager = new (class RenderTreeManager {
   public layerMap: OrderedLinkedList<
@@ -30,7 +30,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
   }
 
   private BuildTree(root: RenderItem) {
-    const layerIndex = root.layer;
+    const rootLayer = root.layer;
     const pendingLayers: RenderItem[] = [];
 
     // @ts-ignore
@@ -39,13 +39,14 @@ export const RenderTreeManager = new (class RenderTreeManager {
         return true;
       }
 
-      if (node.GlobalLayer !== layerIndex) {
+      const layer = node.layer;
+      if (layer !== 0 && layer !== rootLayer) {
         pendingLayers.push(node);
         return true;
       }
 
       node.$Freeze();
-      this.Add(node as RenderItem, layerIndex);
+      this.Add(node as RenderItem, rootLayer);
     });
 
     for (const node of pendingLayers) {
