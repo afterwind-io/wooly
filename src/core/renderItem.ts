@@ -1,6 +1,4 @@
-import { Viewport } from "./viewport";
 import { Transform } from "./transform";
-import { DPRMatrix } from "./globals";
 
 /**
  * Base class of everything relates to drawing.
@@ -77,7 +75,7 @@ export abstract class RenderItem extends Transform {
    * @type {boolean}
    * @memberof RenderItem
    */
-  protected customDrawing: boolean = false;
+  public customDrawing: boolean = false;
 
   /**
    * [**Internal**]
@@ -177,40 +175,6 @@ export abstract class RenderItem extends Transform {
    * [**Internal**]
    * **Do not call this manually**
    *
-   * Trigger the draw process.
-   *
-   * @param ctx The `CanvasRenderingContext2D` interface.
-   * @param viewport The viewport of current item.
-   * @returns
-   * @memberof RenderItem
-   */
-  public $Draw(ctx: CanvasRenderingContext2D, viewport: Viewport) {
-    if (!this.enabled) {
-      return;
-    }
-
-    // FIXME 子代不知道祖先节点是否设置了visible
-    if (!this.visible) {
-      return;
-    }
-
-    if (!this.customDrawing) {
-      return;
-    }
-
-    // TODO 找个办法将dpr移出渲染逻辑
-    const matrix = DPRMatrix.Multiply(
-      viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
-    );
-    ctx.setTransform(...matrix.data);
-
-    this._Draw(ctx);
-  }
-
-  /**
-   * [**Internal**]
-   * **Do not call this manually**
-   *
    * Immediately calculate the value of global attributes,
    * and store them to the local properties.
    *
@@ -277,10 +241,10 @@ export abstract class RenderItem extends Transform {
    * [**Lifecycle**]
    * Called on every draw updates, after the `_Update` call.
    *
-   * @protected
+   * @public
    * @param {CanvasRenderingContext2D} ctx
    * The `CanvasRenderingContext2D` interface.
    * @memberof RenderItem
    */
-  protected _Draw(ctx: CanvasRenderingContext2D) {}
+  public _Draw(ctx: CanvasRenderingContext2D) {}
 }
