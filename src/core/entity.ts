@@ -165,7 +165,6 @@ export abstract class Entity<
    * @memberof Entity
    */
   public $Update(delta: number) {
-    // @ts-ignore
     this.Traverse((node: Entity) => {
       if (!node.enabled || node.paused) {
         return true;

@@ -33,7 +33,6 @@ export const RenderTreeManager = new (class RenderTreeManager {
     const rootLayer = root.layer;
     const pendingLayers: RenderItem[] = [];
 
-    // @ts-ignore
     root.Traverse((node: RenderItem) => {
       if (!node.enabled || !node.visible) {
         return true;

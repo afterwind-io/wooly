@@ -26,7 +26,7 @@ export const enum NodeState {
   /**
    * Node has been removed from the tree.
    */
-  Destroyed
+  Destroyed,
 }
 
 /**
@@ -132,7 +132,7 @@ export abstract class Node {
    * @memberof Node
    */
   public $Destroy() {
-    this.Traverse(node => {
+    this.Traverse((node) => {
       if (node.state === NodeState.Destroyed) {
         return;
       }
@@ -255,10 +255,14 @@ export abstract class Node {
    * This method is meant for **internal** use. If you somehow need this, please
    * avoid manipulating the tree directly during the process.
    *
-   * @param {((node: Node) => void | boolean)} cb The traverse handler.
+   * @type {T} Current derived type
+   * @param {((node: T) => void | boolean)} cb
+   * The traverse handler. If returns `true`, the traverse of the children of
+   * current node will be skipped.
+   *
    * @memberof Node
    */
-  public Traverse(cb: (node: Node) => void | boolean) {
+  public Traverse<T extends Node>(cb: (node: T) => void | boolean) {
     let path = new LinkedList<Node>();
     let next: Node = this;
 
@@ -270,7 +274,7 @@ export abstract class Node {
         );
       }
 
-      const skip = cb(next);
+      const skip = cb(next as T);
 
       if (path.Peek() === next) {
         path.Pop();
@@ -331,7 +335,7 @@ export abstract class Node {
    * @memberof Node
    */
   private RemoveChild(item: Node) {
-    const index = this.children.findIndex(c => c === item);
+    const index = this.children.findIndex((c) => c === item);
     if (index === -1) {
       return;
     }
