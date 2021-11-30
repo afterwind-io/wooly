@@ -387,7 +387,7 @@ export abstract class Entity<
   protected GetScreenPosition(point?: Vector2): Vector2 {
     let position: Vector2 = point || this.position;
 
-    const viewport = ViewportRegistry.Get(this.GlobalLayer);
+    const viewport = ViewportRegistry.Get(this.layer);
     return position.Transform(
       viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
     );

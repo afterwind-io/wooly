@@ -105,18 +105,6 @@ export abstract class RenderItem extends Transform {
    * [**Internal**]
    * **Do not modify this manually**
    *
-   * The cache value of `GlobalLayer`.
-   *
-   * @private
-   * @type {number}
-   * @memberof RenderItem
-   */
-  private $freezedGlobalLayer: number = 0;
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
    * The cache value of `GlobalZIndex`.
    *
    * @private
@@ -124,29 +112,6 @@ export abstract class RenderItem extends Transform {
    * @memberof RenderItem
    */
   private $freezedGlobalZIndex: number = 0;
-
-  /**
-   * The actual layer on screen.
-   *
-   * @readonly
-   * @type {number}
-   * @memberof RenderItem
-   */
-  public get GlobalLayer(): number {
-    if (this.isFreezed) {
-      return this.$freezedGlobalLayer;
-    }
-
-    if (this.layer !== 0) {
-      return this.layer;
-    }
-
-    if (this.parent) {
-      return this.parent.GlobalLayer;
-    }
-
-    return 0;
-  }
 
   /**
    * The actual zIndex.
@@ -171,6 +136,21 @@ export abstract class RenderItem extends Transform {
     }
   }
 
+  public AddChild(node: RenderItem): void {
+    super.AddChild(node);
+
+    const layer = this.layer;
+    if (layer !== 0) {
+      node.Traverse((n: RenderItem) => {
+        if (n.layer !== 0) {
+          return true;
+        }
+
+        n.layer = layer;
+      });
+    }
+  }
+
   /**
    * [**Internal**]
    * **Do not call this manually**
@@ -186,7 +166,6 @@ export abstract class RenderItem extends Transform {
    * @memberof RenderItem
    */
   public $Freeze() {
-    this.$freezedGlobalLayer = this.GlobalLayer;
     this.$freezedGlobalZIndex = this.GlobalZIndex;
 
     this.isFreezed = true;
