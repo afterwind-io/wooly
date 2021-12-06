@@ -30,7 +30,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
   }
 
   private BuildTree(root: RenderItem) {
-    const rootLayer = root.layer;
+    const rootLayer = root.layer.index;
     const pendingLayers: RenderItem[] = [];
 
     root.Traverse((node: RenderItem) => {
@@ -38,7 +38,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
         return true;
       }
 
-      const layer = node.layer;
+      const layer = node.layer.index;
       if (layer !== 0 && layer !== rootLayer) {
         pendingLayers.push(node);
         return true;

@@ -21,15 +21,15 @@ export class Layer extends Entity {
   public constructor(layer: number) {
     super();
 
-    this.layer = layer;
+    this.layer.index = layer;
   }
 
   public _Ready() {
-    ViewportRegistry.Add(this.layer);
+    ViewportRegistry.Add(this.layer.index);
   }
 
   public _Destroy() {
-    ViewportRegistry.Remove(this.layer);
+    ViewportRegistry.Remove(this.layer.index);
   }
 
   public get globalTransformMatrix(): Matrix2d {

@@ -1,3 +1,4 @@
+import { CanvasLayer } from "./canvasLayer";
 import { Transform } from "./transform";
 
 /**
@@ -12,10 +13,10 @@ export abstract class RenderItem extends Transform {
   /**
    * Set or create the canvas layer the node currently at.
    *
-   * @type {number}
+   * @type {CanvasLayer}
    * @memberof RenderItem
    */
-  public layer: number = 0;
+  public layer: CanvasLayer = new CanvasLayer(this);
 
   /**
    * A flag indicates the visibility of the Entity.
@@ -139,16 +140,7 @@ export abstract class RenderItem extends Transform {
   public AddChild(node: RenderItem): void {
     super.AddChild(node);
 
-    const layer = this.layer;
-    if (layer !== 0) {
-      node.Traverse((n: RenderItem) => {
-        if (n.layer !== 0) {
-          return true;
-        }
-
-        n.layer = layer;
-      });
-    }
+    this.layer.InitializeChildLayer(node);
   }
 
   /**
@@ -191,7 +183,7 @@ export abstract class RenderItem extends Transform {
    * @memberof RenderItem
    */
   public SetLayer(layer: number): this {
-    return (this.layer = layer), this;
+    return (this.layer.index = layer), this;
   }
 
   /**
