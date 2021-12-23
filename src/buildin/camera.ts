@@ -9,28 +9,28 @@ export class Camera extends Entity {
 
   private isCentered: boolean = false;
   private offset: Vector2 = new Vector2();
-  private targetViewport: number = 0;
+  private targetComposition: number | undefined = void 0;
+  private targetLayer: number | undefined = void 0;
 
-  public constructor(targetViewport: number = 0) {
+  public constructor(targetLayer?: number, targetComposition?: number) {
     super();
 
-    this.targetViewport = targetViewport;
-  }
-
-  public _Ready() {
-    this.visible = false;
+    this.targetLayer = targetLayer;
+    this.targetComposition = targetComposition;
   }
 
   public _Update() {
-    this.Viewport.origin = this.globalPosition;
-    this.Viewport.rotation = this.globalRotation;
-    this.Viewport.zoom = this.scale;
+    const viewport = this.GetViewport();
+
+    viewport.origin = this.globalPosition;
+    viewport.rotation = this.globalRotation;
+    viewport.zoom = this.scale;
 
     let offset = this.offset;
     if (this.isCentered) {
       offset = offset.Add(CanvasManager.Dimension.Multiply(0.5));
     }
-    this.Viewport.offset = offset;
+    viewport.offset = offset;
   }
 
   public SetIsCentered(f: boolean): this {
@@ -38,7 +38,7 @@ export class Camera extends Entity {
   }
 
   public SetTargetViewport(id: number): this {
-    return (this.targetViewport = id), this;
+    return (this.targetLayer = id), this;
   }
 
   public Pan(delta: Vector2) {
@@ -53,7 +53,10 @@ export class Camera extends Entity {
     this.scale = this.scale.Add(delta);
   }
 
-  private get Viewport(): Viewport {
-    return ViewportManager.Get(this.globalComposition, this.targetViewport);
+  private GetViewport(): Viewport {
+    const composition = this.targetComposition || this.globalComposition;
+    const layer = this.targetLayer || this.globalLayer;
+
+    return ViewportManager.Get(composition, layer);
   }
 }
