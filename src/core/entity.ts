@@ -3,7 +3,7 @@ import { Signal } from "./signal";
 import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
 import { Input } from "../buildin/media/input";
-import { ViewportRegistry } from "./viewport";
+import { ViewportManager } from "./manager/viewport";
 
 /**
  * The global entity group map.
@@ -367,7 +367,10 @@ export abstract class Entity<
   protected GetScreenPosition(point?: Vector2): Vector2 {
     let position: Vector2 = point || this.position;
 
-    const viewport = ViewportRegistry.Get(this.globalLayer);
+    const viewport = ViewportManager.Get(
+      this.globalComposition,
+      this.globalLayer
+    );
     return position.Transform(
       viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
     );

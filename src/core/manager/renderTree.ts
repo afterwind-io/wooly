@@ -4,7 +4,7 @@ import { RenderItem } from "../renderItem";
 import { Transform } from "../transform";
 import { CanvasComposition } from "../canvasComposition";
 import { CanvasLayer } from "../canvasLayer";
-import { ViewportRegistry } from "../viewport";
+import { ViewportManager } from "./viewport";
 
 export const RenderTreeManager = new (class RenderTreeManager {
   public layerMap: OrderedLinkedList<
@@ -12,7 +12,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
   > = new OrderedLinkedList();
 
   public Init() {
-    ViewportRegistry.Add(0);
+    ViewportManager.Add(0, 0);
   }
 
   public Build(root: CanvasComposition) {

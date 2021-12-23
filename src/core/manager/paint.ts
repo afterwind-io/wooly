@@ -1,9 +1,9 @@
 import { RenderTreeManager } from "./renderTree";
-import { ViewportRegistry } from "../viewport";
 import { CanvasManager } from "./canvas";
 import { Matrix2d } from "../../util/matrix2d";
 import { RenderItem } from "../renderItem";
 import { DPRMatrix } from "../globals";
+import { ViewportManager } from "./viewport";
 
 export const PaintManager = new (class PaintManager {
   private clearColor: string = "white";
@@ -30,7 +30,8 @@ export const PaintManager = new (class PaintManager {
 
   private DrawTree(ctx: CanvasRenderingContext2D) {
     RenderTreeManager.layerMap.Traverse((layer, layerIndex) => {
-      const viewport = ViewportRegistry.Get(layerIndex!);
+      // TODO
+      const viewport = ViewportManager.Get(0, layerIndex!);
       const baseAffineMatrix = DPRMatrix.Multiply(
         viewport.GetViewportTransform()
       );

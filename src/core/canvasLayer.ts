@@ -1,7 +1,7 @@
 import { Matrix2d } from "../util/matrix2d";
 import { CanvasComposition } from "./canvasComposition";
 import { Transform } from "./transform";
-import { ViewportRegistry } from "./viewport";
+import { ViewportManager } from "./manager/viewport";
 
 /**
  * CanvasLayer
@@ -15,7 +15,7 @@ export class CanvasLayer extends Transform {
     super();
   }
 
-  public get GlobalComposition(): CanvasComposition {
+  public get globalComposition(): CanvasComposition {
     let composition = this.cachedGlobalComposition;
 
     if (composition != null) {
@@ -36,14 +36,14 @@ export class CanvasLayer extends Transform {
   }
 
   public get globalTransformMatrix(): Matrix2d {
-    return this.GlobalComposition!.globalTransformMatrix;
+    return this.globalComposition!.globalTransformMatrix;
   }
 
   public _Ready() {
-    ViewportRegistry.Add(this.index);
+    ViewportManager.Add(this.globalComposition.index, this.index);
   }
 
   public _Destroy() {
-    ViewportRegistry.Remove(this.index);
+    ViewportManager.Remove(this.globalComposition.index, this.index);
   }
 }

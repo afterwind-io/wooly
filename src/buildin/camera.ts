@@ -1,7 +1,8 @@
 import { Entity } from "../core/entity";
-import { Viewport, ViewportRegistry } from "../core/viewport";
+import { Viewport } from "../core/viewport";
 import { Vector2 } from "../util/vector2";
 import { CanvasManager } from "../core/manager/canvas";
+import { ViewportManager } from "../core/manager/viewport";
 
 export class Camera extends Entity {
   public readonly name: string = "Camera";
@@ -53,6 +54,6 @@ export class Camera extends Entity {
   }
 
   private get Viewport(): Viewport {
-    return ViewportRegistry.Get(this.targetViewport);
+    return ViewportManager.Get(this.globalComposition, this.targetViewport);
   }
 }

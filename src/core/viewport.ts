@@ -50,28 +50,3 @@ export class Viewport {
     this.transform = this.offsetMatrix.Multiply(this.projectMatrix.Invert());
   }
 }
-
-export const ViewportRegistry = new (class ViewportRegistry {
-  private registry: Record<number, Viewport> = {};
-
-  public Add(id: number = 0, viewport?: Viewport) {
-    if (id in this.registry) {
-      throw new Error(`[wooly] Can not add duplicate viewport: ${id}.`);
-    }
-
-    this.registry[id] = viewport || new Viewport();
-  }
-
-  public Get(id: number): Viewport {
-    const viewport = this.registry[id];
-    if (!viewport) {
-      throw new Error(`[wooly] Viewport[${id}] not exists.`);
-    }
-
-    return viewport;
-  }
-
-  public Remove(id: number) {
-    delete this.registry[id];
-  }
-})();
