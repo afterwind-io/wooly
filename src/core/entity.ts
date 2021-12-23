@@ -156,25 +156,6 @@ export abstract class Entity<
   }
 
   /**
-   * [**Internal**]
-   * **Do not call this manually**
-   *
-   * Trigger the update process.
-   *
-   * @param {number} delta
-   * @memberof Entity
-   */
-  public $Update(delta: number) {
-    this.Traverse((node: Entity) => {
-      if (!node.enabled || node.paused) {
-        return true;
-      }
-
-      node._Update(delta);
-    });
-  }
-
-  /**
    * And self to the specified group.
    *
    * @param {string} name The name of the group.
@@ -341,11 +322,10 @@ export abstract class Entity<
    * [**Lifecycle**]
    * Called on every update.
    *
-   * @protected
    * @param {number} delta The last delta time.
    * @memberof Entity
    */
-  protected _Update(delta: number) {}
+  public _Update(delta: number) {}
 
   /**
    * [**Internal**]
@@ -387,7 +367,7 @@ export abstract class Entity<
   protected GetScreenPosition(point?: Vector2): Vector2 {
     let position: Vector2 = point || this.position;
 
-    const viewport = ViewportRegistry.Get(this.layer.index);
+    const viewport = ViewportRegistry.Get(this.globalLayer);
     return position.Transform(
       viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
     );

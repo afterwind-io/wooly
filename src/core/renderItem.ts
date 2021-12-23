@@ -11,14 +11,6 @@ import { Transform } from "./transform";
  */
 export abstract class RenderItem extends Transform {
   /**
-   * Set or create the canvas layer the node currently at.
-   *
-   * @type {CanvasLayer}
-   * @memberof RenderItem
-   */
-  public layer: CanvasLayer = new CanvasLayer(this);
-
-  /**
    * A flag indicates the visibility of the Entity.
    *
    * When set to `false`, the `_Draw` cycle of the entity and its descendants
@@ -114,6 +106,33 @@ export abstract class RenderItem extends Transform {
    */
   private $freezedGlobalZIndex: number = 0;
 
+  private $cachedGlobalLayer: number = -1;
+
+  /**
+   * Set or create the canvas layer the node currently at.
+   *
+   * @type {CanvasLayer}
+   * @memberof RenderItem
+   */
+  public get globalLayer(): number {
+    let layer = this.$cachedGlobalLayer;
+
+    if (layer !== -1) {
+      return layer;
+    }
+
+    layer = 0;
+    this.Bubble((node) => {
+      if (node instanceof CanvasLayer) {
+        layer = node.index;
+        return true;
+      }
+    });
+
+    this.$cachedGlobalLayer = layer;
+    return layer;
+  }
+
   /**
    * The actual zIndex.
    *
@@ -135,12 +154,6 @@ export abstract class RenderItem extends Transform {
     } else {
       return this.parent.GlobalZIndex + this.zIndex;
     }
-  }
-
-  public AddChild(node: RenderItem): void {
-    super.AddChild(node);
-
-    this.layer.InitializeChildLayer(node);
   }
 
   /**
@@ -173,17 +186,6 @@ export abstract class RenderItem extends Transform {
    */
   public $Melt() {
     this.isFreezed = false;
-  }
-
-  /**
-   * Set the layer of the node.
-   *
-   * @param {number} layer The index of the layer.
-   * @returns {this} This instance of the node.
-   * @memberof RenderItem
-   */
-  public SetLayer(layer: number): this {
-    return (this.layer.index = layer), this;
   }
 
   /**

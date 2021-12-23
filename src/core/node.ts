@@ -49,6 +49,17 @@ export abstract class Node {
   public enabled: boolean = true;
 
   /**
+   * A flag indicates the inner state of the node.
+   *
+   * Currently it is only for **internal** purpose.
+   *
+   * @public
+   * @type {NodeState}
+   * @memberof Node
+   */
+  public state: NodeState = NodeState.Created;
+
+  /**
    * [**Internal**]
    * **Do not modify this manually**
    *
@@ -71,17 +82,6 @@ export abstract class Node {
    * @memberof Node
    */
   protected sibling: Node | null = null;
-
-  /**
-   * A flag indicates the inner state of the node.
-   *
-   * Currently it is only for **internal** purpose.
-   *
-   * @protected
-   * @type {NodeState}
-   * @memberof Node
-   */
-  protected state: NodeState = NodeState.Created;
 
   /**
    * [**Internal**]
@@ -160,12 +160,10 @@ export abstract class Node {
    * @memberof Node
    */
   public $Ready() {
-    if (this.state === NodeState.Ready) {
-      return;
-    }
+    console.assert(this.state !== NodeState.Ready, `"_Ready()"出现重复调用`);
 
-    this.state = NodeState.Ready;
     this._Ready();
+    this.state = NodeState.Ready;
 
     for (const child of this.children) {
       child.$Ready();
@@ -194,21 +192,34 @@ export abstract class Node {
    * }
    * ```
    *
-   * @param {Node} item The child.
+   * @param {Node} node The child.
    * @memberof Node
    */
-  public AddChild(item: Node) {
-    item.parent = this;
+  public AddChild(node: Node) {
+    node.parent = this;
 
     const lastChild = this.children[this.children.length - 1];
     if (lastChild) {
-      lastChild.sibling = item;
+      lastChild.sibling = node;
     }
 
-    this.children.push(item);
+    this.children.push(node);
 
     if (this.state === NodeState.Ready) {
-      item.$Ready();
+      node.$Ready();
+    }
+  }
+
+  public Bubble<T extends Node = Node>(
+    cb: (node: T) => boolean | undefined
+  ): void {
+    let node: Node | null = this.parent;
+    while (node != null) {
+      if (cb(node as T)) {
+        return;
+      }
+
+      node = node.parent;
     }
   }
 
@@ -262,9 +273,16 @@ export abstract class Node {
    *
    * @memberof Node
    */
-  public Traverse<T extends Node>(cb: (node: T) => void | boolean) {
+  public Traverse<T extends Node>(
+    cb: (node: T) => void | boolean,
+    skipSelf: boolean = false
+  ) {
     let path = new LinkedList<Node>();
-    let next: Node = this;
+    let next: Node | null = skipSelf ? this.Child : this;
+
+    if (next == null) {
+      return;
+    }
 
     while (true) {
       if (next == null) {

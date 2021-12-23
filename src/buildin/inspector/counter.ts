@@ -77,7 +77,7 @@ export class InspectorCounter extends SingleChildWidget {
     let widget = 0;
 
     if (this._enable) {
-      EntityTreeManager.entityRoot.Traverse((node) => {
+      EntityTreeManager.sceneRoot.Traverse((node) => {
         entity++;
         if (node instanceof Widget) {
           widget++;

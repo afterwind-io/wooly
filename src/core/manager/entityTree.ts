@@ -1,28 +1,33 @@
-import { Entity } from '../entity';
-import { SystemTimer } from '../systemTimer';
+import { CanvasComposition } from "../canvasComposition";
+import { Entity } from "../entity";
+import { SystemTimer } from "../systemTimer";
+import { Transform } from "../transform";
 
-export const EntityTreeManager = new (class EntityTreeManager {
-  public entityRoot!: Entity;
+export const EntityTreeManager = new (class SceneTreeManager {
+  public readonly sceneRoot: CanvasComposition = new CanvasComposition(0);
 
   public Init() {
-    if (!this.entityRoot) {
-      throw new Error(
-        '[wooly] A root node should be set before start the engine.'
-      );
-    }
-
-    this.entityRoot.$Ready();
+    this.sceneRoot.$Ready();
   }
 
   public SetRoot(root: Entity) {
-    if (this.entityRoot) {
-      this.entityRoot.Free();
-    }
-
-    this.entityRoot = root;
+    this.sceneRoot["Child"]?.Free();
+    this.sceneRoot.AddChild(root);
   }
 
   public Update() {
-    this.entityRoot.$Update(SystemTimer.Tick());
+    const delta = SystemTimer.Tick();
+
+    this.sceneRoot.Traverse<Transform>((node) => {
+      if (!(node instanceof Entity)) {
+        return false;
+      }
+
+      if (!node.enabled || node.paused) {
+        return true;
+      }
+
+      node._Update(delta);
+    });
   }
 })();

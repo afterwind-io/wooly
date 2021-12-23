@@ -1,12 +1,12 @@
-import { InspectorMouseIndicator } from './mouseIndicator';
-import { Layer } from '../layer';
-import { Entity } from '../../core/entity';
-import { WidgetRoot } from '../ui/root';
-import { Flex, FlexDirection } from '../ui/flex';
-import { InspectorFPS } from './fps';
-import { InspectorCounter } from './counter';
-import { Container } from '../ui/container';
-import { Edge } from '../ui/common/edge';
+import { InspectorMouseIndicator } from "./mouseIndicator";
+import { CanvasLayer } from "../../core/canvasLayer";
+import { Entity } from "../../core/entity";
+import { WidgetRoot } from "../ui/root";
+import { Flex, FlexDirection } from "../ui/flex";
+import { InspectorFPS } from "./fps";
+import { InspectorCounter } from "./counter";
+import { Container } from "../ui/container";
+import { Edge } from "../ui/common/edge";
 
 /**
  * A utility to provide some insights of the engine.
@@ -21,11 +21,11 @@ import { Edge } from '../ui/common/edge';
  * @extends {Entity}
  */
 export class Inspector extends Entity {
-  public readonly name: string = 'Inspector';
+  public readonly name: string = "Inspector";
 
   public _Ready() {
     // 既然调试图层必须始终置顶，何不来个`Infinity`?
-    const layer = new Layer(Infinity).SetName('Inspector Layer');
+    const layer = new CanvasLayer(Infinity);
     this.AddChild(layer);
 
     layer.AddChild(

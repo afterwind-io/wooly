@@ -1,46 +1,49 @@
-import { RenderItem } from "./renderItem";
+import { Matrix2d } from "../util/matrix2d";
+import { CanvasComposition } from "./canvasComposition";
+import { Transform } from "./transform";
+import { ViewportRegistry } from "./viewport";
 
 /**
  * CanvasLayer
  */
-export class CanvasLayer {
-  private _index: number = 0;
+export class CanvasLayer extends Transform {
+  public readonly name: string = "CanvasLayer";
 
-  public constructor(private readonly host: RenderItem) {}
+  private cachedGlobalComposition: CanvasComposition | null = null;
 
-  public get index(): number {
-    return this._index;
+  public constructor(public readonly index: number) {
+    super();
   }
 
-  public set index(layer: number) {
-    const prevLayer = this._index;
+  public get GlobalComposition(): CanvasComposition {
+    let composition = this.cachedGlobalComposition;
 
-    /**
-     * 当本节点的layer被变更时，将所有与原layer值相同的子节点做同步变更
-     */
-    this.host.Traverse((node: RenderItem) => {
-      const childLayer = node.layer.index;
-      if (childLayer === prevLayer) {
-        node.layer.index = layer;
-      }
-    });
-  }
-
-  public InitializeChildLayer(child: RenderItem) {
-    const layer = this._index;
-    if (layer === 0) {
-      return;
+    if (composition != null) {
+      return composition;
     }
 
-    /**
-     * 当子节点被加入时，将所有layer为默认值0的子节点全部覆写成本节点的layer值
-     */
-    child.Traverse((node: RenderItem) => {
-      if (node.layer.index !== 0) {
+    this.Bubble((node) => {
+      if (node instanceof CanvasComposition) {
+        composition = node;
         return true;
       }
-
-      node.layer.index = layer;
     });
+
+    console.assert(composition != null, "没有找到根composition");
+
+    this.cachedGlobalComposition = composition;
+    return composition!;
+  }
+
+  public get globalTransformMatrix(): Matrix2d {
+    return this.GlobalComposition!.globalTransformMatrix;
+  }
+
+  public _Ready() {
+    ViewportRegistry.Add(this.index);
+  }
+
+  public _Destroy() {
+    ViewportRegistry.Remove(this.index);
   }
 }

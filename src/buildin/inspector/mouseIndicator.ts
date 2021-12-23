@@ -6,7 +6,7 @@ import { Flex } from "../ui/flex";
 import { Checkbox } from "../ui/checkbox";
 import { Text } from "../ui/text";
 import { Entity } from "../../core/entity";
-import { Layer } from "../layer";
+import { CanvasLayer } from "../../core/canvasLayer";
 import { Vector2 } from "../../util/vector2";
 import { CanvasManager } from "../../core/manager/canvas";
 
@@ -42,7 +42,7 @@ export class InspectorMouseIndicator extends SingleChildWidget {
       })
     );
 
-    const layer = new Layer(10000);
+    const layer = new CanvasLayer(10000);
     layer.AddChild((this.$indicator = new MouseIndicator()));
     this.AddChild(layer);
 

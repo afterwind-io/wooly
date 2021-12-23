@@ -1,10 +1,11 @@
-import { Pipeline } from './pipeline';
-import { EntityTreeManager } from './manager/entityTree';
-import { Entity } from './entity';
-import { TaskUpdate } from './task/update';
-import { TaskBatchFree } from './task/batchFree';
-import { TaskBuildRenderTree } from './task/buildRenderTree';
-import { TaskPaint } from './task/paint';
+import { Pipeline } from "./pipeline";
+import { EntityTreeManager } from "./manager/entityTree";
+import { Entity } from "./entity";
+import { TaskUpdate } from "./task/update";
+import { TaskBatchFree } from "./task/batchFree";
+import { TaskBuildRenderTree } from "./task/buildRenderTree";
+import { TaskPaint } from "./task/paint";
+import { RenderTreeManager } from "./manager/renderTree";
 
 export const Engine = new (class Engine {
   public readonly pipeline: Pipeline = new Pipeline();
@@ -22,6 +23,7 @@ export const Engine = new (class Engine {
 
   public Start() {
     EntityTreeManager.Init();
+    RenderTreeManager.Init();
 
     this.Loop();
   }

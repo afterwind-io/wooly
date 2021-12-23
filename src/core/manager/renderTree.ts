@@ -1,15 +1,23 @@
 import { OrderedLinkedList } from "../struct/orderedLinkedList";
 import { LinkedList } from "../struct/linkedList";
 import { RenderItem } from "../renderItem";
+import { Transform } from "../transform";
+import { CanvasComposition } from "../canvasComposition";
+import { CanvasLayer } from "../canvasLayer";
+import { ViewportRegistry } from "../viewport";
 
 export const RenderTreeManager = new (class RenderTreeManager {
   public layerMap: OrderedLinkedList<
     OrderedLinkedList<LinkedList<RenderItem>>
   > = new OrderedLinkedList();
 
-  public Build(root: RenderItem) {
+  public Init() {
+    ViewportRegistry.Add(0);
+  }
+
+  public Build(root: CanvasComposition) {
     this.ClearTree();
-    this.BuildTree(root);
+    this.BuildComposition(root);
   }
 
   private Add(value: RenderItem, layerIndex: number) {
@@ -29,28 +37,66 @@ export const RenderTreeManager = new (class RenderTreeManager {
     stack.Push(value);
   }
 
-  private BuildTree(root: RenderItem) {
-    const rootLayer = root.layer.index;
-    const pendingLayers: RenderItem[] = [];
+  private BuildComposition(root: CanvasComposition) {
+    const rootComposition = root.index;
 
-    root.Traverse((node: RenderItem) => {
-      if (!node.enabled || !node.visible) {
+    root.Traverse<Transform>((node) => {
+      if (node instanceof RenderItem) {
+        if (!node.enabled || !node.visible) {
+          return true;
+        }
+
+        node.$Freeze();
+
+        this.BuildTree(rootComposition, 0, node);
+        return;
+      }
+
+      if (node instanceof CanvasLayer) {
+        this.BuildLayer(node, rootComposition);
         return true;
       }
 
-      const layer = node.layer.index;
-      if (layer !== 0 && layer !== rootLayer) {
-        pendingLayers.push(node);
+      if (node instanceof CanvasComposition) {
+        this.BuildComposition(node);
         return true;
       }
 
-      node.$Freeze();
-      this.Add(node as RenderItem, rootLayer);
-    });
+      console.assert(false, "渲染树异常节点类型处理");
+    }, true);
+  }
 
-    for (const node of pendingLayers) {
-      this.BuildTree(node);
-    }
+  private BuildLayer(root: CanvasLayer, parentComposition: number) {
+    const rootLayer = root.index;
+
+    root.Traverse<Transform>((node) => {
+      if (node instanceof RenderItem) {
+        if (!node.enabled || !node.visible) {
+          return true;
+        }
+
+        node.$Freeze();
+
+        this.BuildTree(parentComposition, rootLayer, node);
+        return;
+      }
+
+      if (node instanceof CanvasLayer) {
+        this.BuildLayer(node, parentComposition);
+        return true;
+      }
+
+      if (node instanceof CanvasComposition) {
+        this.BuildComposition(node);
+        return true;
+      }
+
+      console.assert(false, "渲染树异常节点类型处理");
+    }, true);
+  }
+
+  private BuildTree(composition: number, layer: number, node: Transform) {
+    // TODO viewport对应的layer可能跨composition,即viewport0可能控制多个composition的layer0
   }
 
   private ClearTree() {
