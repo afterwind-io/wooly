@@ -186,7 +186,7 @@ export abstract class RenderItem extends Transform {
       return this.$freezedGlobalZIndex;
     }
 
-    if (this.parent == null) {
+    if (!(this.parent instanceof RenderItem)) {
       return this.zIndex;
     } else {
       return this.parent.GlobalZIndex + this.zIndex;
