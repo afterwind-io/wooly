@@ -110,7 +110,7 @@ export abstract class RenderItem extends Transform {
   /**
    * [**Internal**]
    * **Do not modify this manually**
-   * 
+   *
    * The cache value of `globalLayer`.
    */
   private $cachedGlobalLayer: number = -1;
@@ -118,7 +118,7 @@ export abstract class RenderItem extends Transform {
   /**
    * [**Internal**]
    * **Do not modify this manually**
-   * 
+   *
    * The cache value of `globalComposition`.
    */
   private $cachedGlobalComposition: number = -1;
@@ -181,7 +181,7 @@ export abstract class RenderItem extends Transform {
    * @type {number}
    * @memberof RenderItem
    */
-  public get GlobalZIndex(): number {
+  public get globalZIndex(): number {
     if (this.isFreezed) {
       return this.$freezedGlobalZIndex;
     }
@@ -189,7 +189,7 @@ export abstract class RenderItem extends Transform {
     if (!(this.parent instanceof RenderItem)) {
       return this.zIndex;
     } else {
-      return this.parent.GlobalZIndex + this.zIndex;
+      return this.parent.globalZIndex + this.zIndex;
     }
   }
 
@@ -208,7 +208,7 @@ export abstract class RenderItem extends Transform {
    * @memberof RenderItem
    */
   public $Freeze() {
-    this.$freezedGlobalZIndex = this.GlobalZIndex;
+    this.$freezedGlobalZIndex = this.globalZIndex;
 
     this.isFreezed = true;
   }

@@ -4,41 +4,47 @@ import { RenderItem } from "../renderItem";
 import { Transform } from "../transform";
 import { CanvasComposition } from "../canvasComposition";
 import { CanvasLayer } from "../canvasLayer";
-import { ViewportManager } from "./viewport";
+
+type RenderList = LinkedList<CompositionContext | RenderItem>;
+type ZIndexStack = OrderedLinkedList<RenderList>;
+type LayerStack = OrderedLinkedList<ZIndexStack>;
+
+export class CompositionContext {
+  public readonly layerStack: LayerStack = new OrderedLinkedList();
+
+  public constructor(public readonly root: CanvasComposition) {}
+
+  public get globalZIndex(): number {
+    return this.root.globalZIndex;
+  }
+
+  public AddItem(layer: number, node: CompositionContext | RenderItem) {
+    let layerStack = this.layerStack.GetByKey(layer);
+    if (layerStack == null) {
+      layerStack = new OrderedLinkedList<RenderList>();
+      this.layerStack.Insert(layerStack, layer);
+    }
+
+    let zIndex = node.globalZIndex;
+    let zIndexStack = layerStack.GetByKey(zIndex);
+    if (zIndexStack == null) {
+      zIndexStack = new LinkedList<CompositionContext | RenderItem>();
+      layerStack.Insert(zIndexStack, zIndex);
+    }
+
+    zIndexStack.Push(node);
+  }
+}
 
 export const RenderTreeManager = new (class RenderTreeManager {
-  public layerMap: OrderedLinkedList<
-    OrderedLinkedList<LinkedList<RenderItem>>
-  > = new OrderedLinkedList();
-
-  public Init() {
-    ViewportManager.Add(0, 0);
-  }
+  public compositionRoot!: CompositionContext;
 
   public Build(root: CanvasComposition) {
-    this.ClearTree();
-    this.BuildComposition(root);
+    this.compositionRoot = this.BuildComposition(root);
   }
 
-  private Add(value: RenderItem, layerIndex: number) {
-    let layer = this.layerMap.GetByKey(layerIndex);
-    if (layer == null) {
-      layer = new OrderedLinkedList<LinkedList<RenderItem>>();
-      this.layerMap.Insert(layer, layerIndex);
-    }
-
-    let zIndex = value.GlobalZIndex;
-    let stack = layer.GetByKey(zIndex);
-    if (stack == null) {
-      stack = new LinkedList<RenderItem>();
-      layer.Insert(stack, zIndex);
-    }
-
-    stack.Push(value);
-  }
-
-  private BuildComposition(root: CanvasComposition) {
-    const rootComposition = root.index;
+  private BuildComposition(root: CanvasComposition): CompositionContext {
+    const rootComposition = new CompositionContext(root);
 
     root.Traverse<Transform>((node) => {
       if (node instanceof RenderItem) {
@@ -48,7 +54,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
 
         node.$Freeze();
 
-        this.BuildTree(rootComposition, 0, node);
+        rootComposition.AddItem(0, node);
         return;
       }
 
@@ -58,15 +64,18 @@ export const RenderTreeManager = new (class RenderTreeManager {
       }
 
       if (node instanceof CanvasComposition) {
-        this.BuildComposition(node);
+        const childComposition = this.BuildComposition(node);
+        rootComposition.AddItem(node.globalLayer, childComposition);
         return true;
       }
 
       console.assert(false, "渲染树异常节点类型处理");
     }, true);
+
+    return rootComposition;
   }
 
-  private BuildLayer(root: CanvasLayer, parentComposition: number) {
+  private BuildLayer(root: CanvasLayer, parentComposition: CompositionContext) {
     const rootLayer = root.index;
 
     root.Traverse<Transform>((node) => {
@@ -77,7 +86,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
 
         node.$Freeze();
 
-        this.BuildTree(parentComposition, rootLayer, node);
+        parentComposition.AddItem(rootLayer, node);
         return;
       }
 
@@ -87,19 +96,12 @@ export const RenderTreeManager = new (class RenderTreeManager {
       }
 
       if (node instanceof CanvasComposition) {
-        this.BuildComposition(node);
+        const childComposition = this.BuildComposition(node);
+        parentComposition.AddItem(node.globalLayer, childComposition);
         return true;
       }
 
       console.assert(false, "渲染树异常节点类型处理");
     }, true);
-  }
-
-  private BuildTree(composition: number, layer: number, node: Transform) {
-    // TODO viewport对应的layer可能跨composition,即viewport0可能控制多个composition的layer0
-  }
-
-  private ClearTree() {
-    this.layerMap.Traverse((layer) => layer.Traverse((stack) => stack.Clear()));
   }
 })();

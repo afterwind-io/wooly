@@ -23,7 +23,6 @@ export const Engine = new (class Engine {
 
   public Start() {
     EntityTreeManager.Init();
-    RenderTreeManager.Init();
 
     this.Loop();
   }
