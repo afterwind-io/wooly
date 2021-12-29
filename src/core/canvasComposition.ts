@@ -13,8 +13,6 @@ export class CanvasComposition extends Transform {
 
   public constructor(public readonly index: number) {
     super();
-
-    ViewportManager.Add(index, 0);
   }
 
   public get globalComposition(): number {
@@ -51,5 +49,13 @@ export class CanvasComposition extends Transform {
 
   public SetSize(size: Vector2): this {
     return (this.size = size), this;
+  }
+
+  protected _Ready(): void {
+    ViewportManager.Add(this.index, 0);
+  }
+
+  protected _Destroy(): void {
+    ViewportManager.Remove(this.index, 0);
   }
 }
