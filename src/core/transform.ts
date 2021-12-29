@@ -55,11 +55,7 @@ export class Transform extends Node {
    * The actual position in world space.
    */
   public get globalPosition(): ReadonlyVector2 {
-    if (!this.parent) {
-      return this.position;
-    }
-
-    return this.position.Transform(this.parent.globalTransformMatrix);
+    return this.ConvertToGlobalPosition(this.position);
   }
 
   /**
@@ -180,6 +176,20 @@ export class Transform extends Node {
    */
   public SetScale(scale: Vector2): this {
     return (this.scale = scale), this;
+  }
+
+  /**
+   * Convert a local position to its global position.
+   *
+   * @param localPosition a position in the local space
+   * @returns the position in the global space
+   */
+  protected ConvertToGlobalPosition(localPosition: Vector2): Vector2 {
+    if (!this.parent) {
+      return localPosition;
+    }
+
+    return localPosition.Transform(this.parent.globalTransformMatrix);
   }
 
   /**

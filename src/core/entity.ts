@@ -230,9 +230,11 @@ export abstract class Entity<
 
     const position = this.position;
 
-    const B = this.GetScreenPosition();
-    const A = this.GetScreenPosition(position.Add(new Vector2(0, height)));
-    const C = this.GetScreenPosition(position.Add(new Vector2(width, 0)));
+    const B = this.ConvertToScreenPosition(position);
+    const A = this.ConvertToScreenPosition(
+      position.Add(new Vector2(0, height))
+    );
+    const C = this.ConvertToScreenPosition(position.Add(new Vector2(width, 0)));
     const M = Input.GetMousePosition();
 
     let projection: number = 0;
@@ -364,15 +366,15 @@ export abstract class Entity<
    * @returns {Vector2}
    * @memberof Entity
    */
-  protected GetScreenPosition(point?: Vector2): Vector2 {
-    let position: Vector2 = point || this.position;
+  protected ConvertToScreenPosition(point: Vector2): Vector2 {
+    let position: Vector2 = point;
 
     const viewport = ViewportManager.Get(
       this.globalComposition,
       this.globalLayer
     );
-    return position.Transform(
-      viewport.GetViewportTransform().Multiply(this.globalTransformMatrix)
+    return this.ConvertToGlobalPosition(position).Transform(
+      viewport.GetViewportTransform()
     );
   }
 }
