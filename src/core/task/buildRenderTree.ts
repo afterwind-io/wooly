@@ -1,11 +1,12 @@
-import { PipeLineTask } from '../pipeline';
-import { RenderTreeManager } from '../manager/renderTree';
-import { EntityTreeManager } from '../manager/entityTree';
+import { PipeLineTask } from "../pipeline";
+import { RenderTreeManager } from "../manager/renderTree";
+import { EntityTreeManager } from "../manager/entityTree";
+import { PipelineTaskPriority } from "./consts";
 
 export class TaskBuildRenderTree implements PipeLineTask {
-  public readonly priority: number = 300;
+  public readonly priority: number = PipelineTaskPriority.BuildRenderTree;
 
-  public Run = () => {
+  public Run(): void {
     RenderTreeManager.Build(EntityTreeManager.sceneRoot!);
-  };
+  }
 }

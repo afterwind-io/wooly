@@ -1,8 +1,8 @@
-import { OrderedLinkedList } from './struct/orderedLinkedList';
+import { OrderedLinkedList } from "./struct/orderedLinkedList";
 
 export interface PipeLineTask<C extends {} = {}> {
   readonly priority: number;
-  Run: (context: C) => void;
+  Run(context: C): void;
 }
 
 export class Pipeline<C extends {} = {}> {

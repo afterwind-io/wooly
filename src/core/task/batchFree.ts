@@ -1,28 +1,29 @@
-import { PipeLineTask } from '../pipeline';
-import { SystemSignal } from '../systemSignal';
-import { Node } from '../node';
+import { PipeLineTask } from "../pipeline";
+import { SystemSignal } from "../systemSignal";
+import { Node } from "../node";
+import { PipelineTaskPriority } from "./consts";
 
 export class TaskBatchFree implements PipeLineTask {
-  public readonly priority: number = 200;
+  public readonly priority: number = PipelineTaskPriority.BatchFree;
 
   private freeQueue: Node[];
 
   public constructor() {
     this.freeQueue = [];
 
-    SystemSignal.Connect('OnTreeUpdate', this.OnTreeUpdate, this);
+    SystemSignal.Connect("OnTreeUpdate", this.OnTreeUpdate, this);
   }
 
-  public Run = () => {
+  public Run(): void {
     for (const node of this.freeQueue) {
       node.$Destroy();
     }
 
     this.freeQueue.length = 0;
-  };
+  }
 
-  private OnTreeUpdate(node: Node, type: 'insert' | 'delete') {
-    if (type === 'delete') {
+  private OnTreeUpdate(node: Node, type: "insert" | "delete") {
+    if (type === "delete") {
       this.freeQueue.push(node);
     }
   }
