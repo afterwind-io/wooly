@@ -1,23 +1,28 @@
-import { Widget } from "./foundation/widget";
 import { Size } from "./common/types";
 import { Constraint } from "./common/constraint";
 import { CommonWidgetOptions } from "./foundation/types";
+import { NoChildWidget } from "./foundation/noChildWidget";
 
+// FIXME OffscreenCanvas只有chromium支持，替换成普通canvas?
+// @ts-ignore
 const offscreenContext = new OffscreenCanvas(0, 0).getContext("2d")!;
 
 interface TextOptions extends CommonWidgetOptions {
   content?: string;
   fontName?: string;
   fontSize?: number;
+  fontWeight?: number;
   fillStyle?: CanvasFillStrokeStyles["fillStyle"];
 }
 
-export class Text extends Widget {
+export class Text extends NoChildWidget {
   public readonly name: string = "Text";
+  public readonly customDrawing: boolean = true;
 
   private _content: string;
   private _fontName: string;
   private _fontSize: number;
+  private _fontWeight: number;
   private _fillStyle: CanvasFillStrokeStyles["fillStyle"];
 
   public constructor(options: TextOptions = {}) {
@@ -27,15 +32,17 @@ export class Text extends Widget {
       content = "",
       fontName = "sans-serif",
       fontSize = 12,
+      fontWeight = 400,
       fillStyle = "black",
     } = options;
     this._content = content;
     this._fontName = fontName;
     this._fontSize = fontSize;
+    this._fontWeight = fontWeight;
     this._fillStyle = fillStyle;
   }
 
-  public _DrawWidget(ctx: CanvasRenderingContext2D) {
+  public _Draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
 
     /**
@@ -49,16 +56,16 @@ export class Text extends Widget {
     ctx.closePath();
 
     ctx.fillStyle = this._fillStyle;
-    ctx.font = `${this._fontSize}px ${this._fontName}`;
+    ctx.font = this.GetFontRepr();
     ctx.textBaseline = "top";
     ctx.fillText(this._content, 0, 0);
 
     ctx.restore();
   }
 
-  public _Layout(constraint: Constraint): Size {
+  protected _Layout(constraint: Constraint): Size {
     const height = this._fontSize;
-    offscreenContext.font = `${height}px ${this._fontName}`;
+    offscreenContext.font = this.GetFontRepr();
     const { width } = offscreenContext.measureText(this._content);
 
     const { width: constrainedWidth, height: constrainedHeight } =
@@ -69,8 +76,7 @@ export class Text extends Widget {
     return { width, height };
   }
 
-  public SetContent(content: string): this {
-    this._content = content;
-    return this;
+  private GetFontRepr(): string {
+    return `${this._fontWeight} ${this._fontSize}px ${this._fontName}`;
   }
 }

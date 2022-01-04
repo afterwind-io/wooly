@@ -1,47 +1,39 @@
-import { EntitySignals } from '../../../core/entity';
-import { Widget } from './widget';
-import { Constraint } from '../common/constraint';
-import { Size, Length } from '../common/types';
-import { Clamp } from '../common/utils';
+import { EntitySignals } from "../../../core/entity";
+import { Widget } from "./widget";
+import { Constraint } from "../common/constraint";
+import { Size, Length } from "../common/types";
+import { GetLocalLength } from "../common/utils";
 import {
   SingleChildWidgetOptions as _SingleChildWidgetOptions,
   CommonWidgetOptions,
-  ContainerWidgetOptions,
-} from './types';
+} from "./types";
 
-type SingleChildWidgetOptions = CommonWidgetOptions &
-  _SingleChildWidgetOptions &
-  ContainerWidgetOptions;
+type SingleChildWidgetOptions = CommonWidgetOptions & _SingleChildWidgetOptions;
 
 export abstract class SingleChildWidget<
-  SIGNAL extends EntitySignals = EntitySignals
-> extends Widget<SIGNAL> {
+  OPT = {},
+  SIG extends EntitySignals = EntitySignals
+> extends Widget<OPT, SIG> {
   public abstract readonly name: string;
 
   protected abstract readonly isLooseBox: boolean;
 
   public constructor(options: SingleChildWidgetOptions = {}) {
-    super(options);
-
-    const { child } = options;
-    if (child) {
-      this.AddChild(child);
-    }
+    super({ ...options, children: options.child ? [options.child] : [] });
   }
 
-  public _Layout(constraint: Constraint): Size {
-    const { width, height } = this.LayoutSingleChild(constraint);
-    this._intrinsicWidth = width;
-    this._intrinsicHeight = height;
-
+  protected _Layout(constraint: Constraint): Size {
+    const size = this.PerformSizing(constraint);
     this._PerformLayout();
 
-    return { width, height };
+    this._intrinsicWidth = size.width;
+    this._intrinsicHeight = size.height;
+    return size;
   }
 
   protected _PerformLayout(): void {}
 
-  private LayoutSingleChild(constraint: Constraint): Size {
+  private PerformSizing(constraint: Constraint): Size {
     const desiredWidth = this.width as Length;
     const desiredHeight = this.height as Length;
 
@@ -50,48 +42,47 @@ export abstract class SingleChildWidget<
 
     const child = this.GetFirstChild();
     if (child) {
-      const border = this.border;
-      const padding = this.padding;
-      const localConstraint = constraint
-        .constrain(this.isLooseBox, desiredWidth, desiredHeight)
-        .shrink(
-          border.Horizontal + padding.Horizontal,
-          border.Vertical + padding.Vertical
-        );
+      const localConstraint = constraint.constrain(
+        this.isLooseBox,
+        desiredWidth,
+        desiredHeight
+      );
 
       const { width: childWidth, height: childHeight } =
-        child._Layout(localConstraint);
+        child.$Layout(localConstraint);
 
-      if (desiredWidth === 'shrink') {
-        localWidth = childWidth + border.Horizontal + padding.Horizontal;
-      } else if (desiredWidth === 'stretch') {
-        localWidth = constraint.maxWidth;
-      } else {
-        localWidth = Clamp(
-          desiredWidth,
-          constraint.minWidth,
-          constraint.maxWidth
-        );
-      }
+      localWidth = GetLocalLength(
+        constraint.minWidth,
+        constraint.maxWidth,
+        desiredWidth,
+        childWidth
+      );
 
-      if (desiredHeight === 'shrink') {
-        localHeight = childHeight + border.Vertical + padding.Vertical;
-      } else if (desiredHeight === 'stretch') {
-        localHeight = constraint.maxHeight;
-      } else {
-        localHeight = Clamp(
-          desiredHeight,
-          constraint.minHeight,
-          constraint.maxHeight
-        );
-      }
+      localHeight = GetLocalLength(
+        constraint.minHeight,
+        constraint.maxHeight,
+        desiredHeight,
+        childHeight
+      );
+    } else {
+      localWidth = GetLocalLength(
+        constraint.minWidth,
+        constraint.maxWidth,
+        desiredWidth,
+        0
+      );
+
+      localHeight = GetLocalLength(
+        constraint.minHeight,
+        constraint.maxHeight,
+        desiredHeight,
+        0
+      );
     }
 
-    const margin = this.margin;
     return {
-      // FIXME stretch怎么办？
-      width: localWidth + margin.Horizontal,
-      height: localHeight + margin.Vertical,
+      width: localWidth,
+      height: localHeight,
     };
   }
 }

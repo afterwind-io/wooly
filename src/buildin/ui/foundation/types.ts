@@ -1,6 +1,5 @@
-import { Widget } from './widget';
-import { Length } from '../common/types';
-import { Edge } from '../common/edge';
+import { Widget } from "./widget";
+import { Length } from "../common/types";
 
 export const enum MouseAction {
   None,
@@ -40,10 +39,4 @@ export interface SingleChildWidgetOptions {
 
 export interface MultiChildWidgetOptions {
   children?: Widget[];
-}
-
-export interface ContainerWidgetOptions {
-  border?: Edge;
-  margin?: Edge;
-  padding?: Edge;
 }

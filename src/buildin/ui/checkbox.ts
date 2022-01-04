@@ -1,12 +1,10 @@
-import { EntitySignals } from '../../core/entity';
-import { Constraint } from './common/constraint';
-import { Size } from './common/types';
+import { EntitySignals } from "../../core/entity";
+import { NoChildWidget } from "./foundation/noChildWidget";
 import {
   MouseMovement,
   MouseAction,
   CommonWidgetOptions,
-} from './foundation/types';
-import { Widget } from './foundation/widget';
+} from "./foundation/types";
 
 interface CheckboxSignals extends EntitySignals {
   OnToggle: (checked: boolean) => void;
@@ -16,11 +14,11 @@ interface CheckboxOptions extends CommonWidgetOptions {
   checked?: boolean;
 }
 
-export class Checkbox extends Widget<CheckboxSignals> {
-  public readonly name: string = 'Checkbox';
+export class Checkbox extends NoChildWidget<CheckboxOptions, CheckboxSignals> {
+  public readonly name: string = "Checkbox";
   public readonly customDrawing: boolean = true;
 
-  private _checked: boolean = false;
+  protected _checked: boolean = false;
 
   public constructor(options: CheckboxOptions = {}) {
     super(options);
@@ -29,15 +27,15 @@ export class Checkbox extends Widget<CheckboxSignals> {
     this._checked = checked;
   }
 
-  public _DrawWidget(ctx: CanvasRenderingContext2D) {
+  public _Draw(ctx: CanvasRenderingContext2D) {
     if (this.mouseMovementState === MouseMovement.MouseHover) {
-      ctx.fillStyle = 'whitesmoke';
+      ctx.fillStyle = "whitesmoke";
     } else {
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = "white";
     }
 
     if (this.mouseActionState === MouseAction.MouseDown) {
-      ctx.fillStyle = 'lightgrey';
+      ctx.fillStyle = "lightgrey";
     }
 
     const width = this._intrinsicWidth;
@@ -45,7 +43,7 @@ export class Checkbox extends Widget<CheckboxSignals> {
 
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = 'grey';
+    ctx.strokeStyle = "grey";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.rect(0, 0, width, height);
@@ -63,24 +61,22 @@ export class Checkbox extends Widget<CheckboxSignals> {
     }
   }
 
-  public _Layout(constraint: Constraint): Size {
-    const size = constraint.constrainSize(this.width, this.height);
-    this._intrinsicWidth = size.width;
-    this._intrinsicHeight = size.height;
-    return size;
-  }
-
   public _Update(delta: number) {
     super._Update(delta);
 
+    this.SwitchCursor();
+
     if (this.mouseActionState === MouseAction.MouseClick) {
       this._checked = !this._checked;
-      this.Emit('OnToggle', this._checked);
+      this.Emit("OnToggle", this._checked);
     }
   }
 
-  public SetChecked(checked: boolean): this {
-    this._checked = checked;
-    return this;
+  private SwitchCursor() {
+    if (this.mouseMovementState === MouseMovement.MouseHover) {
+      document.body.style.cursor = "pointer";
+    } else {
+      document.body.style.cursor = "default";
+    }
   }
 }

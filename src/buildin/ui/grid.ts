@@ -37,7 +37,11 @@ export class Grid extends Widget {
     this._childAspectRatio = childAspectRatio;
   }
 
-  public _Layout(constraint: Constraint): Size {
+  protected _Render(): Widget | Widget[] | null {
+    return this.childWidgets;
+  }
+
+  protected _Layout(constraint: Constraint): Size {
     const size = this._PerformSizing(constraint);
     this._PerformLayout();
 
@@ -82,8 +86,8 @@ export class Grid extends Widget {
       maxHeight: gridCellHeight,
     });
 
-    for (const child of this.children as Widget[]) {
-      child._Layout(childConstraint);
+    for (const child of this.childWidgets) {
+      child.$Layout(childConstraint);
     }
 
     const mainAxisCount = Math.ceil(this.children.length / crossAxisCount);

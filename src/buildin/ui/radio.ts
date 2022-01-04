@@ -1,12 +1,10 @@
-import { Constraint } from './common/constraint';
-import { Size } from './common/types';
-import { EntitySignals } from '../../core/entity';
-import { Widget } from './foundation/widget';
+import { EntitySignals } from "../../core/entity";
 import {
   MouseMovement,
   MouseAction,
   CommonWidgetOptions,
-} from './foundation/types';
+} from "./foundation/types";
+import { NoChildWidget } from "./foundation/noChildWidget";
 
 interface RadioSignals extends EntitySignals {
   OnToggle: (value: any) => void;
@@ -17,8 +15,8 @@ interface RadioOptions extends CommonWidgetOptions {
   value?: any;
 }
 
-export class Radio extends Widget<RadioSignals> {
-  public readonly name: string = 'Radio';
+export class Radio extends NoChildWidget<RadioOptions, RadioSignals> {
+  public readonly name: string = "Radio";
   public readonly customDrawing: boolean = true;
 
   private _toggled: boolean = false;
@@ -32,22 +30,22 @@ export class Radio extends Widget<RadioSignals> {
     this._value = value;
   }
 
-  public _DrawWidget(ctx: CanvasRenderingContext2D) {
+  public _Draw(ctx: CanvasRenderingContext2D) {
     if (this.mouseMovementState === MouseMovement.MouseHover) {
-      ctx.fillStyle = 'whitesmoke';
+      ctx.fillStyle = "whitesmoke";
     } else {
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = "white";
     }
 
     if (this.mouseActionState === MouseAction.MouseDown) {
-      ctx.fillStyle = 'lightgrey';
+      ctx.fillStyle = "lightgrey";
     }
 
     const width = this._intrinsicWidth;
     const height = this._intrinsicHeight;
     const radius = Math.min(width, height);
 
-    ctx.strokeStyle = 'grey';
+    ctx.strokeStyle = "grey";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.arc(radius / 2, radius / 2, radius / 2, 0, Math.PI * 2);
@@ -56,7 +54,7 @@ export class Radio extends Widget<RadioSignals> {
     ctx.stroke();
 
     if (this._toggled) {
-      ctx.fillStyle = 'grey';
+      ctx.fillStyle = "grey";
       ctx.beginPath();
       ctx.arc(radius / 2, radius / 2, (radius / 2) * 0.6, 0, Math.PI * 2);
       ctx.fill();
@@ -65,15 +63,10 @@ export class Radio extends Widget<RadioSignals> {
     }
   }
 
-  public _Layout(constraint: Constraint): Size {
-    const size = constraint.constrainSize(this.width, this.height);
-    this._intrinsicWidth = size.width;
-    this._intrinsicHeight = size.height;
-    return size;
-  }
-
   public _Update(delta: number) {
     super._Update(delta);
+
+    this.SwitchCursor();
 
     if (this.mouseActionState === MouseAction.MouseClick) {
       if (this._toggled) {
@@ -81,17 +74,15 @@ export class Radio extends Widget<RadioSignals> {
       }
 
       this._toggled = true;
-      this.Emit('OnToggle', this._value);
+      this.Emit("OnToggle", this._value);
     }
   }
 
-  public SetToggled(flag: boolean): this {
-    this._toggled = flag;
-    return this;
-  }
-
-  public SetValue(value: any): this {
-    this._value = value;
-    return this;
+  private SwitchCursor() {
+    if (this.mouseMovementState === MouseMovement.MouseHover) {
+      document.body.style.cursor = "pointer";
+    } else {
+      document.body.style.cursor = "default";
+    }
   }
 }

@@ -5,6 +5,7 @@ import {
 } from "./foundation/types";
 import { Clamp } from "./common/utils";
 import { Vector2 } from "../../util/vector2";
+import { Widget } from "./foundation/widget";
 
 interface AlignOptions extends SingleChildWidgetOptions, CommonWidgetOptions {
   alignment?: Alignment;
@@ -27,8 +28,12 @@ export class Align extends SingleChildWidget {
     this._offset = offset;
   }
 
-  public static Center(options: AlignOptions = {}): Align {
+  public static Center(options: Omit<AlignOptions, "alignment"> = {}): Align {
     return new Align({ ...options, alignment: Alignment.Center });
+  }
+
+  protected _Render(): Widget | Widget[] | null {
+    return this.childWidgets;
   }
 
   protected _PerformLayout() {

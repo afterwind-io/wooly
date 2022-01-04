@@ -7,7 +7,9 @@ import {
 } from "./foundation/types";
 import { Clamp } from "./common/utils";
 import { CanvasComposition } from "../../core/canvasComposition";
-import { EntitySignals, GetUniqId, Vector2 } from "../..";
+import { NoChildWidget } from "./foundation/noChildWidget";
+import { GetUniqId } from "../../util/idgen";
+import { Vector2 } from "../../util/vector2";
 
 export const enum ScrollOverflowBehavior {
   /**
@@ -71,15 +73,19 @@ export class Scroll extends Widget {
     window.removeEventListener("wheel", this.onScroll);
   }
 
-  public _Layout(constraint: Constraint): Size {
+  protected GetFirstChild(): Widget | null {
+    const child = this.$composition["Child"] as Widget;
+    return child || null;
+  }
+
+  protected _Render(): Widget | Widget[] | null {
+    return this.childWidgets;
+  }
+
+  protected _Layout(constraint: Constraint): Size {
     const size = this._LayoutChild(constraint);
     this._LayoutBars();
     return size;
-  }
-
-  protected GetFirstChild(): Widget<EntitySignals> | null {
-    const child = this.$composition["Child"] as Widget;
-    return child || null;
   }
 
   private _LayoutBars() {
@@ -144,7 +150,7 @@ export class Scroll extends Widget {
       maxHeight,
     });
 
-    const childSize = child._Layout(childConstraint);
+    const childSize = child.$Layout(childConstraint);
     child.position = new Vector2(-this.scrollH, -this.scrollV);
 
     let width = 0;
@@ -226,7 +232,7 @@ interface ScrollBarOptions {
   width?: number;
 }
 
-class ScrollBar extends Widget {
+class ScrollBar extends NoChildWidget {
   public readonly name: string = "ScrollBar";
 
   public barLength: number = 0;

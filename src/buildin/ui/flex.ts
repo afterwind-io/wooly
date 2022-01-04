@@ -4,8 +4,32 @@ import { Size, Length } from "./common/types";
 import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
+  SingleChildWidgetOptions,
 } from "./foundation/types";
 import { Vector2 } from "../../util/vector2";
+import { SingleChildWidget } from "./foundation/singleChildWidget";
+
+interface ExpandedOptions extends SingleChildWidgetOptions {
+  flex?: number;
+}
+
+class Expanded extends SingleChildWidget {
+  public readonly name: string = "Expanded";
+
+  public readonly _flex: number;
+
+  protected isLooseBox: boolean = true;
+
+  public constructor(options: ExpandedOptions = {}) {
+    super(options);
+
+    this._flex = options.flex || 1;
+  }
+
+  protected _Render(): Widget | Widget[] | null {
+    return this.childWidgets;
+  }
+}
 
 export const enum FlexDirection {
   Horizontal,
@@ -54,7 +78,23 @@ export class Flex extends Widget {
     this._crossAxisAlignment = crossAxisAlignment;
   }
 
-  public _Layout(constraint: Constraint): Size {
+  public static Row(options: Omit<FlexOptions, "direction"> = {}): Flex {
+    return new Flex({ ...options, direction: FlexDirection.Horizontal });
+  }
+
+  public static Column(options: Omit<FlexOptions, "direction"> = {}): Flex {
+    return new Flex({ ...options, direction: FlexDirection.Vertical });
+  }
+
+  public static Expanded(options: ExpandedOptions = {}): Expanded {
+    return new Expanded(options);
+  }
+
+  protected _Render(): Widget | Widget[] | null {
+    return this.childWidgets;
+  }
+
+  protected _Layout(constraint: Constraint): Size {
     const { mainAxisLength, mainAxisFreeLength, crossAxisLength } =
       this._PerformSizing(constraint);
 
@@ -93,7 +133,7 @@ export class Flex extends Widget {
     let totalFixedMainAxisLength = 0;
     let maxChildCrossAxisLength = 0;
 
-    for (const child of this.children as Widget[]) {
+    for (const child of this.childWidgets) {
       const flexFactor = GetFlexFactor(child);
       if (flexFactor > 0) {
         totalFlexFactor += flexFactor;
@@ -121,7 +161,7 @@ export class Flex extends Widget {
             break;
         }
 
-        const childSize = child._Layout(childConstraint);
+        const childSize = child.$Layout(childConstraint);
         totalFixedMainAxisLength += GetMainAxisLength(childSize, direction);
         maxChildCrossAxisLength = Math.max(
           maxChildCrossAxisLength,
@@ -145,7 +185,7 @@ export class Flex extends Widget {
       totalFlexFactor !== 0 ? mainAxisFreeLength / totalFlexFactor : 0;
 
     let totalFlexMainAxisLength = 0;
-    for (const child of this.children as Widget[]) {
+    for (const child of this.childWidgets) {
       const flexFactor = GetFlexFactor(child);
       if (flexFactor <= 0) {
         continue;
@@ -178,7 +218,7 @@ export class Flex extends Widget {
           break;
       }
 
-      const childSize = child._Layout(childConstraint);
+      const childSize = child.$Layout(childConstraint);
       totalFlexMainAxisLength += GetMainAxisLength(childSize, direction);
       maxChildCrossAxisLength = Math.max(
         maxChildCrossAxisLength,
@@ -202,7 +242,7 @@ export class Flex extends Widget {
   }
 
   private _PerformLayout(mainAxisFreeLength: number, crossAxisLength: number) {
-    const childCount = this.children.length;
+    const childCount = this.childWidgets.length;
 
     let mainAxisLeading = 0;
     let mainAxisSpacing = 0;
@@ -251,7 +291,7 @@ export class Flex extends Widget {
     }
 
     let mainAxisPointer = mainAxisLeading;
-    for (const child of this.children as Widget[]) {
+    for (const child of this.childWidgets) {
       const childPosition = Vector2.Zero;
 
       // Main axis positioning
@@ -283,8 +323,11 @@ export class Flex extends Widget {
 }
 
 function GetFlexFactor(child: Widget): number {
-  // FIXME
-  return (child as any).flex || 0;
+  if (child instanceof Expanded) {
+    return child._flex;
+  }
+
+  return 0;
 }
 
 function GetMainAxisLength(size: Size, direction: FlexDirection): number {

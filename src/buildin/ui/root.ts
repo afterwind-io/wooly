@@ -1,16 +1,20 @@
-import { Widget } from './foundation/widget';
-import { Constraint } from './common/constraint';
-import { Entity } from '../../core/entity';
-import { SingleChildWidgetOptions } from './foundation/types';
-import { Engine } from '../../core/engine';
-import { PipeLineTask } from '../../core/pipeline';
+import { Widget } from "./foundation/widget";
+import { Constraint } from "./common/constraint";
+import { Entity } from "../../core/entity";
+import { SingleChildWidgetOptions } from "./foundation/types";
+import { Engine } from "../../core/engine";
+import { PipeLineTask } from "../../core/pipeline";
+import { PipelineTaskPriority } from "../../core/task/consts";
 
 interface WidgetRootOptions extends SingleChildWidgetOptions {}
 
 export class WidgetRoot extends Entity {
-  public readonly name: string = 'WidgetRoot';
+  public readonly name: string = "WidgetRoot";
 
-  private _task: PipeLineTask;
+  private readonly globalTaskLayout: PipeLineTask = new TaskWidgetLayout(this);
+  private readonly globalTaskUpdate: PipeLineTask = new TaskWidgetUpdate(this);
+
+  private readonly updateQueue: Widget[] = [];
 
   public constructor(options: WidgetRootOptions = {}) {
     super();
@@ -18,20 +22,21 @@ export class WidgetRoot extends Entity {
     const { child } = options;
     if (child) {
       this.AddChild(child);
+      this.updateQueue.push(child);
     }
-
-    this._task = new TaskWidgetLayout(this);
   }
 
   public _Ready() {
-    Engine.pipeline.Register(this._task);
+    Engine.pipeline.Register(this.globalTaskLayout);
+    Engine.pipeline.Register(this.globalTaskUpdate);
   }
 
   public _Destroy() {
-    Engine.pipeline.Unregister(this._task);
+    Engine.pipeline.Unregister(this.globalTaskLayout);
+    Engine.pipeline.Unregister(this.globalTaskUpdate);
   }
 
-  public _Layout() {
+  public Layout() {
     const child = this.children[0];
     if (!child) {
       return;
@@ -43,20 +48,37 @@ export class WidgetRoot extends Entity {
       );
     }
 
-    child._Layout(new Constraint());
+    child.$Layout(new Constraint());
+  }
+
+  public UpdateWidget() {
+    for (const widget of this.updateQueue) {
+      widget.ScheduleUpdate();
+    }
+    this.updateQueue.length = 0;
+  }
+
+  public OnWidgetUpdate(node: Widget): void {
+    this.updateQueue.push(node);
   }
 }
 
 class TaskWidgetLayout implements PipeLineTask {
-  public readonly priority: number = 301;
+  public readonly priority: number = PipelineTaskPriority.LayoutWidget;
 
-  private _root: WidgetRoot;
+  public constructor(private root: WidgetRoot) {}
 
-  public constructor(root: WidgetRoot) {
-    this._root = root;
+  public Run() {
+    this.root.Layout();
   }
+}
 
-  public Run = () => {
-    this._root._Layout();
-  };
+class TaskWidgetUpdate implements PipeLineTask {
+  public readonly priority: number = PipelineTaskPriority.UpdateWidget;
+
+  public constructor(private root: WidgetRoot) {}
+
+  public Run() {
+    this.root.UpdateWidget();
+  }
 }

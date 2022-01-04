@@ -1,17 +1,17 @@
-import { Entity, EntitySignals } from '../../../core/entity';
-import { Input } from '../../media/input';
-import { Vector2 } from '../../../util/vector2';
-import { Size, Length } from '../common/types';
-import { Constraint } from '../common/constraint';
-import { Edge } from '../common/edge';
+import { Entity, EntitySignals } from "../../../core/entity";
+import { OneTimeCachedGetter } from "../../../util/cachedGetter";
+import { Vector2 } from "../../../util/vector2";
+import { Input } from "../../media/input";
+import { Constraint } from "../common/constraint";
+import { Length, Size } from "../common/types";
+import { WidgetRoot } from "../root";
 import {
+  CommonWidgetOptions,
   MouseAction,
   MouseDragDrop,
   MouseMovement,
-  CommonWidgetOptions,
   MultiChildWidgetOptions,
-  ContainerWidgetOptions,
-} from './types';
+} from "./types";
 
 const DRAG_START_THRESHOLD = 10;
 
@@ -47,23 +47,55 @@ const DragDropState = new (class DragDropState {
   }
 })();
 
-export type WidgetOptions = CommonWidgetOptions &
-  MultiChildWidgetOptions &
-  ContainerWidgetOptions;
+export type WidgetOptions = CommonWidgetOptions & MultiChildWidgetOptions;
+
+/**
+ * [**Decorator**]
+ *
+ * @example
+ * ```ts
+ * class MyWidget extends Widget {
+ *   @UIAction
+ *   public DoSomething {
+ *     this.a = 1;
+ *     // this.ForceUpdate()
+ *   }
+ * }
+ * ```
+ */
+export function UIAction(
+  target: Widget & Record<string, any>,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = target[propertyKey] as Function;
+  descriptor.value = function (this: Widget, ...args: any[]) {
+    originalMethod.apply(this, args);
+    this.Refresh();
+  };
+}
+
+export function CreateContext() {
+  // TODO 生成context组件，如何引用？如何刷新引用组件？
+}
+
+interface WidgetFiber {
+  type: any;
+  options: Record<string, any>;
+  children: WidgetFiber[];
+  instance: Widget;
+}
 
 export abstract class Widget<
-  SIGNAL extends EntitySignals = EntitySignals
-> extends Entity<SIGNAL> {
-  public readonly customDrawing: boolean = true;
+  OPT = {},
+  SIG extends EntitySignals = EntitySignals
+> extends Entity<SIG> {
+  public abstract readonly name: string;
 
-  public _debug: boolean = true;
   public _intrinsicWidth: number = 0;
   public _intrinsicHeight: number = 0;
 
   public readonly tag: string;
-  public border: Edge;
-  public padding: Edge;
-  public margin: Edge;
   public width: Length;
   public height: Length;
 
@@ -72,41 +104,47 @@ export abstract class Widget<
   protected mouseDragDropState: MouseDragDrop = MouseDragDrop.None;
   protected mouseMovementState: MouseMovement = MouseMovement.None;
 
+  protected childWidgets: Widget[];
+  protected options: OPT;
+  protected _fiber: WidgetFiber;
+
   public constructor(options: WidgetOptions = {}) {
     super();
 
-    const {
-      tag = '',
-      children = [],
-      border = Edge.None,
-      padding = Edge.None,
-      margin = Edge.None,
-      width = 'shrink',
-      height = 'shrink',
-    } = options;
-    this.tag = tag;
-    this.border = border;
-    this.padding = padding;
-    this.margin = margin;
-    this.width = width;
-    this.height = height;
+    this.options = options as unknown as OPT;
 
-    for (const child of children) {
-      this.AddChild(child);
-    }
+    this.tag = options.tag || "";
+    this.width = options.width || "shrink";
+    this.height = options.height || "shrink";
+    this.childWidgets = options.children || [];
+
+    this._fiber = {
+      type: this.constructor,
+      options,
+      children: [],
+      instance: this,
+    };
   }
 
-  public get IsDragging(): boolean {
+  public get isDragging(): boolean {
     return DragDropState.source === this;
   }
 
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    this.DebugDraw(ctx);
+  @OneTimeCachedGetter({ emptyValue: null })
+  protected get root(): WidgetRoot {
+    const parent = this.parent as WidgetRoot | Widget | null;
+    if (parent instanceof WidgetRoot) {
+      return parent;
+    } else if (parent) {
+      return parent.root;
+    }
 
-    this._DrawWidget(ctx);
+    throw new Error("[wooly] Widget should be the child of WidgetRoot.");
   }
 
-  public _DrawWidget(ctx: CanvasRenderingContext2D): void {}
+  public $Layout(constraint: Constraint): Size {
+    return this._Layout(constraint);
+  }
 
   public _Update(delta: number) {
     const nextMovementState = this.StepMouseMovementState();
@@ -123,7 +161,44 @@ export abstract class Widget<
 
   public _Input(e: InputEvent) {}
 
-  public abstract _Layout(constraint: Constraint): Size;
+  protected abstract _Layout(constraint: Constraint): Size;
+
+  protected abstract _Render(): Widget | Widget[] | null;
+
+  public Refresh(): void {
+    // TODO 如果一个子节点的size发生变化，需要向上传播重新layout
+    this.root.OnWidgetUpdate(this);
+  }
+
+  public ScheduleUpdate(): void {
+    const widgets = this._Render();
+
+    let childFibers: WidgetFiber[];
+    if (Array.isArray(widgets)) {
+      childFibers = widgets.map((w) => w._fiber);
+    } else if (widgets) {
+      childFibers = [widgets._fiber];
+    } else {
+      childFibers = [];
+    }
+
+    const prevFiber = this._fiber;
+    let prevChildFibers: WidgetFiber[];
+    if (prevFiber) {
+      prevChildFibers = prevFiber.children;
+    } else {
+      prevChildFibers = [];
+    }
+
+    this.ReconcileChildren(this, prevChildFibers, childFibers);
+
+    this._fiber = {
+      type: this.constructor,
+      options: this._fiber.options,
+      children: childFibers,
+      instance: this,
+    };
+  }
 
   protected GetFirstChild(): Widget | null {
     const child = this.children[0];
@@ -140,97 +215,52 @@ export abstract class Widget<
     return child as Widget;
   }
 
-  private DebugDraw(ctx: CanvasRenderingContext2D) {
-    if (!this._debug) {
+  private Reconcile(
+    oldFiber: WidgetFiber | null,
+    newFiber: WidgetFiber | null
+  ): void {
+    if (!oldFiber && newFiber) {
+      this.AddChild(newFiber.instance);
+      // this.ReconcileChildren(newFiber.instance, [], newFiber.children);
+      newFiber.instance.ScheduleUpdate();
       return;
     }
 
-    const w = this._intrinsicWidth;
-    const h = this._intrinsicHeight;
+    if (!oldFiber && !newFiber) {
+      return;
+    }
 
-    // Dimension
-    // ctx.globalAlpha = 0.05;
-    // ctx.fillStyle = 'black';
-    // ctx.fillRect(0, 0, w, h);
-    // ctx.globalAlpha = 1;
-    // ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    // ctx.font = '8px sans-serif';
-    // ctx.fillText(`${this.name}(${w.toFixed(3)}, ${h.toFixed(3)})`, 2, 10);
+    if (oldFiber && !newFiber) {
+      oldFiber.instance.Free();
+      return;
+    }
 
-    ctx.globalAlpha = 0.3;
+    // if (oldFiber!.type !== newFiber!.type) {
+    oldFiber!.instance.Free();
+    this.AddChild(newFiber!.instance);
+    // this.ReconcileChildren(
+    //   newFiber!.instance,
+    //   oldFiber!.children,
+    //   newFiber!.children
+    // );
+    newFiber!.instance.ScheduleUpdate();
+    return;
+    // }
 
-    // Margin
-    ctx.fillStyle = 'orange';
-    ctx.fillRect(0, 0, w, this.margin.top);
-    ctx.fillRect(0, h - this.margin.bottom, w, this.margin.bottom);
-    ctx.fillRect(
-      0,
-      this.margin.top,
-      this.margin.left,
-      h - this.margin.Vertical
-    );
-    ctx.fillRect(
-      w - this.margin.right,
-      this.margin.top,
-      this.margin.right,
-      h - this.margin.Vertical
-    );
+    // this.ReconcileChildren(this, oldFiber!.children, newFiber!.children);
+  }
 
-    // Border
-    ctx.fillStyle = 'yellow';
-    ctx.fillRect(
-      this.margin.left,
-      this.margin.top,
-      w - this.margin.Horizontal,
-      this.border.top
-    );
-    ctx.fillRect(
-      this.margin.left,
-      h - this.margin.bottom - this.border.bottom,
-      w - this.margin.Horizontal,
-      this.border.bottom
-    );
-    ctx.fillRect(
-      this.margin.left,
-      this.margin.top + this.border.top,
-      this.border.left,
-      h - this.margin.Vertical - this.border.Vertical
-    );
-    ctx.fillRect(
-      w - this.margin.right - this.border.right,
-      this.margin.top + this.border.top,
-      this.border.right,
-      h - this.margin.Vertical - this.border.Vertical
-    );
-
-    // Padding
-    ctx.fillStyle = 'lime';
-    ctx.fillRect(
-      this.margin.left + this.border.left,
-      this.margin.top + this.border.top,
-      w - this.margin.Horizontal - this.border.Horizontal,
-      this.padding.top
-    );
-    ctx.fillRect(
-      this.margin.left + this.border.left,
-      h - this.margin.bottom - this.border.bottom - this.padding.bottom,
-      w - this.margin.Horizontal - this.border.Horizontal,
-      this.padding.bottom
-    );
-    ctx.fillRect(
-      this.margin.left + this.border.left,
-      this.margin.top + this.border.top + this.padding.top,
-      this.padding.left,
-      h - this.margin.Vertical - this.border.Vertical - this.padding.Vertical
-    );
-    ctx.fillRect(
-      w - this.margin.right - this.border.right - this.padding.right,
-      this.margin.top + this.border.top + this.padding.top,
-      this.padding.right,
-      h - this.margin.Vertical - this.border.Vertical - this.padding.Vertical
-    );
-
-    ctx.globalAlpha = 1;
+  private ReconcileChildren(
+    root: Widget,
+    oldChildren: WidgetFiber[],
+    newChildren: WidgetFiber[]
+  ): void {
+    const maxCount = Math.max(oldChildren.length, newChildren.length);
+    for (let i = 0; i < maxCount; i++) {
+      const oldChildWidget = oldChildren[i];
+      const newChildWidget = newChildren[i];
+      root.Reconcile(oldChildWidget, newChildWidget);
+    }
   }
 
   private HandleDragDrop() {
@@ -324,7 +354,7 @@ export abstract class Widget<
         return MouseDragDrop.None;
 
       case MouseDragDrop.DragMove:
-        if (this.IsDragging) {
+        if (this.isDragging) {
           if (Input.IsMouseDown(Input.BUTTON_LEFT)) {
             return MouseDragDrop.DragMove;
           } else {
