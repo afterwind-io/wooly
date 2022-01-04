@@ -41,6 +41,7 @@ export { Inspector } from "./buildin/inspector/index";
 
 // UI Widgets
 export { Align, Alignment } from "./buildin/ui/align";
+export { BoxDecoration } from "./buildin/ui/boxDecoration";
 export { Button } from "./buildin/ui/button";
 export { Checkbox } from "./buildin/ui/checkbox";
 export { Container } from "./buildin/ui/container";
@@ -65,6 +66,8 @@ export {
   MouseDragDrop,
   MouseMovement,
 } from "./buildin/ui/foundation/types";
+export { Widget, UIAction } from "./buildin/ui/foundation/widget";
+export { NoChildWidget } from "./buildin/ui/foundation/noChildWidget";
 export { SingleChildWidget } from "./buildin/ui/foundation/singleChildWidget";
 
 // utils
