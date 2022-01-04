@@ -215,6 +215,10 @@ export abstract class Widget<
     return child as Widget;
   }
 
+  protected GetFirstChildWidget(): Widget | null {
+    return this.childWidgets[0] || null;
+  }
+
   private Reconcile(
     oldFiber: WidgetFiber | null,
     newFiber: WidgetFiber | null

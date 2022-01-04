@@ -52,8 +52,10 @@ export {
   FlexDirection,
 } from "./buildin/ui/flex";
 export { Grid } from "./buildin/ui/grid";
+export { Offset } from "./buildin/ui/offset";
 export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll";
+export { Stack } from "./buildin/ui/stack";
 export { Text } from "./buildin/ui/text";
 export { WidgetRoot } from "./buildin/ui/root";
 

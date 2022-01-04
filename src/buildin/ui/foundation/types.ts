@@ -34,9 +34,9 @@ export interface CommonWidgetOptions {
 }
 
 export interface SingleChildWidgetOptions {
-  child?: Widget;
+  child?: Widget | null;
 }
 
 export interface MultiChildWidgetOptions {
-  children?: Widget[];
+  children?: Widget[] | null;
 }
