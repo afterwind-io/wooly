@@ -133,7 +133,7 @@ export class Flex extends Widget {
     let totalFixedMainAxisLength = 0;
     let maxChildCrossAxisLength = 0;
 
-    for (const child of this.childWidgets) {
+    for (const child of this.children as Widget[]) {
       const flexFactor = GetFlexFactor(child);
       if (flexFactor > 0) {
         totalFlexFactor += flexFactor;
@@ -185,7 +185,7 @@ export class Flex extends Widget {
       totalFlexFactor !== 0 ? mainAxisFreeLength / totalFlexFactor : 0;
 
     let totalFlexMainAxisLength = 0;
-    for (const child of this.childWidgets) {
+    for (const child of this.children as Widget[]) {
       const flexFactor = GetFlexFactor(child);
       if (flexFactor <= 0) {
         continue;
@@ -291,7 +291,7 @@ export class Flex extends Widget {
     }
 
     let mainAxisPointer = mainAxisLeading;
-    for (const child of this.childWidgets) {
+    for (const child of this.children as Widget[]) {
       const childPosition = Vector2.Zero;
 
       // Main axis positioning

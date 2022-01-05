@@ -87,7 +87,7 @@ export class Grid extends Widget {
       maxHeight: gridCellHeight,
     });
 
-    for (const child of this.childWidgets) {
+    for (const child of this.children as Widget[]) {
       child.$Layout(childConstraint);
     }
 

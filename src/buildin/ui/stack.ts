@@ -24,7 +24,7 @@ export class Stack extends Widget<StackOptions> {
 
     let maxChildWidth: number = 0;
     let maxChildHeight: number = 0;
-    for (const child of this.childWidgets) {
+    for (const child of this.children as Widget[]) {
       const { width: childWidth, height: childHeight } =
         child.$Layout(localConstraint);
       if (childWidth > maxChildWidth) {
