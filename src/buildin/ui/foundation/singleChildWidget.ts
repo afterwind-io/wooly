@@ -19,7 +19,7 @@ export abstract class SingleChildWidget<
   protected abstract readonly isLooseBox: boolean;
 
   public constructor(options: SingleChildWidgetOptions = {}) {
-    super({ ...options, children: options.child ? [options.child] : [] });
+    super(options);
   }
 
   protected _Layout(constraint: Constraint): Size {

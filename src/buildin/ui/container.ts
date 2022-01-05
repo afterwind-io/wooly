@@ -40,7 +40,7 @@ export class Container extends Widget {
     options: ContainerWidgetOptions = {},
     debug: boolean = false
   ) {
-    super({ ...options, children: options.child ? [options.child] : [] });
+    super(options);
 
     this.border = options.border || Edge.None;
     this.padding = options.padding || Edge.None;

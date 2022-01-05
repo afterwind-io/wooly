@@ -17,7 +17,7 @@ export class Offset extends Widget<OffsetOptions> {
   protected readonly isLooseBox: boolean = false;
 
   public constructor(options: OffsetOptions = {}) {
-    super({ ...options, children: options.child ? [options.child] : [] });
+    super(options);
   }
 
   protected _Layout(constraint: Constraint): Size {

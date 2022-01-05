@@ -11,6 +11,7 @@ import {
   MouseDragDrop,
   MouseMovement,
   MultiChildWidgetOptions,
+  SingleChildWidgetOptions,
 } from "./types";
 
 const DRAG_START_THRESHOLD = 10;
@@ -47,7 +48,9 @@ const DragDropState = new (class DragDropState {
   }
 })();
 
-export type WidgetOptions = CommonWidgetOptions & MultiChildWidgetOptions;
+export type WidgetOptions = CommonWidgetOptions &
+  SingleChildWidgetOptions &
+  MultiChildWidgetOptions;
 
 /**
  * [**Decorator**]
@@ -116,7 +119,10 @@ export abstract class Widget<
     this.tag = options.tag || "";
     this.width = options.width || "shrink";
     this.height = options.height || "shrink";
-    this.childWidgets = options.children || [];
+
+    this.childWidgets = options.child
+      ? [options.child]
+      : options.children || [];
 
     this._fiber = {
       type: this.constructor,
