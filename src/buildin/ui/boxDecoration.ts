@@ -71,7 +71,7 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
         ctx.fillRect(0, 0, border.left, height);
       }
       if (border.right) {
-        ctx.fillRect(width - 1, height - 1, border.right, height);
+        ctx.fillRect(width - 1, 0, border.right, height);
       }
     }
   }
