@@ -43,10 +43,11 @@ export class Grid extends Widget {
 
   protected _Layout(constraint: Constraint): Size {
     const size = this._PerformSizing(constraint);
-    this._PerformLayout();
-
     this._intrinsicWidth = size.width;
     this._intrinsicHeight = size.height;
+
+    this._PerformLayout();
+
     return size;
   }
 

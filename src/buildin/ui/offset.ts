@@ -31,14 +31,16 @@ export class Offset extends Widget<OffsetOptions> {
       desiredHeight
     );
 
+    let size: Size = { width: 0, height: 0 };
     const child = this.GetFirstChildWidget();
     if (child) {
-      const childSize = child.$Layout(localConstraint);
+      size = child.$Layout(localConstraint);
       child.position = offset;
-      return childSize;
     }
 
-    return { width: 0, height: 0 };
+    this._intrinsicWidth = size.width;
+    this._intrinsicHeight = size.height;
+    return size;
   }
 
   protected _Render(): Widget | Widget[] | null {

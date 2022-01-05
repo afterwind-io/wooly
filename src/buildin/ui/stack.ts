@@ -49,6 +49,9 @@ export class Stack extends Widget<StackOptions> {
       desiredHeight,
       maxChildHeight
     );
+
+    this._intrinsicWidth = width;
+    this._intrinsicHeight = height;
     return { width, height };
   }
 

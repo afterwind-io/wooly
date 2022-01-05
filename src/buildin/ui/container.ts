@@ -144,10 +144,11 @@ export class Container extends Widget {
 
   protected _Layout(constraint: Constraint): Size {
     const size = this.PerformSizing(constraint);
-    this.PerformLayout();
-
     this._intrinsicWidth = size.width;
     this._intrinsicHeight = size.height;
+
+    this.PerformLayout();
+
     return size;
   }
 

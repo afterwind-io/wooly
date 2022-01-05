@@ -24,10 +24,11 @@ export abstract class SingleChildWidget<
 
   protected _Layout(constraint: Constraint): Size {
     const size = this.PerformSizing(constraint);
-    this._PerformLayout();
-
     this._intrinsicWidth = size.width;
     this._intrinsicHeight = size.height;
+
+    this._PerformLayout();
+
     return size;
   }
 
