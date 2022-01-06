@@ -139,7 +139,6 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
         }
 
       case MouseAction.MouseUp:
-        onKeyUp();
         onClick();
         return MouseAction.MouseClick;
 
