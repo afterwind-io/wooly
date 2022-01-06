@@ -15,34 +15,28 @@ interface TextOptions extends CommonWidgetOptions {
   fillStyle?: CanvasFillStrokeStyles["fillStyle"];
 }
 
-export class Text extends NoChildWidget {
+const DEFAULT_FONT_NAME = "sans-serif";
+const DEFAULT_FONT_SIZE = 12;
+const DEFAULT_FONT_WEIGHT = 400;
+const DEFAULT_FILL_STYLE = "black";
+
+export class Text extends NoChildWidget<TextOptions> {
   public readonly name: string = "Text";
   public readonly customDrawing: boolean = true;
 
-  private _content: string;
-  private _fontName: string;
-  private _fontSize: number;
-  private _fontWeight: number;
-  private _fillStyle: CanvasFillStrokeStyles["fillStyle"];
-
   public constructor(options: TextOptions = {}) {
     super(options);
-
-    const {
-      content = "",
-      fontName = "sans-serif",
-      fontSize = 12,
-      fontWeight = 400,
-      fillStyle = "black",
-    } = options;
-    this._content = content;
-    this._fontName = fontName;
-    this._fontSize = fontSize;
-    this._fontWeight = fontWeight;
-    this._fillStyle = fillStyle;
   }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
+    const {
+      content = "",
+      fontName = DEFAULT_FONT_NAME,
+      fontSize = DEFAULT_FONT_SIZE,
+      fontWeight = DEFAULT_FONT_WEIGHT,
+      fillStyle = DEFAULT_FILL_STYLE,
+    } = this.options;
+
     ctx.save();
 
     /**
@@ -55,18 +49,25 @@ export class Text extends NoChildWidget {
     ctx.clip();
     ctx.closePath();
 
-    ctx.fillStyle = this._fillStyle;
-    ctx.font = this.GetFontRepr();
+    ctx.fillStyle = fillStyle;
+    ctx.font = this.GetFontRepr(fontWeight, fontSize, fontName);
     ctx.textBaseline = "top";
-    ctx.fillText(this._content, 0, 0);
+    ctx.fillText(content, 0, 0);
 
     ctx.restore();
   }
 
   protected _Layout(constraint: Constraint): Size {
-    const height = this._fontSize;
-    offscreenContext.font = this.GetFontRepr();
-    const { width } = offscreenContext.measureText(this._content);
+    const {
+      content = "",
+      fontName = DEFAULT_FONT_NAME,
+      fontSize = DEFAULT_FONT_SIZE,
+      fontWeight = DEFAULT_FONT_WEIGHT,
+    } = this.options;
+
+    const height = fontSize;
+    offscreenContext.font = this.GetFontRepr(fontWeight, fontSize, fontName);
+    const { width } = offscreenContext.measureText(content);
 
     const { width: constrainedWidth, height: constrainedHeight } =
       constraint.constrainSize(width, height);
@@ -76,7 +77,11 @@ export class Text extends NoChildWidget {
     return { width, height };
   }
 
-  private GetFontRepr(): string {
-    return `${this._fontWeight} ${this._fontSize}px ${this._fontName}`;
+  private GetFontRepr(
+    fontWeight: number,
+    fontSize: number,
+    fontName: string
+  ): string {
+    return `${fontWeight} ${fontSize}px ${fontName}`;
   }
 }

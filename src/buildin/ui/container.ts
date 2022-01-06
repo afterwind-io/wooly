@@ -26,11 +26,8 @@ export interface ContainerWidgetOptions
  * @class Container
  * @extends {Widget}
  */
-export class Container extends Widget {
+export class Container extends Widget<ContainerWidgetOptions> {
   public readonly name: string = "Container";
-  public border: Edge;
-  public padding: Edge;
-  public margin: Edge;
 
   protected readonly isLooseBox: boolean = true;
 
@@ -42,10 +39,6 @@ export class Container extends Widget {
   ) {
     super(options);
 
-    this.border = options.border || Edge.None;
-    this.padding = options.padding || Edge.None;
-    this.margin = options.margin || Edge.None;
-
     this._debug = debug;
   }
 
@@ -53,6 +46,12 @@ export class Container extends Widget {
     if (!this._debug) {
       return;
     }
+
+    const {
+      margin = Edge.None,
+      border = Edge.None,
+      padding = Edge.None,
+    } = this.options;
 
     const w = this._intrinsicWidth;
     const h = this._intrinsicHeight;
@@ -70,73 +69,63 @@ export class Container extends Widget {
 
     // Margin
     ctx.fillStyle = "orange";
-    ctx.fillRect(0, 0, w, this.margin.top);
-    ctx.fillRect(0, h - this.margin.bottom, w, this.margin.bottom);
+    ctx.fillRect(0, 0, w, margin.top);
+    ctx.fillRect(0, h - margin.bottom, w, margin.bottom);
+    ctx.fillRect(0, margin.top, margin.left, h - margin.Vertical);
     ctx.fillRect(
-      0,
-      this.margin.top,
-      this.margin.left,
-      h - this.margin.Vertical
-    );
-    ctx.fillRect(
-      w - this.margin.right,
-      this.margin.top,
-      this.margin.right,
-      h - this.margin.Vertical
+      w - margin.right,
+      margin.top,
+      margin.right,
+      h - margin.Vertical
     );
 
     // Border
     ctx.fillStyle = "yellow";
+    ctx.fillRect(margin.left, margin.top, w - margin.Horizontal, border.top);
     ctx.fillRect(
-      this.margin.left,
-      this.margin.top,
-      w - this.margin.Horizontal,
-      this.border.top
+      margin.left,
+      h - margin.bottom - border.bottom,
+      w - margin.Horizontal,
+      border.bottom
     );
     ctx.fillRect(
-      this.margin.left,
-      h - this.margin.bottom - this.border.bottom,
-      w - this.margin.Horizontal,
-      this.border.bottom
+      margin.left,
+      margin.top + border.top,
+      border.left,
+      h - margin.Vertical - border.Vertical
     );
     ctx.fillRect(
-      this.margin.left,
-      this.margin.top + this.border.top,
-      this.border.left,
-      h - this.margin.Vertical - this.border.Vertical
-    );
-    ctx.fillRect(
-      w - this.margin.right - this.border.right,
-      this.margin.top + this.border.top,
-      this.border.right,
-      h - this.margin.Vertical - this.border.Vertical
+      w - margin.right - border.right,
+      margin.top + border.top,
+      border.right,
+      h - margin.Vertical - border.Vertical
     );
 
     // Padding
     ctx.fillStyle = "lime";
     ctx.fillRect(
-      this.margin.left + this.border.left,
-      this.margin.top + this.border.top,
-      w - this.margin.Horizontal - this.border.Horizontal,
-      this.padding.top
+      margin.left + border.left,
+      margin.top + border.top,
+      w - margin.Horizontal - border.Horizontal,
+      padding.top
     );
     ctx.fillRect(
-      this.margin.left + this.border.left,
-      h - this.margin.bottom - this.border.bottom - this.padding.bottom,
-      w - this.margin.Horizontal - this.border.Horizontal,
-      this.padding.bottom
+      margin.left + border.left,
+      h - margin.bottom - border.bottom - padding.bottom,
+      w - margin.Horizontal - border.Horizontal,
+      padding.bottom
     );
     ctx.fillRect(
-      this.margin.left + this.border.left,
-      this.margin.top + this.border.top + this.padding.top,
-      this.padding.left,
-      h - this.margin.Vertical - this.border.Vertical - this.padding.Vertical
+      margin.left + border.left,
+      margin.top + border.top + padding.top,
+      padding.left,
+      h - margin.Vertical - border.Vertical - padding.Vertical
     );
     ctx.fillRect(
-      w - this.margin.right - this.border.right - this.padding.right,
-      this.margin.top + this.border.top + this.padding.top,
-      this.padding.right,
-      h - this.margin.Vertical - this.border.Vertical - this.padding.Vertical
+      w - margin.right - border.right - padding.right,
+      margin.top + border.top + padding.top,
+      padding.right,
+      h - margin.Vertical - border.Vertical - padding.Vertical
     );
 
     ctx.globalAlpha = 1;
@@ -157,11 +146,14 @@ export class Container extends Widget {
   }
 
   private PerformSizing(constraint: Constraint): Size {
+    const {
+      margin = Edge.None,
+      border = Edge.None,
+      padding = Edge.None,
+    } = this.options;
+
     const desiredWidth = this.width as Length;
     const desiredHeight = this.height as Length;
-
-    const border = this.border;
-    const padding = this.padding;
 
     let localWidth = 0;
     let localHeight = 0;
@@ -207,7 +199,6 @@ export class Container extends Widget {
       );
     }
 
-    const margin = this.margin;
     return {
       // FIXME stretch怎么办？
       width: localWidth + margin.Horizontal,
@@ -221,9 +212,15 @@ export class Container extends Widget {
       return;
     }
 
+    const {
+      margin = Edge.None,
+      border = Edge.None,
+      padding = Edge.None,
+    } = this.options;
+
     child.position = new Vector2(
-      this.margin.left + this.border.left + this.padding.left,
-      this.margin.top + this.border.top + this.padding.top
+      margin.left + border.left + padding.left,
+      margin.top + border.top + padding.top
     );
   }
 }

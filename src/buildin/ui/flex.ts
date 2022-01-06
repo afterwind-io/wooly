@@ -52,30 +52,21 @@ export const enum FlexCrossAxisAlignment {
   Stretch,
 }
 
+const DEFAULT_DIRECTION = FlexDirection.Horizontal;
+const DEFAULT_MAIN_AXIS_ALIGNMENT = FlexMainAxisAlignment.Start;
+const DEFAULT_CROSS_AXIS_ALIGNMENT = FlexCrossAxisAlignment.Start;
+
 interface FlexOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
   direction?: FlexDirection;
   mainAxisAlignment?: FlexMainAxisAlignment;
   crossAxisAlignment?: FlexCrossAxisAlignment;
 }
 
-export class Flex extends Widget {
+export class Flex extends Widget<FlexOptions> {
   public readonly name: string = "Flex";
-
-  private _direction: FlexDirection;
-  private _mainAxisAlignment: FlexMainAxisAlignment;
-  private _crossAxisAlignment: FlexCrossAxisAlignment;
 
   public constructor(options: FlexOptions) {
     super(options);
-
-    const {
-      direction = FlexDirection.Horizontal,
-      mainAxisAlignment = FlexMainAxisAlignment.Start,
-      crossAxisAlignment = FlexCrossAxisAlignment.Start,
-    } = options;
-    this._direction = direction;
-    this._mainAxisAlignment = mainAxisAlignment;
-    this._crossAxisAlignment = crossAxisAlignment;
   }
 
   public static Row(options: Omit<FlexOptions, "direction"> = {}): Flex {
@@ -100,9 +91,10 @@ export class Flex extends Widget {
 
     this._PerformLayout(mainAxisFreeLength, crossAxisLength);
 
+    const { direction = DEFAULT_DIRECTION } = this.options;
     let width: number;
     let height: number;
-    if (this._direction === FlexDirection.Horizontal) {
+    if (direction === FlexDirection.Horizontal) {
       width = mainAxisLength;
       height = crossAxisLength;
     } else {
@@ -124,8 +116,10 @@ export class Flex extends Widget {
       desiredHeight
     );
 
-    const { _direction: direction, _crossAxisAlignment: crossAxisAlignment } =
-      this;
+    const {
+      direction = DEFAULT_DIRECTION,
+      crossAxisAlignment = DEFAULT_CROSS_AXIS_ALIGNMENT,
+    } = this.options;
 
     //#region
     // Calculate the total length of the children with fixed size
@@ -242,11 +236,17 @@ export class Flex extends Widget {
   }
 
   private _PerformLayout(mainAxisFreeLength: number, crossAxisLength: number) {
+    const {
+      direction = DEFAULT_DIRECTION,
+      mainAxisAlignment = DEFAULT_MAIN_AXIS_ALIGNMENT,
+      crossAxisAlignment = DEFAULT_CROSS_AXIS_ALIGNMENT,
+    } = this.options;
+
     const childCount = this.childWidgets.length;
 
     let mainAxisLeading = 0;
     let mainAxisSpacing = 0;
-    switch (this._mainAxisAlignment) {
+    switch (mainAxisAlignment) {
       case FlexMainAxisAlignment.Start:
         mainAxisSpacing = 0;
         mainAxisLeading = 0;
@@ -278,7 +278,7 @@ export class Flex extends Widget {
     let crossAxisLengthAttr: "_intrinsicWidth" | "_intrinsicHeight";
     let mainAxisPosAttr: "x" | "y";
     let crossAxisPosAttr: "x" | "y";
-    if (this._direction === FlexDirection.Horizontal) {
+    if (direction === FlexDirection.Horizontal) {
       mainAxisLengthAttr = "_intrinsicWidth";
       crossAxisLengthAttr = "_intrinsicHeight";
       mainAxisPosAttr = "x";
@@ -301,7 +301,7 @@ export class Flex extends Widget {
 
       // Cross axis positioning
       let crossAxisLeading = 0;
-      switch (this._crossAxisAlignment) {
+      switch (crossAxisAlignment) {
         case FlexCrossAxisAlignment.Start:
         case FlexCrossAxisAlignment.Stretch:
           crossAxisLeading = 0;

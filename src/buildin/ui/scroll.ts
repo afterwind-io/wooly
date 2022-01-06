@@ -32,14 +32,14 @@ interface ScrollOptions extends SingleChildWidgetOptions, CommonWidgetOptions {
   overflowV?: ScrollOverflowBehavior;
 }
 
-export class Scroll extends Widget {
+const DEFAULT_OVERFLOW_BEHAVIOR_H = ScrollOverflowBehavior.Scroll;
+const DEFAULT_OVERFLOW_BEHAVIOR_V = ScrollOverflowBehavior.Scroll;
+
+export class Scroll extends Widget<ScrollOptions> {
   public readonly name: string = "Scroll";
 
   public scrollH: number = 0;
   public scrollV: number = 0;
-
-  private _hOverflowBehavior: ScrollOverflowBehavior;
-  private _vOverflowBehavior: ScrollOverflowBehavior;
 
   private $composition: CanvasComposition;
   private $barH: ScrollBar;
@@ -48,15 +48,8 @@ export class Scroll extends Widget {
   public constructor(options: ScrollOptions = {}) {
     super(options);
 
-    const {
-      child,
-      overflowH = ScrollOverflowBehavior.Scroll,
-      overflowV = ScrollOverflowBehavior.Scroll,
-    } = options;
-    this._hOverflowBehavior = overflowH;
-    this._vOverflowBehavior = overflowV;
-
     this.AddChild((this.$composition = new CanvasComposition(GetUniqId())));
+    const { child } = options;
     if (child) {
       this.$composition.AddChild(child);
     }
@@ -94,12 +87,17 @@ export class Scroll extends Widget {
       return;
     }
 
+    const {
+      overflowH = DEFAULT_OVERFLOW_BEHAVIOR_H,
+      overflowV = DEFAULT_OVERFLOW_BEHAVIOR_V,
+    } = this.options;
+
     const clientWidth = this._intrinsicWidth;
     const clientHeight = this._intrinsicHeight;
     const scrollWidth = child._intrinsicWidth;
     const scrollHeight = child._intrinsicHeight;
 
-    if (this._hOverflowBehavior === ScrollOverflowBehavior.Scroll) {
+    if (overflowH === ScrollOverflowBehavior.Scroll) {
       this.$barH.enabled = true;
 
       this.$barH.barOffset = (this.scrollH * (clientWidth - 8)) / scrollWidth;
@@ -110,7 +108,7 @@ export class Scroll extends Widget {
       this.$barH.enabled = false;
     }
 
-    if (this._vOverflowBehavior === ScrollOverflowBehavior.Scroll) {
+    if (overflowV === ScrollOverflowBehavior.Scroll) {
       this.$barV.enabled = true;
 
       this.$barV.barOffset = (this.scrollV * (clientHeight - 8)) / scrollHeight;
@@ -132,6 +130,11 @@ export class Scroll extends Widget {
       return { width: 1, height: 1 };
     }
 
+    const {
+      overflowH = DEFAULT_OVERFLOW_BEHAVIOR_H,
+      overflowV = DEFAULT_OVERFLOW_BEHAVIOR_V,
+    } = this.options;
+
     const localConstraint = constraint.constrain(
       true,
       desiredWidth,
@@ -139,11 +142,11 @@ export class Scroll extends Widget {
     );
     const maxWidth = this.getLengthLimitByBehavior(
       localConstraint.maxWidth,
-      this._hOverflowBehavior
+      overflowH
     );
     const maxHeight = this.getLengthLimitByBehavior(
       localConstraint.maxHeight,
-      this._vOverflowBehavior
+      overflowV
     );
     const childConstraint = new Constraint({
       maxWidth,
@@ -214,14 +217,19 @@ export class Scroll extends Widget {
     const deltaH = event.deltaX;
     const deltaY = event.deltaY;
 
-    if (this._vOverflowBehavior === ScrollOverflowBehavior.Scroll) {
+    const {
+      overflowV = DEFAULT_OVERFLOW_BEHAVIOR_V,
+      overflowH = DEFAULT_OVERFLOW_BEHAVIOR_H,
+    } = this.options;
+
+    if (overflowV === ScrollOverflowBehavior.Scroll) {
       this.scrollV = Clamp(
         this.scrollV + deltaY,
         0,
         scrollHeight - clientHeight
       );
     }
-    if (this._hOverflowBehavior === ScrollOverflowBehavior.Scroll) {
+    if (overflowH === ScrollOverflowBehavior.Scroll) {
       this.scrollH = Clamp(this.scrollH + deltaH, 0, scrollWidth - clientWidth);
     }
   };

@@ -14,27 +14,16 @@ interface GridOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
   childAspectRatio?: number;
 }
 
-export class Grid extends Widget {
-  public readonly name: string = "Grid";
+const DEFAULT_MAIN_AXIS_SPACING = 0;
+const DEFAULT_CROSS_AXIS_SPACING = 0;
+const DEFAULT_CROSS_AXIS_COUNT = 1;
+const DEFAULT_CHILD_ASPECT_RATIO = 1;
 
-  private _mainAxisSpacing: number;
-  private _crossAxisSpacing: number;
-  private _crossAxisCount: number;
-  private _childAspectRatio: number;
+export class Grid extends Widget<GridOptions> {
+  public readonly name: string = "Grid";
 
   public constructor(options: GridOptions = {}) {
     super(options);
-
-    const {
-      mainAxisSpacing = 0,
-      crossAxisSpacing = 0,
-      crossAxisCount = 1,
-      childAspectRatio = 1,
-    } = options;
-    this._mainAxisSpacing = mainAxisSpacing;
-    this._crossAxisSpacing = crossAxisSpacing;
-    this._crossAxisCount = crossAxisCount;
-    this._childAspectRatio = childAspectRatio;
   }
 
   protected _Render(): Widget | Widget[] | null {
@@ -70,11 +59,11 @@ export class Grid extends Widget {
     }
 
     const {
-      _mainAxisSpacing: mainAxisSpacing,
-      _crossAxisSpacing: crossAxisSpacing,
-      _crossAxisCount: crossAxisCount,
-      _childAspectRatio: childAspectRatio,
-    } = this;
+      mainAxisSpacing = DEFAULT_MAIN_AXIS_SPACING,
+      crossAxisSpacing = DEFAULT_CROSS_AXIS_SPACING,
+      crossAxisCount = DEFAULT_CROSS_AXIS_COUNT,
+      childAspectRatio = DEFAULT_CHILD_ASPECT_RATIO,
+    } = this.options;
 
     const gridCellWidth =
       (mainAxisLength - mainAxisSpacing * (crossAxisCount - 1)) /
@@ -102,10 +91,11 @@ export class Grid extends Widget {
 
   private _PerformLayout() {
     const {
-      _mainAxisSpacing: mainAxisSpacing,
-      _crossAxisSpacing: crossAxisSpacing,
-      _crossAxisCount: crossAxisCount,
-    } = this;
+      mainAxisSpacing = DEFAULT_MAIN_AXIS_SPACING,
+      crossAxisSpacing = DEFAULT_CROSS_AXIS_SPACING,
+      crossAxisCount = DEFAULT_CROSS_AXIS_COUNT,
+    } = this.options;
+
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i] as Widget;
       const childPosition = Vector2.Zero;
