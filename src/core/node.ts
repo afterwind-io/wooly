@@ -38,6 +38,10 @@ export const enum NodeState {
  */
 export abstract class Node {
   /**
+   * The node depth in the tree.
+   */
+  public depth: number = 0;
+  /**
    * A flag indicates whether to enable the entity or not.
    *
    * When set to `false`, the entity is completely ignored. Both `_Update` and
@@ -166,6 +170,7 @@ export abstract class Node {
     this.state = NodeState.Ready;
 
     for (const child of this.children) {
+      child.depth = this.depth + 1;
       child.$Ready();
     }
   }

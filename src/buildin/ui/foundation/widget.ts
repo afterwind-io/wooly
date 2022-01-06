@@ -58,6 +58,8 @@ export abstract class Widget<
 
   public _intrinsicWidth: number = 0;
   public _intrinsicHeight: number = 0;
+  public _isLayoutDirty: boolean = false;
+  public _prevConstraint: Constraint = new Constraint();
 
   public tag!: string;
   public width!: Length;
@@ -82,17 +84,25 @@ export abstract class Widget<
 
   @OneTimeCachedGetter({ emptyValue: null })
   protected get root(): WidgetRoot {
-    const parent = this.parent as WidgetRoot | Widget | null;
-    if (parent instanceof WidgetRoot) {
-      return parent;
-    } else if (parent) {
-      return parent.root;
+    let root = null;
+    this.Bubble((node) => {
+      if (node instanceof WidgetRoot) {
+        root = node;
+        return true;
+      }
+    });
+
+    if (root) {
+      return root;
     }
 
     throw new Error("[wooly] Widget should be the child of WidgetRoot.");
   }
 
   public $Layout(constraint: Constraint): Size {
+    this._isLayoutDirty = false;
+    this._prevConstraint = constraint;
+
     return this._Layout(constraint);
   }
 
@@ -101,6 +111,25 @@ export abstract class Widget<
   protected abstract _Layout(constraint: Constraint): Size;
 
   protected abstract _Render(): Widget | Widget[] | null;
+
+  public FindNearestParent(
+    predicate: (widget: Widget) => boolean | undefined
+  ): Widget | null {
+    let parent: Widget | null = null;
+
+    this.Bubble((node) => {
+      if (!(node instanceof Widget)) {
+        return;
+      }
+
+      if (predicate(node)) {
+        parent = node;
+        return true;
+      }
+    });
+
+    return parent;
+  }
 
   public Refresh(): void {
     this.root.OnWidgetUpdate(this);

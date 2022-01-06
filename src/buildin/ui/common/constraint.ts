@@ -1,5 +1,5 @@
-import { Length, Size } from './types';
-import { Clamp } from './utils';
+import { Length, Size } from "./types";
+import { Clamp } from "./utils";
 
 export class Constraint {
   public readonly minWidth: number;
@@ -19,6 +19,15 @@ export class Constraint {
     this.maxWidth = dimension.maxWidth || Infinity;
     this.minHeight = dimension.minHeight || 0;
     this.maxHeight = dimension.maxHeight || Infinity;
+  }
+
+  public get IsTight(): boolean {
+    return (
+      this.minWidth === this.maxWidth &&
+      this.maxWidth !== Infinity &&
+      this.minHeight === this.maxHeight &&
+      this.maxHeight !== Infinity
+    );
   }
 
   public constrain(
@@ -76,7 +85,7 @@ export class Constraint {
     min: number,
     max: number
   ): { min: number; max: number } {
-    if (desiredLength === 'stretch' || desiredLength === 'shrink') {
+    if (desiredLength === "stretch" || desiredLength === "shrink") {
       return { min, max };
     }
 
@@ -96,9 +105,9 @@ export class Constraint {
     min: number,
     max: number
   ): number {
-    if (desiredLength === 'stretch') {
+    if (desiredLength === "stretch") {
       return max;
-    } else if (desiredLength === 'shrink') {
+    } else if (desiredLength === "shrink") {
       return min;
     } else {
       return Clamp(desiredLength, min, max);
