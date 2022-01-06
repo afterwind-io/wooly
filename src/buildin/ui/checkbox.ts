@@ -1,82 +1,104 @@
-import { EntitySignals } from "../../core/entity";
-import { NoChildWidget } from "./foundation/noChildWidget";
-import {
-  MouseMovement,
-  MouseAction,
-  CommonWidgetOptions,
-} from "./foundation/types";
-
-interface CheckboxSignals extends EntitySignals {
-  OnToggle: (checked: boolean) => void;
-}
+import { Theme } from "./common/theme";
+import { SwitchCursor } from "./common/utils";
+import { SingleChildWidget } from "./foundation/singleChildWidget";
+import { CommonWidgetOptions } from "./foundation/types";
+import { UIAction, Widget } from "./foundation/widget";
+import { MouseSensor } from "./mouseSensor";
 
 interface CheckboxOptions extends CommonWidgetOptions {
-  checked?: boolean;
+  checked: boolean;
+  onToggle?(isChecked: boolean): void;
 }
 
-export class Checkbox extends NoChildWidget<CheckboxOptions, CheckboxSignals> {
+export class Checkbox extends SingleChildWidget<CheckboxOptions> {
   public readonly name: string = "Checkbox";
   public readonly customDrawing: boolean = true;
 
-  protected _checked: boolean = false;
+  protected readonly isLooseBox: boolean = false;
 
-  public constructor(options: CheckboxOptions = {}) {
+  protected _backgroundColor: string;
+  protected _borderColor: string;
+
+  public constructor(options: CheckboxOptions) {
     super(options);
 
-    const { checked = false } = options;
-    this._checked = checked;
+    const { checked } = this.options;
+    this._backgroundColor = checked ? Theme.Primary : Theme.BackgroundNormal;
+    this._borderColor = checked ? Theme.Primary : Theme.BorderNormal;
+
+    this.OnMouseHover = this.OnMouseHover.bind(this);
+    this.OnMouseDown = this.OnMouseDown.bind(this);
+    this.OnMouseClick = this.OnMouseClick.bind(this);
   }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
-    if (this.mouseMovementState === MouseMovement.MouseHover) {
-      ctx.fillStyle = "whitesmoke";
-    } else {
-      ctx.fillStyle = "white";
-    }
-
-    if (this.mouseActionState === MouseAction.MouseDown) {
-      ctx.fillStyle = "lightgrey";
-    }
+    const { checked } = this.options;
 
     const width = this._intrinsicWidth;
     const height = this._intrinsicHeight;
 
+    ctx.fillStyle = this._backgroundColor;
     ctx.fillRect(0, 0, width, height);
 
-    ctx.strokeStyle = "grey";
+    ctx.strokeStyle = this._borderColor;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.rect(0, 0, width, height);
     ctx.closePath();
     ctx.stroke();
 
-    if (this._checked) {
+    const half = ~~(width / 2);
+    if (checked) {
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = ~~(width / 16) + 2;
       ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(width, height);
-      ctx.moveTo(width, 0);
-      ctx.lineTo(0, height);
-      ctx.closePath();
+
+      ctx.moveTo(half * 0.4, half * 1.2);
+      ctx.lineTo(half * 0.9, half * 1.5);
+      ctx.lineTo(half * 1.5, half * 0.5);
+
       ctx.stroke();
+      ctx.closePath();
     }
   }
 
-  public _Update(delta: number) {
-    super._Update(delta);
-
-    this.SwitchCursor();
-
-    if (this.mouseActionState === MouseAction.MouseClick) {
-      this._checked = !this._checked;
-      this.Emit("OnToggle", this._checked);
-    }
+  protected _Render(): Widget | Widget[] | null {
+    return new MouseSensor({
+      width: this.width,
+      height: this.height,
+      onHover: this.OnMouseHover,
+      onKeyDown: this.OnMouseDown,
+      onClick: this.OnMouseClick,
+    });
   }
 
-  private SwitchCursor() {
-    if (this.mouseMovementState === MouseMovement.MouseHover) {
-      document.body.style.cursor = "pointer";
+  @UIAction
+  private OnMouseHover(isHovering: boolean): void {
+    SwitchCursor(isHovering);
+
+    const { checked } = this.options;
+    if (isHovering) {
+      this._borderColor = checked ? Theme.Primary : Theme.BorderMouseHover;
+      this._backgroundColor = checked
+        ? Theme.Primary
+        : Theme.BackgroundMouseHover;
     } else {
-      document.body.style.cursor = "default";
+      this._borderColor = checked ? Theme.Primary : Theme.BorderNormal;
+      this._backgroundColor = checked ? Theme.Primary : Theme.BackgroundNormal;
     }
+  }
+
+  @UIAction
+  private OnMouseDown(): void {
+    const { checked } = this.options;
+    this._backgroundColor = checked ? Theme.Primary : Theme.BackgroundMouseDown;
+  }
+
+  @UIAction
+  private OnMouseClick(): void {
+    const { checked } = this.options;
+    this._backgroundColor = !checked ? Theme.Primary : Theme.BackgroundNormal;
+
+    this.options.onToggle?.(!checked);
   }
 }

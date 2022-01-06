@@ -20,3 +20,11 @@ export function GetLocalLength(
 
   return Clamp(desiredLength, min, max);
 }
+
+export function SwitchCursor(isActive: boolean): void {
+  if (isActive) {
+    document.body.style.cursor = "pointer";
+  } else {
+    document.body.style.cursor = "default";
+  }
+}

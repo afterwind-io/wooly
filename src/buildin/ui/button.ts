@@ -1,90 +1,86 @@
-import { EntitySignals } from "../../core/entity";
-import {
-  MouseAction,
-  MouseMovement,
-  CommonWidgetOptions,
-} from "./foundation/types";
+import { CommonWidgetOptions } from "./foundation/types";
 import { Align } from "./align";
 import { Text } from "./text";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import { Widget } from "./foundation/widget";
-
-interface ButtonSignals extends EntitySignals {
-  OnClick: () => void;
-}
+import { UIAction, Widget } from "./foundation/widget";
+import { BoxDecoration } from "./boxDecoration";
+import { Edge } from "./common/edge";
+import { MouseSensor } from "./mouseSensor";
+import { Theme } from "./common/theme";
+import { SwitchCursor } from "./common/utils";
 
 interface ButtonOptions extends CommonWidgetOptions {
   label?: string;
+  onClick?(): void;
 }
 
-export class Button extends SingleChildWidget<ButtonOptions, ButtonSignals> {
+export class Button extends SingleChildWidget<ButtonOptions> {
   public readonly name: string = "Button";
-  public readonly customDrawing: boolean = true;
 
   protected readonly isLooseBox: boolean = false;
 
-  private _label: string;
+  protected _backgroundColor: string = "white";
+  protected _borderColor: string = Theme.BorderNormal;
 
   public constructor(options: ButtonOptions = {}) {
     super(options);
 
-    const { label = "" } = options;
-    this._label = label;
-  }
-
-  public _Draw(ctx: CanvasRenderingContext2D) {
-    if (this.mouseActionState === MouseAction.MouseDown) {
-      this._Draw_MouseDown(ctx);
-    } else if (this.mouseMovementState === MouseMovement.MouseHover) {
-      this._Draw_MouseOver(ctx);
-    } else {
-      this._Draw_Normal(ctx);
-    }
-
-    ctx.fillRect(0, 0, this._intrinsicWidth, this._intrinsicHeight);
-
-    ctx.strokeStyle = "grey";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(0, 0, this._intrinsicWidth, this._intrinsicHeight);
-  }
-
-  public _Update(delta: number) {
-    super._Update(delta);
-
-    this.SwitchCursor();
-
-    if (this.mouseActionState === MouseAction.MouseClick) {
-      this.Emit("OnClick");
-    }
+    this.OnMouseHover = this.OnMouseHover.bind(this);
+    this.OnMouseDown = this.OnMouseDown.bind(this);
+    this.OnMouseUp = this.OnMouseUp.bind(this);
+    this.OnMouseClick = this.OnMouseClick.bind(this);
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return Align.Center({
-      width: "stretch",
-      height: "stretch",
-      child: new Text({
-        content: this._label,
+    const { label = "" } = this.options;
+
+    return new MouseSensor({
+      width: this.width,
+      height: this.height,
+      onHover: this.OnMouseHover,
+      onKeyDown: this.OnMouseDown,
+      onKeyUp: this.OnMouseUp,
+      onClick: this.OnMouseClick,
+      child: new BoxDecoration({
+        backgroundColor: this._backgroundColor,
+        border: Edge.All(1),
+        borderColor: this._borderColor,
+        child: Align.Center({
+          width: "stretch",
+          height: "stretch",
+          child: new Text({
+            content: label,
+          }),
+        }),
       }),
     });
   }
 
-  protected _Draw_MouseDown(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = "lightgrey";
-  }
+  @UIAction
+  private OnMouseHover(isHovering: boolean): void {
+    SwitchCursor(isHovering);
 
-  protected _Draw_MouseOver(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = "whitesmoke";
-  }
-
-  protected _Draw_Normal(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = "white";
-  }
-
-  private SwitchCursor() {
-    if (this.mouseMovementState === MouseMovement.MouseHover) {
-      document.body.style.cursor = "pointer";
+    if (isHovering) {
+      this._borderColor = Theme.BorderMouseHover;
+      this._backgroundColor = Theme.BackgroundMouseHover;
     } else {
-      document.body.style.cursor = "default";
+      this._borderColor = Theme.BorderNormal;
+      this._backgroundColor = Theme.BackgroundNormal;
     }
+  }
+
+  @UIAction
+  private OnMouseDown(): void {
+    this._backgroundColor = Theme.BackgroundMouseDown;
+  }
+
+  @UIAction
+  private OnMouseUp(): void {
+    this._backgroundColor = Theme.BackgroundNormal;
+  }
+
+  @UIAction
+  private OnMouseClick(): void {
+    this.options.onClick?.();
   }
 }
