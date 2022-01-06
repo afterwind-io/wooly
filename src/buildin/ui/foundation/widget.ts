@@ -59,26 +59,18 @@ export abstract class Widget<
   public _intrinsicWidth: number = 0;
   public _intrinsicHeight: number = 0;
 
-  public readonly tag: string;
-  public width: Length;
-  public height: Length;
+  public tag!: string;
+  public width!: Length;
+  public height!: Length;
 
-  protected childWidgets: Widget[];
-  protected options: OPT;
+  protected childWidgets!: Widget[];
+  protected options!: OPT;
   protected _fiber: WidgetFiber;
 
   public constructor(options: WidgetOptions = {}) {
     super();
 
-    this.options = options as unknown as OPT;
-
-    this.tag = options.tag || "";
-    this.width = options.width || "shrink";
-    this.height = options.height || "shrink";
-
-    this.childWidgets = options.child
-      ? [options.child]
-      : options.children || [];
+    this.InitLocalState(options);
 
     this._fiber = {
       type: this.constructor,
@@ -111,7 +103,6 @@ export abstract class Widget<
   protected abstract _Render(): Widget | Widget[] | null;
 
   public Refresh(): void {
-    // TODO 如果一个子节点的size发生变化，需要向上传播重新layout
     this.root.OnWidgetUpdate(this);
   }
 
@@ -135,12 +126,10 @@ export abstract class Widget<
       prevChildFibers = [];
     }
 
-    this.ReconcileChildren(this, prevChildFibers, childFibers);
-
     this._fiber = {
       type: this.constructor,
-      options: this._fiber.options,
-      children: childFibers,
+      options: this.options,
+      children: this.ReconcileChildren(this, prevChildFibers, childFibers),
       instance: this,
     };
   }
@@ -164,51 +153,72 @@ export abstract class Widget<
     return this.childWidgets[0] || null;
   }
 
+  private InitLocalState(options: WidgetOptions): void {
+    this.options = options as unknown as OPT;
+
+    this.tag = options.tag || "";
+    this.width = options.width || "shrink";
+    this.height = options.height || "shrink";
+
+    this.childWidgets = options.child
+      ? [options.child]
+      : options.children || [];
+  }
+
   private Reconcile(
     oldFiber: WidgetFiber | null,
     newFiber: WidgetFiber | null
-  ): void {
+  ): WidgetFiber | null {
     if (!oldFiber && newFiber) {
       this.AddChild(newFiber.instance);
-      // this.ReconcileChildren(newFiber.instance, [], newFiber.children);
       newFiber.instance.ScheduleUpdate();
-      return;
+      return newFiber;
     }
 
     if (!oldFiber && !newFiber) {
-      return;
+      return null;
     }
 
     if (oldFiber && !newFiber) {
       oldFiber.instance.Free();
-      return;
+      return null;
     }
 
-    // if (oldFiber!.type !== newFiber!.type) {
-    oldFiber!.instance.Free();
-    this.AddChild(newFiber!.instance);
-    // this.ReconcileChildren(
-    //   newFiber!.instance,
-    //   oldFiber!.children,
-    //   newFiber!.children
-    // );
-    newFiber!.instance.ScheduleUpdate();
-    return;
-    // }
+    if (oldFiber!.type !== newFiber!.type) {
+      this.AddChild(newFiber!.instance);
+      newFiber!.instance.ScheduleUpdate();
 
-    // this.ReconcileChildren(this, oldFiber!.children, newFiber!.children);
+      oldFiber!.instance.Free();
+      return newFiber;
+    }
+
+    // FIXME 需要key来处理强制刷新的情况
+    // TODO 实现memo机制？
+
+    oldFiber!.options = newFiber!.options;
+    oldFiber!.instance.InitLocalState(newFiber!.options);
+    oldFiber!.instance.ScheduleUpdate();
+    return oldFiber;
   }
 
   private ReconcileChildren(
     root: Widget,
     oldChildren: WidgetFiber[],
     newChildren: WidgetFiber[]
-  ): void {
+  ): WidgetFiber[] {
     const maxCount = Math.max(oldChildren.length, newChildren.length);
+
+    const children: (WidgetFiber | null)[] = [];
     for (let i = 0; i < maxCount; i++) {
       const oldChildWidget = oldChildren[i];
       const newChildWidget = newChildren[i];
-      root.Reconcile(oldChildWidget, newChildWidget);
+
+      const fiber = root.Reconcile(oldChildWidget, newChildWidget);
+      if (fiber) {
+        children.push(fiber);
+      }
     }
+
+    return children as WidgetFiber[];
   }
 }
