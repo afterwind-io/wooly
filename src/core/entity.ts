@@ -214,16 +214,12 @@ export abstract class Entity<
   }
 
   /**
-   * Check if the cursor hovering over the rect of the Entity,
-   * aka hit test.
+   * Check if the cursor hovering over the rect of the Entity.
    *
-   * @returns {boolean}
+   * @returns {boolean} True if hovering, and vice versa.
    * @memberof Entity
    */
-  public IsMouseWithin(
-    width: number = this.w,
-    height: number = this.h
-  ): boolean {
+  public HitTest(width: number = this.w, height: number = this.h): boolean {
     if (width * height === 0) {
       return false;
     }

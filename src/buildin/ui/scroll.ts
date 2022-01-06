@@ -197,7 +197,7 @@ export class Scroll extends Widget {
   }
 
   private onScroll = (event: WheelEvent) => {
-    if (!this.IsMouseWithin()) {
+    if (!this.HitTest()) {
       return;
     }
 
