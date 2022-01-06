@@ -14,12 +14,16 @@ import { UIAction, Widget } from "../ui/foundation/widget";
 export class InspectorMouseIndicator extends SingleChildWidget {
   public readonly name: string = "InspectorMouseIndicator";
 
-  protected isLooseBox: boolean = false;
+  protected readonly isLooseBox: boolean = false;
 
-  private $childWidgetRoot!: Widget;
   private $indicator!: MouseIndicator;
-
   private isEnabled: boolean = true;
+
+  public constructor() {
+    super();
+
+    this.Toggle = this.Toggle.bind(this);
+  }
 
   protected _Ready(): void {
     const layer = new CanvasLayer(10000);
@@ -28,31 +32,29 @@ export class InspectorMouseIndicator extends SingleChildWidget {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    const toggler = new Checkbox({
-      width: 12,
-      height: 12,
-      checked: this.isEnabled,
-    });
-    toggler.Connect("OnToggle", this.Toggle, this);
-
-    return (this.$childWidgetRoot = new Container({
+    return new Container({
       margin: Edge.Bottom(4),
       child: new Flex({
         children: [
           new Container({
             margin: Edge.Right(4),
-            child: toggler,
+            child: new Checkbox({
+              width: 12,
+              height: 12,
+              checked: this.isEnabled,
+              onToggle: this.Toggle,
+            }),
           }),
           new Text({
             content: "Mouse Indicator",
           }),
         ],
       }),
-    }));
+    });
   }
 
   protected GetFirstChild(): Widget | null {
-    return this.$childWidgetRoot;
+    return this.children[1] as Widget;
   }
 
   @UIAction

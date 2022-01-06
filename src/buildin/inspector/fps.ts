@@ -13,11 +13,16 @@ export class InspectorFPS extends SingleChildWidget {
 
   protected readonly isLooseBox: boolean = false;
 
-  private $childWidgetRoot!: Widget;
   private $timer!: Timer;
 
   private isEnabled: boolean = true;
   private fps: string = "FPS";
+
+  public constructor() {
+    super();
+
+    this.Toggle = this.Toggle.bind(this);
+  }
 
   public _Ready() {
     this.$timer = new Timer(1, true);
@@ -26,31 +31,29 @@ export class InspectorFPS extends SingleChildWidget {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    const toggler = new Checkbox({
-      width: 12,
-      height: 12,
-      checked: this.isEnabled,
-    });
-    toggler.Connect("OnToggle", this.Toggle, this);
-
-    return (this.$childWidgetRoot = new Container({
+    return new Container({
       margin: Edge.Bottom(4),
       child: new Flex({
         children: [
           new Container({
             margin: Edge.Right(4),
-            child: toggler,
+            child: new Checkbox({
+              width: 12,
+              height: 12,
+              checked: this.isEnabled,
+              onToggle: this.Toggle,
+            }),
           }),
           new Text({
             content: this.fps,
           }),
         ],
       }),
-    }));
+    });
   }
 
   protected GetFirstChild(): Widget | null {
-    return this.$childWidgetRoot;
+    return this.children[1] as Widget;
   }
 
   @UIAction
