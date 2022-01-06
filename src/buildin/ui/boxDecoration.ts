@@ -1,4 +1,5 @@
 import { Edge } from "./common/edge";
+import { Container } from "./container";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   CommonWidgetOptions,
@@ -77,6 +78,11 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    const { border } = this.options;
+
+    return new Container({
+      border,
+      child: this.GetFirstChildWidget(),
+    });
   }
 }
