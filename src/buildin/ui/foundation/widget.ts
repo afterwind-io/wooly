@@ -1,17 +1,9 @@
 import { Entity, EntitySignals } from "../../../core/entity";
 import { OneTimeCachedGetter } from "../../../util/cachedGetter";
 import { Constraint } from "../common/constraint";
-import { Length, Size } from "../common/types";
+import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
-import {
-  CommonWidgetOptions,
-  MultiChildWidgetOptions,
-  SingleChildWidgetOptions,
-} from "./types";
-
-export type WidgetOptions = CommonWidgetOptions &
-  SingleChildWidgetOptions &
-  MultiChildWidgetOptions;
+import { CommonWidgetOptions } from "./types";
 
 /**
  * [**Decorator**]
@@ -51,7 +43,7 @@ interface WidgetFiber {
 }
 
 export abstract class Widget<
-  OPT = {},
+  OPT extends CommonWidgetOptions = {},
   SIG extends EntitySignals = EntitySignals
 > extends Entity<SIG> {
   public abstract readonly name: string;
@@ -61,18 +53,14 @@ export abstract class Widget<
   public _isLayoutDirty: boolean = false;
   public _prevConstraint: Constraint = new Constraint();
 
-  public tag!: string;
-  public width!: Length;
-  public height!: Length;
+  public options: OPT;
 
-  protected childWidgets!: Widget[];
-  protected options!: OPT;
-  protected _fiber: WidgetFiber;
+  private _fiber: WidgetFiber;
 
-  public constructor(options: WidgetOptions = {}) {
+  public constructor(options: OPT) {
     super();
 
-    this.InitLocalState(options);
+    this.options = this.NormalizeOptions(options);
 
     this._fiber = {
       type: this.constructor,
@@ -106,36 +94,7 @@ export abstract class Widget<
     return this._Layout(constraint);
   }
 
-  public _Input(e: InputEvent) {}
-
-  protected abstract _Layout(constraint: Constraint): Size;
-
-  protected abstract _Render(): Widget | Widget[] | null;
-
-  public FindNearestParent(
-    predicate: (widget: Widget) => boolean | undefined
-  ): Widget | null {
-    let parent: Widget | null = null;
-
-    this.Bubble((node) => {
-      if (!(node instanceof Widget)) {
-        return;
-      }
-
-      if (predicate(node)) {
-        parent = node;
-        return true;
-      }
-    });
-
-    return parent;
-  }
-
-  public Refresh(): void {
-    this.root.OnWidgetUpdate(this);
-  }
-
-  public ScheduleUpdate(): void {
+  public $Render(): void {
     const widgets = this._Render();
 
     let childFibers: WidgetFiber[];
@@ -163,6 +122,31 @@ export abstract class Widget<
     };
   }
 
+  public _Input(e: InputEvent) {}
+
+  protected abstract _Layout(constraint: Constraint): Size;
+
+  protected abstract _Render(): Widget | Widget[] | null;
+
+  public FindNearestParent(
+    predicate: (widget: Widget) => boolean | undefined
+  ): Widget | null {
+    let parent: Widget | null = null;
+
+    this.Bubble((node) => {
+      if (!(node instanceof Widget)) {
+        return;
+      }
+
+      if (predicate(node)) {
+        parent = node;
+        return true;
+      }
+    });
+
+    return parent;
+  }
+
   protected GetFirstChild(): Widget | null {
     const child = this.children[0];
     if (!child) {
@@ -178,20 +162,12 @@ export abstract class Widget<
     return child as Widget;
   }
 
-  protected GetFirstChildWidget(): Widget | null {
-    return this.childWidgets[0] || null;
+  public Refresh(): void {
+    this.root.OnWidgetUpdate(this);
   }
 
-  private InitLocalState(options: WidgetOptions): void {
-    this.options = options as unknown as OPT;
-
-    this.tag = options.tag || "";
-    this.width = options.width || "shrink";
-    this.height = options.height || "shrink";
-
-    this.childWidgets = options.child
-      ? [options.child]
-      : options.children || [];
+  protected NormalizeOptions(options: OPT): OPT {
+    return options;
   }
 
   private Reconcile(
@@ -200,7 +176,7 @@ export abstract class Widget<
   ): WidgetFiber | null {
     if (!oldFiber && newFiber) {
       this.AddChild(newFiber.instance);
-      newFiber.instance.ScheduleUpdate();
+      newFiber.instance.$Render();
       return newFiber;
     }
 
@@ -215,7 +191,7 @@ export abstract class Widget<
 
     if (oldFiber!.type !== newFiber!.type) {
       this.AddChild(newFiber!.instance);
-      newFiber!.instance.ScheduleUpdate();
+      newFiber!.instance.$Render();
 
       oldFiber!.instance.Free();
       return newFiber;
@@ -225,8 +201,8 @@ export abstract class Widget<
     // TODO 实现memo机制？
 
     oldFiber!.options = newFiber!.options;
-    oldFiber!.instance.InitLocalState(newFiber!.options);
-    oldFiber!.instance.ScheduleUpdate();
+    oldFiber!.instance.options = newFiber!.instance.options;
+    oldFiber!.instance.$Render();
     return oldFiber;
   }
 

@@ -2,6 +2,7 @@ import { Entity } from "../../core/entity";
 import { Blackhole } from "../../util/common";
 import { Vector2 } from "../../util/vector2";
 import { Input } from "../media/input";
+import { Length } from "./common/types";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   CommonWidgetOptions,
@@ -9,6 +10,7 @@ import {
   MouseDragDrop,
   MouseMovement,
   SingleChildWidgetOptions,
+  SizableWidgetOptions,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
@@ -46,9 +48,11 @@ const DragDropState = new (class DragDropState {
   }
 })();
 
-interface MouseSensorOptions
-  extends CommonWidgetOptions,
-    SingleChildWidgetOptions {
+type BaseOptions = CommonWidgetOptions &
+  Partial<SingleChildWidgetOptions> &
+  SizableWidgetOptions;
+
+interface MouseSensorOptions extends BaseOptions {
   onKeyDown?(): void;
   onKeyUp?(): void;
   onClick?(): void;
@@ -94,7 +98,29 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    return this.options.child || null;
+  }
+
+  protected GetHeight(): Length {
+    return this.options.height || "shrink";
+  }
+
+  protected GetWidth(): Length {
+    return this.options.width || "shrink";
+  }
+
+  protected NormalizeOptions(options: MouseSensorOptions): MouseSensorOptions {
+    return {
+      width: "shrink",
+      height: "shrink",
+      onKeyDown: Blackhole,
+      onKeyUp: Blackhole,
+      onClick: Blackhole,
+      onHover: Blackhole,
+      onEnter: Blackhole,
+      onLeave: Blackhole,
+      ...options,
+    };
   }
 
   private HandleDragDrop() {
@@ -110,11 +136,8 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
   }
 
   private StepMouseActionState() {
-    const {
-      onKeyDown = Blackhole,
-      onKeyUp = Blackhole,
-      onClick = Blackhole,
-    } = this.options;
+    const { onKeyDown, onKeyUp, onClick } = this
+      .options as Required<MouseSensorOptions>;
 
     if (this.mouseMovementState === MouseMovement.None) {
       return MouseAction.None;
@@ -223,11 +246,8 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
   }
 
   private StepMouseMovementState() {
-    const {
-      onHover = Blackhole,
-      onEnter = Blackhole,
-      onLeave = Blackhole,
-    } = this.options;
+    const { onHover, onEnter, onLeave } = this
+      .options as Required<MouseSensorOptions>;
 
     const isMouseWithin = this.HitTest(
       this._intrinsicWidth,

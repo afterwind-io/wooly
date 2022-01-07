@@ -1,35 +1,18 @@
-import { Widget } from "./foundation/widget";
-import { Constraint } from "./common/constraint";
-import { Size, Length } from "./common/types";
+import { Vector2 } from "../../../util/vector2";
+import { Constraint } from "../common/constraint";
+import { Size } from "../common/types";
 import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
-  SingleChildWidgetOptions,
-} from "./foundation/types";
-import { Vector2 } from "../../util/vector2";
-import { SingleChildWidget } from "./foundation/singleChildWidget";
-
-interface ExpandedOptions extends SingleChildWidgetOptions {
-  flex?: number;
-}
-
-class Expanded extends SingleChildWidget {
-  public readonly name: string = "Expanded";
-
-  public readonly _flex: number;
-
-  protected isLooseBox: boolean = true;
-
-  public constructor(options: ExpandedOptions = {}) {
-    super(options);
-
-    this._flex = options.flex || 1;
-  }
-
-  protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
-  }
-}
+  SizableWidgetOptions,
+} from "../foundation/types";
+import { Widget } from "../foundation/widget";
+import { Expanded, ExpandedOptions, GetFlexFactor } from "./expanded";
+import {
+  GetMainAxisLength,
+  GetCrossAxisLength,
+  GetMaxAxisLength,
+} from "./utils";
 
 export const enum FlexDirection {
   Horizontal,
@@ -52,11 +35,11 @@ export const enum FlexCrossAxisAlignment {
   Stretch,
 }
 
-const DEFAULT_DIRECTION = FlexDirection.Horizontal;
-const DEFAULT_MAIN_AXIS_ALIGNMENT = FlexMainAxisAlignment.Start;
-const DEFAULT_CROSS_AXIS_ALIGNMENT = FlexCrossAxisAlignment.Start;
+type BaseFlexOptions = CommonWidgetOptions &
+  MultiChildWidgetOptions &
+  SizableWidgetOptions;
 
-interface FlexOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
+interface FlexOptions extends BaseFlexOptions {
   direction?: FlexDirection;
   mainAxisAlignment?: FlexMainAxisAlignment;
   crossAxisAlignment?: FlexCrossAxisAlignment;
@@ -69,20 +52,20 @@ export class Flex extends Widget<FlexOptions> {
     super(options);
   }
 
-  public static Row(options: Omit<FlexOptions, "direction"> = {}): Flex {
-    return new Flex({ ...options, direction: FlexDirection.Horizontal });
-  }
-
-  public static Column(options: Omit<FlexOptions, "direction"> = {}): Flex {
-    return new Flex({ ...options, direction: FlexDirection.Vertical });
-  }
-
-  public static Expanded(options: ExpandedOptions = {}): Expanded {
+  public static Expanded(options: ExpandedOptions): Expanded {
     return new Expanded(options);
   }
 
+  public static Shrink(options: Omit<FlexOptions, "width" | "height">): Flex {
+    return new Flex({ ...options, width: "shrink", height: "shrink" });
+  }
+
+  public static Stretch(options: Omit<FlexOptions, "width" | "height">): Flex {
+    return new Flex({ ...options, width: "stretch", height: "stretch" });
+  }
+
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    return this.options.children;
   }
 
   protected _Layout(constraint: Constraint): Size {
@@ -91,7 +74,7 @@ export class Flex extends Widget<FlexOptions> {
 
     this._PerformLayout(mainAxisFreeLength, crossAxisLength);
 
-    const { direction = DEFAULT_DIRECTION } = this.options;
+    const { direction } = this.options as Required<FlexOptions>;
     let width: number;
     let height: number;
     if (direction === FlexDirection.Horizontal) {
@@ -108,18 +91,18 @@ export class Flex extends Widget<FlexOptions> {
   }
 
   private _PerformSizing(constraint: Constraint) {
-    const desiredWidth = this.width as Length;
-    const desiredHeight = this.height as Length;
+    const {
+      width: desiredWidth,
+      height: desiredHeight,
+      direction,
+      crossAxisAlignment,
+    } = this.options as Required<FlexOptions>;
+
     const localConstraint = constraint.constrain(
       true,
       desiredWidth,
       desiredHeight
     );
-
-    const {
-      direction = DEFAULT_DIRECTION,
-      crossAxisAlignment = DEFAULT_CROSS_AXIS_ALIGNMENT,
-    } = this.options;
 
     //#region
     // Calculate the total length of the children with fixed size
@@ -236,13 +219,17 @@ export class Flex extends Widget<FlexOptions> {
   }
 
   private _PerformLayout(mainAxisFreeLength: number, crossAxisLength: number) {
-    const {
-      direction = DEFAULT_DIRECTION,
-      mainAxisAlignment = DEFAULT_MAIN_AXIS_ALIGNMENT,
-      crossAxisAlignment = DEFAULT_CROSS_AXIS_ALIGNMENT,
-    } = this.options;
+    const { direction, mainAxisAlignment, crossAxisAlignment, children } = this
+      .options as Required<FlexOptions>;
 
-    const childCount = this.childWidgets.length;
+    if (!children) {
+      return;
+    }
+
+    const childCount = children.length;
+    if (childCount === 0) {
+      return;
+    }
 
     let mainAxisLeading = 0;
     let mainAxisSpacing = 0;
@@ -320,42 +307,43 @@ export class Flex extends Widget<FlexOptions> {
       child.position = childPosition;
     }
   }
-}
 
-function GetFlexFactor(child: Widget): number {
-  if (child instanceof Expanded) {
-    return child._flex;
-  }
-
-  return 0;
-}
-
-function GetMainAxisLength(size: Size, direction: FlexDirection): number {
-  if (direction === FlexDirection.Horizontal) {
-    return size.width;
-  } else {
-    return size.height;
+  protected NormalizeOptions(options: FlexOptions): FlexOptions {
+    return {
+      width: "stretch",
+      height: "stretch",
+      direction: FlexDirection.Horizontal,
+      mainAxisAlignment: FlexMainAxisAlignment.Start,
+      crossAxisAlignment: FlexCrossAxisAlignment.Start,
+      ...options,
+    };
   }
 }
 
-function GetCrossAxisLength(size: Size, direction: FlexDirection): number {
-  if (direction === FlexDirection.Horizontal) {
-    return size.height;
-  } else {
-    return size.width;
-  }
+export function Row(options: Omit<FlexOptions, "direction">): Flex {
+  return new Flex({ ...options, direction: FlexDirection.Horizontal });
 }
+Row.Shrink = function Shrink(
+  options: Omit<FlexOptions, "direction" | "width" | "height">
+): Flex {
+  return Flex.Shrink({ ...options, direction: FlexDirection.Horizontal });
+};
+Row.Stretch = function Stretch(
+  options: Omit<FlexOptions, "direction" | "width" | "height">
+): Flex {
+  return Flex.Stretch({ ...options, direction: FlexDirection.Horizontal });
+};
 
-function GetMaxAxisLength(maxLength: number, desiredLength: Length): number {
-  if (desiredLength === "stretch") {
-    return maxLength;
-  } else if (desiredLength === "shrink") {
-    /**
-     * If the width of `Flex` depends on the total width of children,
-     * there should be no free room for flexible children.
-     */
-    return 0;
-  } else {
-    return Math.min(maxLength, desiredLength);
-  }
+export function Column(options: Omit<FlexOptions, "direction">): Flex {
+  return new Flex({ ...options, direction: FlexDirection.Vertical });
 }
+Column.Shrink = function Shrink(
+  options: Omit<FlexOptions, "direction" | "width" | "height">
+): Flex {
+  return Flex.Shrink({ ...options, direction: FlexDirection.Vertical });
+};
+Column.Stretch = function Stretch(
+  options: Omit<FlexOptions, "direction" | "width" | "height">
+): Flex {
+  return Flex.Stretch({ ...options, direction: FlexDirection.Vertical });
+};

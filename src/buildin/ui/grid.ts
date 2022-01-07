@@ -1,33 +1,33 @@
 import { Widget } from "./foundation/widget";
 import { Constraint } from "./common/constraint";
-import { Size, Length } from "./common/types";
+import { Size } from "./common/types";
 import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
+  SizableWidgetOptions,
 } from "./foundation/types";
 import { Vector2 } from "../../util/vector2";
 
-interface GridOptions extends CommonWidgetOptions, MultiChildWidgetOptions {
+type BaseOptions = CommonWidgetOptions &
+  MultiChildWidgetOptions &
+  SizableWidgetOptions;
+
+interface GridOptions extends BaseOptions {
   mainAxisSpacing?: number;
   crossAxisSpacing?: number;
   crossAxisCount?: number;
   childAspectRatio?: number;
 }
 
-const DEFAULT_MAIN_AXIS_SPACING = 0;
-const DEFAULT_CROSS_AXIS_SPACING = 0;
-const DEFAULT_CROSS_AXIS_COUNT = 1;
-const DEFAULT_CHILD_ASPECT_RATIO = 1;
-
 export class Grid extends Widget<GridOptions> {
   public readonly name: string = "Grid";
 
-  public constructor(options: GridOptions = {}) {
+  public constructor(options: GridOptions) {
     super(options);
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    return this.options.children;
   }
 
   protected _Layout(constraint: Constraint): Size {
@@ -41,8 +41,15 @@ export class Grid extends Widget<GridOptions> {
   }
 
   private _PerformSizing(constraint: Constraint): Size {
-    const desiredWidth = this.width as Length;
-    const desiredHeight = this.height as Length;
+    const {
+      width: desiredWidth,
+      height: desiredHeight,
+      mainAxisSpacing,
+      crossAxisSpacing,
+      crossAxisCount,
+      childAspectRatio,
+    } = this.options as Required<GridOptions>;
+
     const localConstraint = constraint.constrain(
       true,
       desiredWidth,
@@ -57,13 +64,6 @@ export class Grid extends Widget<GridOptions> {
         "[wooly] The main axis length must not be an infinite value."
       );
     }
-
-    const {
-      mainAxisSpacing = DEFAULT_MAIN_AXIS_SPACING,
-      crossAxisSpacing = DEFAULT_CROSS_AXIS_SPACING,
-      crossAxisCount = DEFAULT_CROSS_AXIS_COUNT,
-      childAspectRatio = DEFAULT_CHILD_ASPECT_RATIO,
-    } = this.options;
 
     const gridCellWidth =
       (mainAxisLength - mainAxisSpacing * (crossAxisCount - 1)) /
@@ -90,11 +90,8 @@ export class Grid extends Widget<GridOptions> {
   }
 
   private _PerformLayout() {
-    const {
-      mainAxisSpacing = DEFAULT_MAIN_AXIS_SPACING,
-      crossAxisSpacing = DEFAULT_CROSS_AXIS_SPACING,
-      crossAxisCount = DEFAULT_CROSS_AXIS_COUNT,
-    } = this.options;
+    const { mainAxisSpacing, crossAxisSpacing, crossAxisCount } = this
+      .options as Required<GridOptions>;
 
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i] as Widget;
@@ -112,5 +109,17 @@ export class Grid extends Widget<GridOptions> {
 
       child.position = childPosition;
     }
+  }
+
+  protected NormalizeOptions(options: GridOptions): GridOptions {
+    return {
+      width: "stretch",
+      height: "stretch",
+      mainAxisSpacing: 0,
+      crossAxisSpacing: 0,
+      crossAxisCount: 1,
+      childAspectRatio: 1,
+      ...options,
+    };
   }
 }

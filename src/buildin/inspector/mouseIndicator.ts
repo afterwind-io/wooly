@@ -2,7 +2,6 @@ import { SingleChildWidget } from "../ui/foundation/singleChildWidget";
 import { Input } from "../media/input";
 import { Container } from "../ui/container";
 import { Edge } from "../ui/common/edge";
-import { Flex } from "../ui/flex";
 import { Checkbox } from "../ui/checkbox";
 import { Text } from "../ui/text";
 import { Entity } from "../../core/entity";
@@ -10,6 +9,8 @@ import { CanvasLayer } from "../../core/canvasLayer";
 import { Vector2 } from "../../util/vector2";
 import { CanvasManager } from "../../core/manager/canvas";
 import { UIAction, Widget } from "../ui/foundation/widget";
+import { Length } from "../ui/common/types";
+import { Row } from "../ui/flex/flex";
 
 export class InspectorMouseIndicator extends SingleChildWidget {
   public readonly name: string = "InspectorMouseIndicator";
@@ -20,7 +21,7 @@ export class InspectorMouseIndicator extends SingleChildWidget {
   private isEnabled: boolean = true;
 
   public constructor() {
-    super();
+    super({});
 
     this.Toggle = this.Toggle.bind(this);
   }
@@ -32,11 +33,11 @@ export class InspectorMouseIndicator extends SingleChildWidget {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return new Container({
+    return Container.Shrink({
       margin: Edge.Bottom(4),
-      child: new Flex({
+      child: Row.Shrink({
         children: [
-          new Container({
+          Container.Shrink({
             margin: Edge.Right(4),
             child: new Checkbox({
               width: 12,
@@ -55,6 +56,14 @@ export class InspectorMouseIndicator extends SingleChildWidget {
 
   protected GetFirstChild(): Widget | null {
     return this.children[1] as Widget;
+  }
+
+  protected GetHeight(): Length {
+    return "shrink";
+  }
+
+  protected GetWidth(): Length {
+    return "shrink";
   }
 
   @UIAction

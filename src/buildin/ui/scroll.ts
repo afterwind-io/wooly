@@ -4,6 +4,7 @@ import { Size } from "./common/types";
 import {
   SingleChildWidgetOptions,
   CommonWidgetOptions,
+  SizableWidgetOptions,
 } from "./foundation/types";
 import { Clamp } from "./common/utils";
 import { CanvasComposition } from "../../core/canvasComposition";
@@ -27,13 +28,14 @@ export const enum ScrollOverflowBehavior {
   Limit,
 }
 
-interface ScrollOptions extends SingleChildWidgetOptions, CommonWidgetOptions {
+type BaseOptions = CommonWidgetOptions &
+  SingleChildWidgetOptions &
+  SizableWidgetOptions;
+
+interface ScrollOptions extends BaseOptions {
   overflowH?: ScrollOverflowBehavior;
   overflowV?: ScrollOverflowBehavior;
 }
-
-const DEFAULT_OVERFLOW_BEHAVIOR_H = ScrollOverflowBehavior.Scroll;
-const DEFAULT_OVERFLOW_BEHAVIOR_V = ScrollOverflowBehavior.Scroll;
 
 export class Scroll extends Widget<ScrollOptions> {
   public readonly name: string = "Scroll";
@@ -45,7 +47,7 @@ export class Scroll extends Widget<ScrollOptions> {
   private $barH: ScrollBar;
   private $barV: ScrollBar;
 
-  public constructor(options: ScrollOptions = {}) {
+  public constructor(options: ScrollOptions) {
     super(options);
 
     this.AddChild((this.$composition = new CanvasComposition(GetUniqId())));
@@ -72,7 +74,7 @@ export class Scroll extends Widget<ScrollOptions> {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    return this.options.child;
   }
 
   protected _Layout(constraint: Constraint): Size {
@@ -87,10 +89,7 @@ export class Scroll extends Widget<ScrollOptions> {
       return;
     }
 
-    const {
-      overflowH = DEFAULT_OVERFLOW_BEHAVIOR_H,
-      overflowV = DEFAULT_OVERFLOW_BEHAVIOR_V,
-    } = this.options;
+    const { overflowH, overflowV } = this.options as Required<ScrollOptions>;
 
     const clientWidth = this._intrinsicWidth;
     const clientHeight = this._intrinsicHeight;
@@ -121,19 +120,18 @@ export class Scroll extends Widget<ScrollOptions> {
   }
 
   private _LayoutChild(constraint: Constraint): Size {
-    const desiredWidth = this.width;
-    const desiredHeight = this.height;
+    const {
+      width: desiredWidth,
+      height: desiredHeight,
+      overflowH,
+      overflowV,
+    } = this.options as Required<ScrollOptions>;
 
     const child = this.GetFirstChild();
     if (!child) {
       // FIXME
       return { width: 1, height: 1 };
     }
-
-    const {
-      overflowH = DEFAULT_OVERFLOW_BEHAVIOR_H,
-      overflowV = DEFAULT_OVERFLOW_BEHAVIOR_V,
-    } = this.options;
 
     const localConstraint = constraint.constrain(
       true,
@@ -185,6 +183,16 @@ export class Scroll extends Widget<ScrollOptions> {
     return { width, height };
   }
 
+  protected NormalizeOptions(options: ScrollOptions): ScrollOptions {
+    return {
+      width: "stretch",
+      height: "stretch",
+      overflowH: ScrollOverflowBehavior.Scroll,
+      overflowV: ScrollOverflowBehavior.Scroll,
+      ...options,
+    };
+  }
+
   private getLengthLimitByBehavior(
     desiredLength: number,
     behavior: ScrollOverflowBehavior
@@ -217,10 +225,7 @@ export class Scroll extends Widget<ScrollOptions> {
     const deltaH = event.deltaX;
     const deltaY = event.deltaY;
 
-    const {
-      overflowV = DEFAULT_OVERFLOW_BEHAVIOR_V,
-      overflowH = DEFAULT_OVERFLOW_BEHAVIOR_H,
-    } = this.options;
+    const { overflowH, overflowV } = this.options as Required<ScrollOptions>;
 
     if (overflowV === ScrollOverflowBehavior.Scroll) {
       this.scrollV = Clamp(

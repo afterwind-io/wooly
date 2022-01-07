@@ -3,10 +3,11 @@ import { Container } from "../ui/container";
 import { Edge } from "../ui/common/edge";
 import { Text } from "../ui/text";
 import { Timer } from "../timer";
-import { Flex, FlexDirection } from "../ui/flex";
 import { Checkbox } from "../ui/checkbox";
 import { UIAction, Widget } from "../ui/foundation/widget";
 import { EntityTreeManager } from "../../core/manager/entityTree";
+import { Length } from "../ui/common/types";
+import { Column, Row } from "../ui/flex/flex";
 
 export class InspectorCounter extends SingleChildWidget {
   public readonly name: string = "InspectorCounter";
@@ -20,7 +21,7 @@ export class InspectorCounter extends SingleChildWidget {
   private widgetCount: number = 0;
 
   public constructor() {
-    super();
+    super({});
 
     this.Toggle = this.Toggle.bind(this);
   }
@@ -32,14 +33,13 @@ export class InspectorCounter extends SingleChildWidget {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return new Container({
+    return Container.Shrink({
       margin: Edge.Bottom(4),
-      child: new Flex({
-        direction: FlexDirection.Vertical,
+      child: Column.Shrink({
         children: [
-          new Flex({
+          Row.Shrink({
             children: [
-              new Container({
+              Container.Shrink({
                 margin: new Edge(0, 4, 0, 4),
                 child: new Checkbox({
                   width: 12,
@@ -54,14 +54,14 @@ export class InspectorCounter extends SingleChildWidget {
             ],
           }),
 
-          new Container({
+          Container.Shrink({
             margin: new Edge(16, 4, 0, 4),
             child: new Text({
               content: `Entity Count: ${this.entityCount || "-"}`,
             }),
           }),
 
-          new Container({
+          Container.Shrink({
             margin: new Edge(16, 4, 0, 4),
             child: new Text({
               content: `Widget Count: ${this.widgetCount || "-"}`,
@@ -74,6 +74,14 @@ export class InspectorCounter extends SingleChildWidget {
 
   protected GetFirstChild(): Widget | null {
     return this.children[1] as Widget;
+  }
+
+  protected GetHeight(): Length {
+    return "shrink";
+  }
+
+  protected GetWidth(): Length {
+    return "shrink";
   }
 
   @UIAction

@@ -28,15 +28,18 @@ export const enum MouseMovement {
 }
 
 export interface CommonWidgetOptions {
-  tag?: string;
+  key?: string | number | symbol;
+}
+
+export interface SizableWidgetOptions {
   height?: Length;
   width?: Length;
 }
 
 export interface SingleChildWidgetOptions {
-  child?: Widget | null;
+  child: Widget | null;
 }
 
 export interface MultiChildWidgetOptions {
-  children?: Widget[] | null;
+  children: Widget[] | null;
 }

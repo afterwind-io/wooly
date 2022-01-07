@@ -50,7 +50,9 @@ export {
   FlexMainAxisAlignment,
   FlexCrossAxisAlignment,
   FlexDirection,
-} from "./buildin/ui/flex";
+  Row,
+  Column,
+} from "./buildin/ui/flex/flex";
 export { Grid } from "./buildin/ui/grid";
 export { MouseSensor } from "./buildin/ui/mouseSensor";
 export { Offset } from "./buildin/ui/offset";
@@ -63,11 +65,15 @@ export { WidgetRoot } from "./buildin/ui/root";
 // UI types and structs
 export { Constraint } from "./buildin/ui/common/constraint";
 export { Edge } from "./buildin/ui/common/edge";
-export { Size } from "./buildin/ui/common/types";
+export { Length, Size } from "./buildin/ui/common/types";
 export {
   MouseAction,
   MouseDragDrop,
   MouseMovement,
+  CommonWidgetOptions,
+  MultiChildWidgetOptions,
+  SingleChildWidgetOptions,
+  SizableWidgetOptions,
 } from "./buildin/ui/foundation/types";
 export { Widget, UIAction } from "./buildin/ui/foundation/widget";
 export { NoChildWidget } from "./buildin/ui/foundation/noChildWidget";

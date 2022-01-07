@@ -1,4 +1,4 @@
-import { CommonWidgetOptions } from "./foundation/types";
+import { CommonWidgetOptions, SizableWidgetOptions } from "./foundation/types";
 import { Align } from "./align";
 import { Text } from "./text";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
@@ -8,8 +8,9 @@ import { Edge } from "./common/edge";
 import { MouseSensor } from "./mouseSensor";
 import { Theme } from "./common/theme";
 import { SwitchCursor } from "./common/utils";
+import { Length } from "./common/types";
 
-interface ButtonOptions extends CommonWidgetOptions {
+interface ButtonOptions extends CommonWidgetOptions, SizableWidgetOptions {
   label?: string;
   onClick?(): void;
 }
@@ -35,8 +36,6 @@ export class Button extends SingleChildWidget<ButtonOptions> {
     const { label = "" } = this.options;
 
     return new MouseSensor({
-      width: this.width,
-      height: this.height,
       onHover: this.OnMouseHover,
       onKeyDown: this.OnMouseDown,
       onKeyUp: this.OnMouseUp,
@@ -46,14 +45,20 @@ export class Button extends SingleChildWidget<ButtonOptions> {
         border: Edge.All(1),
         borderColor: this._borderColor,
         child: Align.Center({
-          width: "stretch",
-          height: "stretch",
           child: new Text({
             content: label,
           }),
         }),
       }),
     });
+  }
+
+  protected GetHeight(): Length {
+    return this.options.height || "shrink";
+  }
+
+  protected GetWidth(): Length {
+    return this.options.width || "shrink";
   }
 
   @UIAction

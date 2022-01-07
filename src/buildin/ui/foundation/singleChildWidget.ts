@@ -1,24 +1,22 @@
 import { EntitySignals } from "../../../core/entity";
 import { Widget } from "./widget";
 import { Constraint } from "../common/constraint";
-import { Size, Length } from "../common/types";
+import { Length, Size } from "../common/types";
 import { GetLocalLength } from "../common/utils";
 import {
   SingleChildWidgetOptions as _SingleChildWidgetOptions,
   CommonWidgetOptions,
 } from "./types";
 
-type SingleChildWidgetOptions = CommonWidgetOptions & _SingleChildWidgetOptions;
-
 export abstract class SingleChildWidget<
-  OPT = {},
+  OPT extends CommonWidgetOptions = CommonWidgetOptions,
   SIG extends EntitySignals = EntitySignals
 > extends Widget<OPT, SIG> {
   public abstract readonly name: string;
 
   protected abstract readonly isLooseBox: boolean;
 
-  public constructor(options: SingleChildWidgetOptions = {}) {
+  public constructor(options: OPT) {
     super(options);
   }
 
@@ -27,19 +25,23 @@ export abstract class SingleChildWidget<
     this._intrinsicWidth = size.width;
     this._intrinsicHeight = size.height;
 
-    this._PerformLayout();
+    this.PerformLayout();
 
     return size;
   }
 
-  protected _PerformLayout(): void {}
+  protected abstract GetHeight(): Length;
+
+  protected abstract GetWidth(): Length;
+
+  protected PerformLayout(): void {}
 
   private PerformSizing(constraint: Constraint): Size {
-    const desiredWidth = this.width as Length;
-    const desiredHeight = this.height as Length;
+    const desiredWidth = this.GetWidth();
+    const desiredHeight = this.GetHeight();
 
-    let localWidth = 0;
-    let localHeight = 0;
+    let childWidth: number = 0;
+    let childHeight: number = 0;
 
     const child = this.GetFirstChild();
     if (child) {
@@ -48,42 +50,25 @@ export abstract class SingleChildWidget<
         desiredWidth,
         desiredHeight
       );
+      const childSize = child.$Layout(localConstraint);
 
-      const { width: childWidth, height: childHeight } =
-        child.$Layout(localConstraint);
+      childWidth = childSize.width;
+      childHeight = childSize.height;
+    }
 
-      localWidth = GetLocalLength(
+    return {
+      width: GetLocalLength(
         constraint.minWidth,
         constraint.maxWidth,
         desiredWidth,
         childWidth
-      );
-
-      localHeight = GetLocalLength(
+      ),
+      height: GetLocalLength(
         constraint.minHeight,
         constraint.maxHeight,
         desiredHeight,
         childHeight
-      );
-    } else {
-      localWidth = GetLocalLength(
-        constraint.minWidth,
-        constraint.maxWidth,
-        desiredWidth,
-        0
-      );
-
-      localHeight = GetLocalLength(
-        constraint.minHeight,
-        constraint.maxHeight,
-        desiredHeight,
-        0
-      );
-    }
-
-    return {
-      width: localWidth,
-      height: localHeight,
+      ),
     };
   }
 }

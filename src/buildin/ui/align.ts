@@ -2,10 +2,12 @@ import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   SingleChildWidgetOptions,
   CommonWidgetOptions,
+  SizableWidgetOptions,
 } from "./foundation/types";
 import { Clamp } from "./common/utils";
 import { Vector2 } from "../../util/vector2";
 import { Widget } from "./foundation/widget";
+import { Length } from "./common/types";
 
 export class Alignment {
   public readonly x: number;
@@ -53,38 +55,55 @@ export class Alignment {
   }
 }
 
-interface AlignOptions extends SingleChildWidgetOptions, CommonWidgetOptions {
+type BaseOptions = CommonWidgetOptions &
+  SizableWidgetOptions &
+  SingleChildWidgetOptions;
+
+interface AlignOptions extends BaseOptions {
   alignment?: Alignment;
   offset?: Vector2;
 }
-
-const DEFAULT_ALIGNMENT = Alignment.TopLeft;
 
 export class Align extends SingleChildWidget<AlignOptions> {
   public readonly name: string = "Align";
 
   protected readonly isLooseBox: boolean = true;
 
-  public constructor(options: AlignOptions = {}) {
+  public constructor(options: AlignOptions) {
     super(options);
   }
 
-  public static Center(options: Omit<AlignOptions, "alignment"> = {}): Align {
+  public static Center(options: Omit<AlignOptions, "alignment">): Align {
     return new Align({ ...options, alignment: Alignment.Center });
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    return this.options.child;
   }
 
-  protected _PerformLayout() {
+  protected GetHeight(): Length {
+    return this.options.height || "stretch";
+  }
+
+  protected GetWidth(): Length {
+    return this.options.width || "stretch";
+  }
+
+  protected NormalizeOptions(options: AlignOptions): AlignOptions {
+    return {
+      alignment: Alignment.TopLeft,
+      offset: Vector2.Zero,
+      ...options,
+    };
+  }
+
+  protected PerformLayout() {
     const child = this.GetFirstChild();
     if (!child) {
       return;
     }
 
-    const { alignment = DEFAULT_ALIGNMENT, offset = Vector2.Zero } =
-      this.options;
+    const { alignment, offset } = this.options as Required<AlignOptions>;
 
     const width = this._intrinsicWidth;
     const height = this._intrinsicHeight;

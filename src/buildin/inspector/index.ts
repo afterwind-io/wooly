@@ -2,13 +2,14 @@ import { InspectorMouseIndicator } from "./mouseIndicator";
 import { CanvasLayer } from "../../core/canvasLayer";
 import { Entity } from "../../core/entity";
 import { WidgetRoot } from "../ui/root";
-import { Flex, FlexDirection } from "../ui/flex";
+import { Column } from "../ui/flex/flex";
 import { InspectorFPS } from "./fps";
 import { InspectorCounter } from "./counter";
 import { Container } from "../ui/container";
 import { Edge } from "../ui/common/edge";
 import { SingleChildWidget } from "../ui/foundation/singleChildWidget";
 import { UIAction, Widget } from "../ui/foundation/widget";
+import { Length } from "../ui/common/types";
 
 /**
  * A utility to provide some insights of the engine.
@@ -45,9 +46,13 @@ const enum FunctionSet {
 }
 
 class InspectorApp extends SingleChildWidget {
-  public name: string = "InspectorAp2p";
+  public readonly name: string = "InspectorAp2p";
 
   protected isLooseBox: boolean = false;
+
+  public constructor() {
+    super({});
+  }
 
   private functionSet: Record<FunctionSet, boolean> = {
     FPS: true,
@@ -61,10 +66,9 @@ class InspectorApp extends SingleChildWidget {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return new Container({
+    return Container.Shrink({
       padding: Edge.All(8),
-      child: new Flex({
-        direction: FlexDirection.Vertical,
+      child: Column.Shrink({
         children: [
           new InspectorMouseIndicator(),
           new InspectorFPS(),
@@ -72,5 +76,13 @@ class InspectorApp extends SingleChildWidget {
         ],
       }),
     });
+  }
+
+  protected GetHeight(): Length {
+    return "shrink";
+  }
+
+  protected GetWidth(): Length {
+    return "shrink";
   }
 }

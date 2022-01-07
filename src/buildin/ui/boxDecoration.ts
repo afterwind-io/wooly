@@ -1,9 +1,11 @@
 import { Edge } from "./common/edge";
+import { Length } from "./common/types";
 import { Container } from "./container";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
+  SizableWidgetOptions,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
@@ -14,9 +16,11 @@ interface BoxShadow {
   offsetY?: number;
 }
 
-interface BoxDecorationOptions
-  extends CommonWidgetOptions,
-    SingleChildWidgetOptions {
+type BaseOptions = CommonWidgetOptions &
+  Partial<SingleChildWidgetOptions> &
+  SizableWidgetOptions;
+
+interface BoxDecorationOptions extends BaseOptions {
   backgroundColor?: string;
   border?: Edge;
   borderColor?: string;
@@ -27,9 +31,9 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
   public readonly name: string = "BoxDecoration";
   public readonly customDrawing: boolean = true;
 
-  protected isLooseBox: boolean = false;
+  protected readonly isLooseBox: boolean = false;
 
-  public constructor(options: BoxDecorationOptions = {}) {
+  public constructor(options: BoxDecorationOptions) {
     super(options);
   }
 
@@ -81,8 +85,30 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
     const { border } = this.options;
 
     return new Container({
+      width: "shrink",
+      height: "shrink",
       border,
-      child: this.GetFirstChildWidget(),
+      child: this.options.child || null,
     });
+  }
+
+  protected GetWidth(): Length {
+    return this.options.width || "shrink";
+  }
+
+  protected GetHeight(): Length {
+    return this.options.height || "shrink";
+  }
+
+  protected NormalizeOptions(
+    options: BoxDecorationOptions
+  ): BoxDecorationOptions {
+    return {
+      backgroundColor: "",
+      border: Edge.None,
+      borderColor: "",
+      shadows: [],
+      ...options,
+    };
   }
 }

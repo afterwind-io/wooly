@@ -3,10 +3,11 @@ import { Container } from "../ui/container";
 import { Edge } from "../ui/common/edge";
 import { Text } from "../ui/text";
 import { Timer } from "../timer";
-import { Flex } from "../ui/flex";
 import { Checkbox } from "../ui/checkbox";
 import { SystemTimer } from "../../core/systemTimer";
 import { UIAction, Widget } from "../ui/foundation/widget";
+import { Length } from "../ui/common/types";
+import { Row } from "../ui/flex/flex";
 
 export class InspectorFPS extends SingleChildWidget {
   public readonly name: string = "InspectorFPS";
@@ -19,7 +20,7 @@ export class InspectorFPS extends SingleChildWidget {
   private fps: string = "FPS";
 
   public constructor() {
-    super();
+    super({});
 
     this.Toggle = this.Toggle.bind(this);
   }
@@ -31,11 +32,11 @@ export class InspectorFPS extends SingleChildWidget {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return new Container({
+    return Container.Shrink({
       margin: Edge.Bottom(4),
-      child: new Flex({
+      child: Row.Shrink({
         children: [
-          new Container({
+          Container.Shrink({
             margin: Edge.Right(4),
             child: new Checkbox({
               width: 12,
@@ -54,6 +55,14 @@ export class InspectorFPS extends SingleChildWidget {
 
   protected GetFirstChild(): Widget | null {
     return this.children[1] as Widget;
+  }
+
+  protected GetWidth(): Length {
+    return "shrink";
+  }
+
+  protected GetHeight(): Length {
+    return "shrink";
   }
 
   @UIAction

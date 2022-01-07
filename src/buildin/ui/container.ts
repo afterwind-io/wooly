@@ -1,17 +1,20 @@
 import { Vector2 } from "../../util/vector2";
 import { Constraint } from "./common/constraint";
 import { Edge } from "./common/edge";
-import { Length, Size } from "./common/types";
+import { Size } from "./common/types";
 import { GetLocalLength } from "./common/utils";
 import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
+  SizableWidgetOptions,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
-export interface ContainerWidgetOptions
-  extends SingleChildWidgetOptions,
-    CommonWidgetOptions {
+type BaseOptions = CommonWidgetOptions &
+  SingleChildWidgetOptions &
+  SizableWidgetOptions;
+
+interface ContainerWidgetOptions extends BaseOptions {
   border?: Edge;
   margin?: Edge;
   padding?: Edge;
@@ -29,17 +32,24 @@ export interface ContainerWidgetOptions
 export class Container extends Widget<ContainerWidgetOptions> {
   public readonly name: string = "Container";
 
-  protected readonly isLooseBox: boolean = true;
-
   private _debug: boolean;
 
-  public constructor(
-    options: ContainerWidgetOptions = {},
-    debug: boolean = false
-  ) {
+  public constructor(options: ContainerWidgetOptions, debug: boolean = false) {
     super(options);
 
     this._debug = debug;
+  }
+
+  public static Stretch(
+    options: Omit<ContainerWidgetOptions, "width" | "height">
+  ): Container {
+    return new Container({ ...options, width: "stretch", height: "stretch" });
+  }
+
+  public static Shrink(
+    options: Omit<ContainerWidgetOptions, "width" | "height">
+  ): Container {
+    return new Container({ ...options, width: "shrink", height: "shrink" });
   }
 
   public _Draw(ctx: CanvasRenderingContext2D): void {
@@ -47,11 +57,8 @@ export class Container extends Widget<ContainerWidgetOptions> {
       return;
     }
 
-    const {
-      margin = Edge.None,
-      border = Edge.None,
-      padding = Edge.None,
-    } = this.options;
+    const { margin, border, padding } = this
+      .options as Required<ContainerWidgetOptions>;
 
     const w = this._intrinsicWidth;
     const h = this._intrinsicHeight;
@@ -142,18 +149,30 @@ export class Container extends Widget<ContainerWidgetOptions> {
   }
 
   protected _Render(): Widget | Widget[] | null {
-    return this.childWidgets;
+    return this.options.child;
+  }
+
+  protected NormalizeOptions(
+    options: ContainerWidgetOptions
+  ): ContainerWidgetOptions {
+    return {
+      margin: Edge.None,
+      border: Edge.None,
+      padding: Edge.None,
+      width: "stretch",
+      height: "stretch",
+      ...options,
+    };
   }
 
   private PerformSizing(constraint: Constraint): Size {
     const {
-      margin = Edge.None,
-      border = Edge.None,
-      padding = Edge.None,
-    } = this.options;
-
-    const desiredWidth = this.width as Length;
-    const desiredHeight = this.height as Length;
+      margin,
+      border,
+      padding,
+      width: desiredWidth,
+      height: desiredHeight,
+    } = this.options as Required<ContainerWidgetOptions>;
 
     let localWidth = 0;
     let localHeight = 0;
@@ -161,7 +180,7 @@ export class Container extends Widget<ContainerWidgetOptions> {
     const child = this.GetFirstChild();
     if (child) {
       const localConstraint = constraint
-        .constrain(this.isLooseBox, desiredWidth, desiredHeight)
+        .constrain(true, desiredWidth, desiredHeight)
         .shrink(
           border.Horizontal + padding.Horizontal,
           border.Vertical + padding.Vertical
@@ -212,11 +231,8 @@ export class Container extends Widget<ContainerWidgetOptions> {
       return;
     }
 
-    const {
-      margin = Edge.None,
-      border = Edge.None,
-      padding = Edge.None,
-    } = this.options;
+    const { margin, border, padding } = this
+      .options as Required<ContainerWidgetOptions>;
 
     child.position = new Vector2(
       margin.left + border.left + padding.left,

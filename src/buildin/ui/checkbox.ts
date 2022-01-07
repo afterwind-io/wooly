@@ -1,11 +1,12 @@
 import { Theme } from "./common/theme";
+import { Length } from "./common/types";
 import { SwitchCursor } from "./common/utils";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import { CommonWidgetOptions } from "./foundation/types";
+import { CommonWidgetOptions, SizableWidgetOptions } from "./foundation/types";
 import { UIAction, Widget } from "./foundation/widget";
 import { MouseSensor } from "./mouseSensor";
 
-interface CheckboxOptions extends CommonWidgetOptions {
+interface CheckboxOptions extends CommonWidgetOptions, SizableWidgetOptions {
   checked: boolean;
   onToggle?(isChecked: boolean): void;
 }
@@ -64,16 +65,24 @@ export class Checkbox extends SingleChildWidget<CheckboxOptions> {
 
   protected _Render(): Widget | Widget[] | null {
     return new MouseSensor({
-      width: this.width,
-      height: this.height,
+      width: this.options.width,
+      height: this.options.height,
       onHover: this.OnMouseHover,
       onKeyDown: this.OnMouseDown,
       onClick: this.OnMouseClick,
     });
   }
 
+  protected GetHeight(): Length {
+    return this.options.height || 12;
+  }
+
+  protected GetWidth(): Length {
+    return this.options.width || 12;
+  }
+
   @UIAction
-  private OnMouseHover(isHovering: boolean): void {
+  protected OnMouseHover(isHovering: boolean): void {
     SwitchCursor(isHovering);
 
     const { checked } = this.options;
@@ -89,13 +98,13 @@ export class Checkbox extends SingleChildWidget<CheckboxOptions> {
   }
 
   @UIAction
-  private OnMouseDown(): void {
+  protected OnMouseDown(): void {
     const { checked } = this.options;
     this._backgroundColor = checked ? Theme.Primary : Theme.BackgroundMouseDown;
   }
 
   @UIAction
-  private OnMouseClick(): void {
+  protected OnMouseClick(): void {
     const { checked } = this.options;
     this._backgroundColor = !checked ? Theme.Primary : Theme.BackgroundNormal;
 
