@@ -1,5 +1,6 @@
 import { Widget } from "./widget";
 import { Length } from "../common/types";
+import { Nullable } from "../../../util/common";
 
 export const enum MouseAction {
   None,
@@ -41,5 +42,5 @@ export interface SingleChildWidgetOptions {
 }
 
 export interface MultiChildWidgetOptions {
-  children: Widget[] | null;
+  children: Nullable<Widget>[] | null;
 }

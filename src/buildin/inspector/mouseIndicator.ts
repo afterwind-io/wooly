@@ -12,6 +12,7 @@ import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
 import { Row } from "../ui/flex/flex";
 import { Reactive } from "../ui/foundation/decorator";
+import { Nullable } from "../../util/common";
 
 export class InspectorMouseIndicator extends SingleChildWidget {
   public readonly name: string = "InspectorMouseIndicator";
@@ -31,7 +32,7 @@ export class InspectorMouseIndicator extends SingleChildWidget {
     this.AddChild(layer);
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return Container.Shrink({
       margin: Edge.Bottom(4),
       child: Row.Shrink({

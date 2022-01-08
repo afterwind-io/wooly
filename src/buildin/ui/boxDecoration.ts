@@ -1,3 +1,4 @@
+import { Nullable } from "../../util/common";
 import { Edge } from "./common/edge";
 import { Length } from "./common/types";
 import { Container } from "./container";
@@ -81,7 +82,7 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
     }
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     const { border } = this.options;
 
     return new Container({

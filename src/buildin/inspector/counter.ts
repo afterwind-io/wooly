@@ -9,6 +9,7 @@ import { EntityTreeManager } from "../../core/manager/entityTree";
 import { Length } from "../ui/common/types";
 import { Column, Row } from "../ui/flex/flex";
 import { Reactive } from "../ui/foundation/decorator";
+import { Nullable } from "../../util/common";
 
 export class InspectorCounter extends SingleChildWidget {
   public readonly name: string = "InspectorCounter";
@@ -31,7 +32,7 @@ export class InspectorCounter extends SingleChildWidget {
     this.AddChild(this.$timer);
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return Container.Shrink({
       margin: Edge.Bottom(4),
       child: Column.Shrink({

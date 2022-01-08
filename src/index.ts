@@ -87,3 +87,6 @@ export { CoolDown } from "./util/cooldown";
 export { Dice } from "./util/dice";
 export { GetUniqId } from "./util/idgen";
 export * from "./util/common";
+
+// types
+export { Nullable } from "./util/common";

@@ -1,5 +1,5 @@
 import { Entity } from "../../core/entity";
-import { Blackhole } from "../../util/common";
+import { Blackhole, Nullable } from "../../util/common";
 import { Vector2 } from "../../util/vector2";
 import { Input } from "../media/input";
 import { Length } from "./common/types";
@@ -97,7 +97,7 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
     }
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return this.options.child || null;
   }
 

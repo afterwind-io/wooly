@@ -10,6 +10,7 @@ import { Theme } from "./common/theme";
 import { SwitchCursor } from "./common/utils";
 import { Length } from "./common/types";
 import { Reactive } from "./foundation/decorator";
+import { Nullable } from "../../util/common";
 
 interface ButtonOptions extends CommonWidgetOptions, SizableWidgetOptions {
   label?: string;
@@ -28,7 +29,7 @@ export class Button extends SingleChildWidget<ButtonOptions> {
     super(options);
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     const { label = "" } = this.options;
 
     return new MouseSensor({

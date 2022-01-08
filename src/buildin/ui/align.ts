@@ -8,6 +8,7 @@ import { Clamp } from "./common/utils";
 import { Vector2 } from "../../util/vector2";
 import { Widget } from "./foundation/widget";
 import { Length } from "./common/types";
+import { Nullable } from "../../util/common";
 
 export class Alignment {
   public readonly x: number;
@@ -77,7 +78,7 @@ export class Align extends SingleChildWidget<AlignOptions> {
     return new Align({ ...options, alignment: Alignment.Center });
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return this.options.child;
   }
 

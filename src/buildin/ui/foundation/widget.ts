@@ -1,5 +1,6 @@
 import { Entity, EntitySignals } from "../../../core/entity";
 import { OneTimeCachedGetter } from "../../../util/cachedGetter";
+import { Nullable } from "../../../util/common";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
@@ -12,7 +13,7 @@ export function CreateContext() {
 interface WidgetFiber {
   type: any;
   options: Record<string, any>;
-  children: WidgetFiber[];
+  children: Nullable<WidgetFiber>[];
   instance: Widget;
 }
 
@@ -71,9 +72,9 @@ export abstract class Widget<
   public $Render(): void {
     const widgets = this._Render();
 
-    let childFibers: WidgetFiber[];
+    let childFibers: Nullable<WidgetFiber>[];
     if (Array.isArray(widgets)) {
-      childFibers = widgets.map((w) => w._fiber);
+      childFibers = widgets.map((w) => (w ? w._fiber : null));
     } else if (widgets) {
       childFibers = [widgets._fiber];
     } else {
@@ -81,7 +82,7 @@ export abstract class Widget<
     }
 
     const prevFiber = this._fiber;
-    let prevChildFibers: WidgetFiber[];
+    let prevChildFibers: Nullable<WidgetFiber>[];
     if (prevFiber) {
       prevChildFibers = prevFiber.children;
     } else {
@@ -100,7 +101,7 @@ export abstract class Widget<
 
   protected abstract _Layout(constraint: Constraint): Size;
 
-  protected abstract _Render(): Widget | Widget[] | null;
+  protected abstract _Render(): Nullable<Widget> | Nullable<Widget>[];
 
   public FindNearestParent(
     predicate: (widget: Widget) => boolean | undefined
@@ -182,12 +183,12 @@ export abstract class Widget<
 
   private ReconcileChildren(
     root: Widget,
-    oldChildren: WidgetFiber[],
-    newChildren: WidgetFiber[]
-  ): WidgetFiber[] {
+    oldChildren: Nullable<WidgetFiber>[],
+    newChildren: Nullable<WidgetFiber>[]
+  ): Nullable<WidgetFiber>[] {
     const maxCount = Math.max(oldChildren.length, newChildren.length);
 
-    const children: (WidgetFiber | null)[] = [];
+    const children: Nullable<WidgetFiber>[] = [];
     for (let i = 0; i < maxCount; i++) {
       const oldChildWidget = oldChildren[i];
       const newChildWidget = newChildren[i];

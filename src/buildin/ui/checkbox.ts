@@ -1,3 +1,4 @@
+import { Nullable } from "../../util/common";
 import { Theme } from "./common/theme";
 import { Length } from "./common/types";
 import { SwitchCursor } from "./common/utils";
@@ -60,7 +61,7 @@ export class Checkbox extends SingleChildWidget<CheckboxOptions> {
     }
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return new MouseSensor({
       width: this.options.width,
       height: this.options.height,

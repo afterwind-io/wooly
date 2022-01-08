@@ -11,6 +11,7 @@ import { SingleChildWidget } from "../ui/foundation/singleChildWidget";
 import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
 import { Reactive } from "../ui/foundation/decorator";
+import { Nullable } from "../../util/common";
 
 /**
  * A utility to provide some insights of the engine.
@@ -66,7 +67,7 @@ class InspectorApp extends SingleChildWidget {
     this.functionSet[type] = !this.functionSet[type];
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return Container.Shrink({
       padding: Edge.All(8),
       child: Column.Shrink({

@@ -1,3 +1,4 @@
+import { Nullable } from "../../util/common";
 import { Vector2 } from "../../util/vector2";
 import { Constraint } from "./common/constraint";
 import { Size } from "./common/types";
@@ -33,7 +34,7 @@ export class Stack extends Widget<StackOptions> {
     return { width: maxChildWidth, height: maxChildHeight };
   }
 
-  protected _Render(): Widget | Widget[] | null {
+  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
     return this.options.children;
   }
 }
