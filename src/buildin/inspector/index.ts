@@ -8,8 +8,9 @@ import { InspectorCounter } from "./counter";
 import { Container } from "../ui/container";
 import { Edge } from "../ui/common/edge";
 import { SingleChildWidget } from "../ui/foundation/singleChildWidget";
-import { UIAction, Widget } from "../ui/foundation/widget";
+import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
+import { Reactive } from "../ui/foundation/decorator";
 
 /**
  * A utility to provide some insights of the engine.
@@ -60,7 +61,7 @@ class InspectorApp extends SingleChildWidget {
     Counter: true,
   };
 
-  @UIAction
+  @Reactive
   private OnFunctionToggle(type: FunctionSet): void {
     this.functionSet[type] = !this.functionSet[type];
   }

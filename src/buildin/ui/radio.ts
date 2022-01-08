@@ -1,9 +1,10 @@
 import { Theme } from "./common/theme";
 import { Length } from "./common/types";
 import { SwitchCursor } from "./common/utils";
+import { Reactive } from "./foundation/decorator";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import { CommonWidgetOptions, SizableWidgetOptions } from "./foundation/types";
-import { UIAction, Widget } from "./foundation/widget";
+import { Widget } from "./foundation/widget";
 import { MouseSensor } from "./mouseSensor";
 
 interface RadioOptions<T> extends CommonWidgetOptions, SizableWidgetOptions {
@@ -27,10 +28,6 @@ export class Radio<T = unknown> extends SingleChildWidget<RadioOptions<T>> {
     const { toggled } = this.options;
     this._backgroundColor = Theme.BackgroundNormal;
     this._borderColor = toggled ? Theme.Primary : Theme.BorderNormal;
-
-    this.OnMouseHover = this.OnMouseHover.bind(this);
-    this.OnMouseDown = this.OnMouseDown.bind(this);
-    this.OnMouseClick = this.OnMouseClick.bind(this);
   }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
@@ -77,7 +74,7 @@ export class Radio<T = unknown> extends SingleChildWidget<RadioOptions<T>> {
     return this.options.width || 12;
   }
 
-  @UIAction
+  @Reactive
   protected OnMouseHover(isHovering: boolean): void {
     SwitchCursor(isHovering);
 
@@ -93,7 +90,7 @@ export class Radio<T = unknown> extends SingleChildWidget<RadioOptions<T>> {
     }
   }
 
-  @UIAction
+  @Reactive
   protected OnMouseDown(): void {
     const { toggled } = this.options;
     this._backgroundColor = toggled
@@ -101,7 +98,7 @@ export class Radio<T = unknown> extends SingleChildWidget<RadioOptions<T>> {
       : Theme.BackgroundMouseDown;
   }
 
-  @UIAction
+  @Reactive
   protected OnMouseClick(): void {
     const { value } = this.options;
     this._backgroundColor = Theme.BackgroundNormal;

@@ -5,32 +5,6 @@ import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
 import { CommonWidgetOptions } from "./types";
 
-/**
- * [**Decorator**]
- *
- * @example
- * ```ts
- * class MyWidget extends Widget {
- *   @UIAction
- *   public DoSomething {
- *     this.a = 1;
- *     // this.ForceUpdate()
- *   }
- * }
- * ```
- */
-export function UIAction(
-  target: Widget & Record<string, any>,
-  propertyKey: string,
-  descriptor: PropertyDescriptor
-) {
-  const originalMethod = target[propertyKey] as Function;
-  descriptor.value = function (this: Widget, ...args: any[]) {
-    originalMethod.apply(this, args);
-    this.Refresh();
-  };
-}
-
 export function CreateContext() {
   // TODO 生成context组件，如何引用？如何刷新引用组件？
 }

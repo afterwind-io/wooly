@@ -75,7 +75,8 @@ export {
   SingleChildWidgetOptions,
   SizableWidgetOptions,
 } from "./buildin/ui/foundation/types";
-export { Widget, UIAction } from "./buildin/ui/foundation/widget";
+export { Widget } from "./buildin/ui/foundation/widget";
+export { Reactive } from "./buildin/ui/foundation/decorator";
 export { NoChildWidget } from "./buildin/ui/foundation/noChildWidget";
 export { SingleChildWidget } from "./buildin/ui/foundation/singleChildWidget";
 

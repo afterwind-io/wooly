@@ -8,9 +8,10 @@ import { Entity } from "../../core/entity";
 import { CanvasLayer } from "../../core/canvasLayer";
 import { Vector2 } from "../../util/vector2";
 import { CanvasManager } from "../../core/manager/canvas";
-import { UIAction, Widget } from "../ui/foundation/widget";
+import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
 import { Row } from "../ui/flex/flex";
+import { Reactive } from "../ui/foundation/decorator";
 
 export class InspectorMouseIndicator extends SingleChildWidget {
   public readonly name: string = "InspectorMouseIndicator";
@@ -22,8 +23,6 @@ export class InspectorMouseIndicator extends SingleChildWidget {
 
   public constructor() {
     super({});
-
-    this.Toggle = this.Toggle.bind(this);
   }
 
   protected _Ready(): void {
@@ -66,7 +65,7 @@ export class InspectorMouseIndicator extends SingleChildWidget {
     return "shrink";
   }
 
-  @UIAction
+  @Reactive
   private Toggle(isEnabled: boolean): void {
     this.isEnabled = isEnabled;
     this.$indicator.enabled = isEnabled;

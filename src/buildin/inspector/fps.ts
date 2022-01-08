@@ -5,9 +5,10 @@ import { Text } from "../ui/text";
 import { Timer } from "../timer";
 import { Checkbox } from "../ui/checkbox";
 import { SystemTimer } from "../../core/systemTimer";
-import { UIAction, Widget } from "../ui/foundation/widget";
+import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
 import { Row } from "../ui/flex/flex";
+import { Reactive } from "../ui/foundation/decorator";
 
 export class InspectorFPS extends SingleChildWidget {
   public readonly name: string = "InspectorFPS";
@@ -21,8 +22,6 @@ export class InspectorFPS extends SingleChildWidget {
 
   public constructor() {
     super({});
-
-    this.Toggle = this.Toggle.bind(this);
   }
 
   public _Ready() {
@@ -65,7 +64,7 @@ export class InspectorFPS extends SingleChildWidget {
     return "shrink";
   }
 
-  @UIAction
+  @Reactive
   private RefreshCounter() {
     let content = "-";
 
@@ -77,7 +76,7 @@ export class InspectorFPS extends SingleChildWidget {
     this.fps = `FPS: ${content}`;
   }
 
-  @UIAction
+  @Reactive
   private Toggle(isEnabled: boolean): void {
     this.isEnabled = isEnabled;
   }

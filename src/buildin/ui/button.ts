@@ -2,13 +2,14 @@ import { CommonWidgetOptions, SizableWidgetOptions } from "./foundation/types";
 import { Align } from "./align";
 import { Text } from "./text";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import { UIAction, Widget } from "./foundation/widget";
+import { Widget } from "./foundation/widget";
 import { BoxDecoration } from "./boxDecoration";
 import { Edge } from "./common/edge";
 import { MouseSensor } from "./mouseSensor";
 import { Theme } from "./common/theme";
 import { SwitchCursor } from "./common/utils";
 import { Length } from "./common/types";
+import { Reactive } from "./foundation/decorator";
 
 interface ButtonOptions extends CommonWidgetOptions, SizableWidgetOptions {
   label?: string;
@@ -25,11 +26,6 @@ export class Button extends SingleChildWidget<ButtonOptions> {
 
   public constructor(options: ButtonOptions = {}) {
     super(options);
-
-    this.OnMouseHover = this.OnMouseHover.bind(this);
-    this.OnMouseDown = this.OnMouseDown.bind(this);
-    this.OnMouseUp = this.OnMouseUp.bind(this);
-    this.OnMouseClick = this.OnMouseClick.bind(this);
   }
 
   protected _Render(): Widget | Widget[] | null {
@@ -61,7 +57,7 @@ export class Button extends SingleChildWidget<ButtonOptions> {
     return this.options.width || "shrink";
   }
 
-  @UIAction
+  @Reactive
   private OnMouseHover(isHovering: boolean): void {
     SwitchCursor(isHovering);
 
@@ -74,17 +70,17 @@ export class Button extends SingleChildWidget<ButtonOptions> {
     }
   }
 
-  @UIAction
+  @Reactive
   private OnMouseDown(): void {
     this._backgroundColor = Theme.BackgroundMouseDown;
   }
 
-  @UIAction
+  @Reactive
   private OnMouseUp(): void {
     this._backgroundColor = Theme.BackgroundNormal;
   }
 
-  @UIAction
+  @Reactive
   private OnMouseClick(): void {
     this.options.onClick?.();
   }
