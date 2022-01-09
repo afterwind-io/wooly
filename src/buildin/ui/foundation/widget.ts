@@ -4,7 +4,7 @@ import { Nullable } from "../../../util/common";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
-import { CommonWidgetOptions } from "./types";
+import { CommonWidgetOptions, WidgetRenderables } from "./types";
 
 export function CreateContext() {
   // TODO 生成context组件，如何引用？如何刷新引用组件？
@@ -101,7 +101,7 @@ export abstract class Widget<
 
   protected abstract _Layout(constraint: Constraint): Size;
 
-  protected abstract _Render(): Nullable<Widget> | Nullable<Widget>[];
+  protected abstract _Render(): WidgetRenderables;
 
   public FindNearestParent(
     predicate: (widget: Widget) => boolean | undefined

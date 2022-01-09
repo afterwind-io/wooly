@@ -1,4 +1,3 @@
-import { Nullable } from "../../util/common";
 import { Vector2 } from "../../util/vector2";
 import { Constraint } from "./common/constraint";
 import { Edge } from "./common/edge";
@@ -8,6 +7,7 @@ import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
@@ -149,7 +149,7 @@ export class Container extends Widget<ContainerWidgetOptions> {
     return size;
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.child;
   }
 

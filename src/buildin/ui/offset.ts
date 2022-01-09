@@ -1,10 +1,10 @@
-import { Nullable } from "../../util/common";
 import { Vector2 } from "../../util/vector2";
 import { Constraint } from "./common/constraint";
 import { Size } from "./common/types";
 import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
+  WidgetRenderables,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
@@ -34,7 +34,7 @@ export class Offset extends Widget<OffsetOptions> {
     return size;
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.child;
   }
 }

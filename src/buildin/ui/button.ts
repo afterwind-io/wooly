@@ -1,8 +1,11 @@
-import { CommonWidgetOptions, SizableWidgetOptions } from "./foundation/types";
+import {
+  CommonWidgetOptions,
+  SizableWidgetOptions,
+  WidgetRenderables,
+} from "./foundation/types";
 import { Align } from "./align";
 import { Text } from "./text";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import { Widget } from "./foundation/widget";
 import { BoxDecoration } from "./boxDecoration";
 import { Edge } from "./common/edge";
 import { MouseSensor } from "./mouseSensor";
@@ -10,7 +13,6 @@ import { Theme } from "./common/theme";
 import { SwitchCursor } from "./common/utils";
 import { Length } from "./common/types";
 import { Reactive } from "./foundation/decorator";
-import { Nullable } from "../../util/common";
 
 interface ButtonOptions extends CommonWidgetOptions, SizableWidgetOptions {
   label?: string;
@@ -29,7 +31,7 @@ export class Button extends SingleChildWidget<ButtonOptions> {
     super(options);
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     const { label = "" } = this.options;
 
     return new MouseSensor({

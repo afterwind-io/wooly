@@ -1,11 +1,13 @@
-import { Nullable } from "../../util/common";
 import { Theme } from "./common/theme";
 import { Length } from "./common/types";
 import { SwitchCursor } from "./common/utils";
 import { Reactive } from "./foundation/decorator";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import { CommonWidgetOptions, SizableWidgetOptions } from "./foundation/types";
-import { Widget } from "./foundation/widget";
+import {
+  CommonWidgetOptions,
+  SizableWidgetOptions,
+  WidgetRenderables,
+} from "./foundation/types";
 import { MouseSensor } from "./mouseSensor";
 
 interface CheckboxOptions extends CommonWidgetOptions, SizableWidgetOptions {
@@ -61,7 +63,7 @@ export class Checkbox extends SingleChildWidget<CheckboxOptions> {
     }
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return new MouseSensor({
       width: this.options.width,
       height: this.options.height,

@@ -1,6 +1,5 @@
 import { EntitySignals } from "../../../core/entity";
-import { Nullable } from "../../../util/common";
-import { CommonWidgetOptions } from "./types";
+import { CommonWidgetOptions, WidgetRenderables } from "./types";
 import { Widget } from "./widget";
 
 type NoChildWidgetOptions = CommonWidgetOptions;
@@ -13,7 +12,7 @@ export abstract class NoChildWidget<
     super(options);
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return null;
   }
 }

@@ -5,9 +5,9 @@ import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "./foundation/types";
 import { Vector2 } from "../../util/vector2";
-import { Nullable } from "../../util/common";
 
 type BaseOptions = CommonWidgetOptions &
   MultiChildWidgetOptions &
@@ -27,7 +27,7 @@ export class Grid extends Widget<GridOptions> {
     super(options);
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.children;
   }
 

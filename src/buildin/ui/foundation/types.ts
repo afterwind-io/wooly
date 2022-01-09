@@ -1,6 +1,5 @@
 import { Widget } from "./widget";
 import { Length } from "../common/types";
-import { Nullable } from "../../../util/common";
 
 export const enum MouseAction {
   None,
@@ -28,6 +27,9 @@ export const enum MouseMovement {
   MouseHover,
 }
 
+export type WidgetElement = Widget<any, any> | null;
+export type WidgetRenderables = WidgetElement | WidgetElement[];
+
 export interface CommonWidgetOptions {
   key?: string | number | symbol;
 }
@@ -38,9 +40,9 @@ export interface SizableWidgetOptions {
 }
 
 export interface SingleChildWidgetOptions {
-  child: Widget | null;
+  child: WidgetElement;
 }
 
 export interface MultiChildWidgetOptions {
-  children: Nullable<Widget>[] | null;
+  children: WidgetElement[] | null;
 }

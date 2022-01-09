@@ -5,13 +5,13 @@ import {
   SingleChildWidgetOptions,
   CommonWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "./foundation/types";
 import { Clamp } from "./common/utils";
 import { CanvasComposition } from "../../core/canvasComposition";
 import { NoChildWidget } from "./foundation/noChildWidget";
 import { GetUniqId } from "../../util/idgen";
 import { Vector2 } from "../../util/vector2";
-import { Nullable } from "../../util/common";
 
 export const enum ScrollOverflowBehavior {
   /**
@@ -74,7 +74,7 @@ export class Scroll extends Widget<ScrollOptions> {
     return child || null;
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.child;
   }
 

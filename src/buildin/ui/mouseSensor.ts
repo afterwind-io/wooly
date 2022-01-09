@@ -1,5 +1,5 @@
 import { Entity } from "../../core/entity";
-import { Blackhole, Nullable } from "../../util/common";
+import { Blackhole } from "../../util/common";
 import { Vector2 } from "../../util/vector2";
 import { Input } from "../media/input";
 import { Length } from "./common/types";
@@ -11,8 +11,8 @@ import {
   MouseMovement,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "./foundation/types";
-import { Widget } from "./foundation/widget";
 
 const DRAG_START_THRESHOLD = 10;
 
@@ -97,7 +97,7 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
     }
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.child || null;
   }
 

@@ -9,7 +9,7 @@ import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
 import { Row } from "../ui/flex/flex";
 import { Reactive } from "../ui/foundation/decorator";
-import { Nullable } from "../../util/common";
+import { WidgetRenderables } from "../ui/foundation/types";
 
 export class InspectorFPS extends SingleChildWidget {
   public readonly name: string = "InspectorFPS";
@@ -31,7 +31,7 @@ export class InspectorFPS extends SingleChildWidget {
     this.AddChild(this.$timer);
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return Container.Shrink({
       margin: Edge.Bottom(4),
       child: Row.Shrink({

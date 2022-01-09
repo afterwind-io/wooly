@@ -1,10 +1,10 @@
-import { Nullable } from "../../../util/common";
 import { Length } from "../common/types";
 import { SingleChildWidget } from "../foundation/singleChildWidget";
 import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "../foundation/types";
 import { Widget } from "../foundation/widget";
 
@@ -25,7 +25,7 @@ export class Expanded extends SingleChildWidget<ExpandedOptions> {
     super(options);
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.child;
   }
 

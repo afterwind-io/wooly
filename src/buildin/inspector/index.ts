@@ -8,10 +8,9 @@ import { InspectorCounter } from "./counter";
 import { Container } from "../ui/container";
 import { Edge } from "../ui/common/edge";
 import { SingleChildWidget } from "../ui/foundation/singleChildWidget";
-import { Widget } from "../ui/foundation/widget";
 import { Length } from "../ui/common/types";
 import { Reactive } from "../ui/foundation/decorator";
-import { Nullable } from "../../util/common";
+import { WidgetRenderables } from "../ui/foundation/types";
 
 /**
  * A utility to provide some insights of the engine.
@@ -67,7 +66,7 @@ class InspectorApp extends SingleChildWidget {
     this.functionSet[type] = !this.functionSet[type];
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return Container.Shrink({
       padding: Edge.All(8),
       child: Column.Shrink({

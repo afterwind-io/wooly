@@ -1,4 +1,3 @@
-import { Nullable } from "../../util/common";
 import { Edge } from "./common/edge";
 import { Length } from "./common/types";
 import { Container } from "./container";
@@ -7,8 +6,8 @@ import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "./foundation/types";
-import { Widget } from "./foundation/widget";
 
 interface BoxShadow {
   blur: number;
@@ -82,7 +81,7 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
     }
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     const { border, child = null } = this.options;
 
     if (!border) {

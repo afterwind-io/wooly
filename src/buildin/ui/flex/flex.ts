@@ -1,4 +1,3 @@
-import { Nullable } from "../../../util/common";
 import { Vector2 } from "../../../util/vector2";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
@@ -6,6 +5,7 @@ import {
   CommonWidgetOptions,
   MultiChildWidgetOptions,
   SizableWidgetOptions,
+  WidgetRenderables,
 } from "../foundation/types";
 import { Widget } from "../foundation/widget";
 import { Expanded, ExpandedOptions, GetFlexFactor } from "./expanded";
@@ -65,7 +65,7 @@ export class Flex extends Widget<FlexOptions> {
     return new Flex({ ...options, width: "stretch", height: "stretch" });
   }
 
-  protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
+  protected _Render(): WidgetRenderables {
     return this.options.children;
   }
 
