@@ -83,13 +83,17 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
   }
 
   protected _Render(): Nullable<Widget> | Nullable<Widget>[] {
-    const { border } = this.options;
+    const { border, child = null } = this.options;
+
+    if (!border) {
+      return child;
+    }
 
     return new Container({
       width: "shrink",
       height: "shrink",
       border,
-      child: this.options.child || null,
+      child,
     });
   }
 
@@ -99,17 +103,5 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
 
   protected GetHeight(): Length {
     return this.options.height || "shrink";
-  }
-
-  protected NormalizeOptions(
-    options: BoxDecorationOptions
-  ): BoxDecorationOptions {
-    return {
-      backgroundColor: "",
-      border: Edge.None,
-      borderColor: "",
-      shadows: [],
-      ...options,
-    };
   }
 }
