@@ -1,3 +1,4 @@
+import { OneTimeCachedGetter } from "../util/cachedGetter";
 import { CanvasComposition } from "./canvasComposition";
 import { CanvasLayer } from "./canvasLayer";
 import { Transform } from "./transform";
@@ -108,35 +109,15 @@ export abstract class RenderItem extends Transform {
   private $freezedGlobalZIndex: number = 0;
 
   /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
-   * The cache value of `globalLayer`.
-   */
-  private $cachedGlobalLayer: number = -1;
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
-   * The cache value of `globalComposition`.
-   */
-  private $cachedGlobalComposition: number = -1;
-
-  /**
    * Get the canvas layer the node currently at.
    *
    * @type {CanvasLayer}
    * @memberof RenderItem
    */
+  @OneTimeCachedGetter({ emptyValue: -1 })
   public get globalLayer(): number {
-    let layer = this.$cachedGlobalLayer;
+    let layer = 0;
 
-    if (layer !== -1) {
-      return layer;
-    }
-
-    layer = 0;
     this.Bubble((node) => {
       if (node instanceof CanvasLayer) {
         layer = node.index;
@@ -144,21 +125,16 @@ export abstract class RenderItem extends Transform {
       }
     });
 
-    this.$cachedGlobalLayer = layer;
     return layer;
   }
 
   /**
    * Get the composition the node currently at.
    */
+  @OneTimeCachedGetter({ emptyValue: -1 })
   public get globalComposition(): number {
-    let composition = this.$cachedGlobalComposition;
+    let composition = 0;
 
-    if (composition !== -1) {
-      return composition;
-    }
-
-    composition = 0;
     this.Bubble((node) => {
       if (node instanceof CanvasComposition) {
         composition = node.index;
@@ -166,7 +142,6 @@ export abstract class RenderItem extends Transform {
       }
     });
 
-    this.$cachedGlobalComposition = composition;
     return composition;
   }
 
