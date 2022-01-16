@@ -1,4 +1,5 @@
 import { OneTimeCachedGetter } from "../util/cachedGetter";
+import { GlobalComputedProperty } from "../util/globalComputedProperty";
 import { CanvasComposition } from "./canvasComposition";
 import { CanvasLayer } from "./canvasLayer";
 import { Transform } from "./transform";
@@ -108,6 +109,16 @@ export abstract class RenderItem extends Transform {
    */
   private $freezedGlobalZIndex: number = 0;
 
+  private _opacity: GlobalOpacity = new GlobalOpacity(1, this);
+
+  public get opacity(): number {
+    return this._opacity.local;
+  }
+
+  public set opacity(value: number) {
+    this._opacity.local = value;
+  }
+
   /**
    * Get the canvas layer the node currently at.
    *
@@ -143,6 +154,10 @@ export abstract class RenderItem extends Transform {
     });
 
     return composition;
+  }
+
+  public get globalOpacity(): number {
+    return this._opacity.global;
   }
 
   /**
@@ -232,4 +247,32 @@ export abstract class RenderItem extends Transform {
    * @memberof RenderItem
    */
   public _Draw(ctx: CanvasRenderingContext2D) {}
+}
+
+abstract class CanvasItemGlobalProperty<T> extends GlobalComputedProperty<T> {
+  public constructor(initValue: T, protected host: RenderItem) {
+    super(initValue);
+  }
+}
+
+class GlobalOpacity extends CanvasItemGlobalProperty<number> {
+  public GetGlobalValue(): number {
+    // @ts-expect-error protected
+    const parent = this.host.parent;
+
+    if (!(parent instanceof RenderItem)) {
+      return this.local;
+    }
+
+    return this.local * parent.globalOpacity;
+  }
+
+  public UpdateGlobalValue(): void {
+    this.host.Traverse((node) => {
+      if (node instanceof RenderItem) {
+        // @ts-expect-error private
+        node._opacity._isDirty = true;
+      }
+    });
+  }
 }

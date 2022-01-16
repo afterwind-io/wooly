@@ -97,10 +97,19 @@ export const PaintManager = new (class PaintManager {
       return;
     }
 
+    const opacity = node.globalOpacity;
+    if (opacity === 0) {
+      return;
+    }
+
     const transform = baseAffineMatrix.Multiply(node.globalTransformMatrix);
     ctx.setTransform(...transform.data);
 
+    ctx.globalAlpha = opacity;
+
     node._Draw(ctx);
+
+    ctx.globalAlpha = 1;
   }
 
   private ResetCanvas(ctx: CanvasRenderingContext2D) {
