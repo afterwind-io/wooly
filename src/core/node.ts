@@ -274,6 +274,36 @@ export abstract class Node {
   }
 
   /**
+   * Insert a new node after the specified anchor node.
+   *
+   * @param child The child node to be inserted
+   * @param anchor The anchor node. New child will be appended after the anchor.
+   */
+  public InsertChild(child: Node, anchor: Node): void {
+    child.parent = this;
+
+    const anchorNextSibling = anchor.sibling;
+
+    anchor.sibling = child;
+    child._prevSibling = anchor;
+
+    child.sibling = anchorNextSibling;
+    if (anchorNextSibling) {
+      anchorNextSibling._prevSibling = child;
+    }
+
+    if (this._lastChild === anchor) {
+      this._lastChild = child;
+    }
+
+    this._isCachedChildrenDirty = true;
+
+    if (this.state === NodeState.Ready) {
+      child.$Ready();
+    }
+  }
+
+  /**
    * Set the value of `enabled` property.
    *
    * @param {boolean} f The flag.
