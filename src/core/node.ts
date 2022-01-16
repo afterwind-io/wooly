@@ -38,9 +38,21 @@ export const enum NodeState {
  */
 export abstract class Node {
   /**
+   * [**Internal**]
+   * **Do not modify this manually**
+   *
+   * The pointer to the first child node.
+   */
+  public child: Node | null = null;
+
+  /**
+   * [**Internal**]
+   * **Do not modify this manually**
+   *
    * The node depth in the tree.
    */
   public depth: number = 0;
+
   /**
    * A flag indicates whether to enable the entity or not.
    *
@@ -97,21 +109,24 @@ export abstract class Node {
    * @type {Node[]}
    * @memberof Node
    */
-  protected children: Node[] = [];
+  protected get children(): Node[] {
+    if (this._isCachedChildrenDirty) {
+      this._isCachedChildrenDirty = false;
 
-  /**
-   * [**Internal**]
-   *
-   * The pointer to the first child node.
-   *
-   * @readonly
-   * @protected
-   * @type {(Node | null)}
-   * @memberof Node
-   */
-  protected get Child(): Node | null {
-    return this.children[0] || null;
+      const children: Node[] = [];
+      this.TraverseChildren((child) => {
+        children.push(child);
+      });
+      this._cachedChildren = children;
+    }
+
+    return this._cachedChildren;
   }
+
+  private _cachedChildren: Node[] = [];
+  private _isCachedChildrenDirty: boolean = true;
+  private _lastChild: Node | null = null;
+  private _prevSibling: Node | null = null;
 
   /**
    * A flag indicates whether the node has been destroyed.
@@ -203,12 +218,17 @@ export abstract class Node {
   public AddChild(node: Node) {
     node.parent = this;
 
-    const lastChild = this.children[this.children.length - 1];
-    if (lastChild) {
-      lastChild.sibling = node;
+    if (this._lastChild) {
+      this._lastChild.sibling = node;
+      this._lastChild = node;
+
+      node._prevSibling = this._lastChild;
+    } else {
+      this.child = node;
+      this._lastChild = node;
     }
 
-    this.children.push(node);
+    this._isCachedChildrenDirty = true;
 
     if (this.state === NodeState.Ready) {
       node.$Ready();
@@ -283,7 +303,7 @@ export abstract class Node {
     skipSelf: boolean = false
   ) {
     let path = new LinkedList<Node>();
-    let next: Node | null = skipSelf ? this.Child : this;
+    let next: Node | null = skipSelf ? this.child : this;
 
     if (next == null) {
       return;
@@ -301,9 +321,9 @@ export abstract class Node {
 
       if (path.Peek() === next) {
         path.Pop();
-      } else if (!skip && next.Child) {
+      } else if (!skip && next.child) {
         path.Push(next);
-        next = next.Child;
+        next = next.child;
         continue;
       }
 
@@ -319,6 +339,27 @@ export abstract class Node {
 
         next = next.parent!;
       }
+    }
+  }
+
+  /**
+   * Traverse the child nodes.
+   *
+   * @type {T} Current derived type
+   * @param {((node: T) => void | boolean)} cb
+   * The traverse handler. If returns `true`, the traverse will be stopped.
+   */
+  public TraverseChildren<T extends Node>(
+    cb: (child: T) => void | boolean
+  ): void {
+    let next = this.child;
+    while (next) {
+      const terminate = cb(next as T);
+      if (terminate) {
+        break;
+      }
+
+      next = next.sibling;
     }
   }
 
@@ -358,23 +399,32 @@ export abstract class Node {
    * @memberof Node
    */
   private RemoveChild(item: Node) {
-    const index = this.children.findIndex((c) => c === item);
-    if (index === -1) {
-      return;
-    }
-    this.children.splice(index, 1);
-
     const nextSibling = item.sibling;
-    const lastSibling = this.children[index - 1];
-    if (lastSibling) {
-      lastSibling.sibling = nextSibling;
+
+    if (this.child === item) {
+      this.child = nextSibling;
+    }
+
+    if (this._lastChild === item) {
+      this._lastChild = item.sibling;
+    }
+
+    const prevSibling = item._prevSibling;
+    if (prevSibling) {
+      prevSibling.sibling = nextSibling;
+    }
+    if (nextSibling) {
+      nextSibling._prevSibling = prevSibling;
     }
 
     /**
-     * 理论上这里应该清除`parent`和`sibling`引用，但是这会导致链表遍历时
+     * 理论上这里应该清除节点对其他节点的引用，但是这会导致链表遍历时
      * 引用被破坏。既然不清除也不会导致无法gc，于是么...
      */
     // item.parent = null;
     // item.sibling = null;
+    item._prevSibling = null;
+
+    this._isCachedChildrenDirty = true;
   }
 }

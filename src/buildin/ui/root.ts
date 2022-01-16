@@ -61,7 +61,7 @@ export class WidgetRoot extends Entity {
         (node) => node._prevConstraint.IsTight
       );
       if (!root) {
-        layoutRoots.push(this.Child as Widget);
+        layoutRoots.push(this.child as Widget);
       } else {
         layoutRoots.push(root);
       }

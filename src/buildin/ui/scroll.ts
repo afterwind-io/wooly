@@ -70,7 +70,7 @@ export class Scroll extends Widget<ScrollOptions> {
   }
 
   protected GetFirstChild(): Widget | null {
-    const child = this.$composition["Child"] as Widget;
+    const child = this.$composition.child as Widget;
     return child || null;
   }
 

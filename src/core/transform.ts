@@ -4,7 +4,6 @@ import { Node } from "./node";
 
 export class Transform extends Node {
   protected parent: Transform | null = null;
-  protected children: Transform[] = [];
 
   private localTransform: Matrix2d = Matrix2d.Identity();
   private cachedGlobalTransform: Matrix2d = Matrix2d.Identity();
@@ -201,7 +200,7 @@ export class Transform extends Node {
   private $UpdateCachedTransform() {
     this.isCachedGlobalTransformDirty = true;
 
-    for (const child of this.children) {
+    for (const child of this.children as Transform[]) {
       child.$UpdateCachedTransform();
     }
   }

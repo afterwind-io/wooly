@@ -11,7 +11,7 @@ export const EntityTreeManager = new (class SceneTreeManager {
   }
 
   public SetRoot(root: Entity) {
-    this.sceneRoot["Child"]?.Free();
+    this.sceneRoot.child?.Free();
     this.sceneRoot.AddChild(root);
   }
 
