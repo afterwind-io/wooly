@@ -65,10 +65,12 @@ export abstract class CanvasItem extends Transform {
   private _opacity: GlobalOpacity = new GlobalOpacity(1, this);
   private _zIndex: GlobalZIndex = new GlobalZIndex(0, this);
 
+  /**
+   * The local transparency of the current node.
+   */
   public get opacity(): number {
     return this._opacity.local;
   }
-
   public set opacity(value: number) {
     this._opacity.local = value;
   }
@@ -131,6 +133,12 @@ export abstract class CanvasItem extends Transform {
     return composition;
   }
 
+  /**
+   * Get the total transparency of the current node.
+   *
+   * This is decided by both local value and the global value from the parent,
+   * and calculated as `[local] * [global from parent]`.
+   */
   public get globalOpacity(): number {
     return this._opacity.global;
   }
@@ -192,11 +200,15 @@ abstract class CanvasItemGlobalProperty<T> extends GlobalComputedProperty<T> {
 
 class GlobalOpacity extends CanvasItemGlobalProperty<number> {
   public GetGlobalValue(): number {
-    // @ts-expect-error protected
+    // @ts-expect-error protected `parent`
     const parent = this.host.parent;
 
-    if (!(parent instanceof CanvasItem)) {
+    if (!parent) {
       return this.local;
+    }
+
+    if (parent instanceof CanvasLayer) {
+      return 1;
     }
 
     return this.local * parent.globalOpacity;
@@ -205,7 +217,7 @@ class GlobalOpacity extends CanvasItemGlobalProperty<number> {
   public UpdateGlobalValue(): void {
     this.host.Traverse((node) => {
       if (node instanceof CanvasItem) {
-        // @ts-expect-error private
+        // @ts-expect-error private `_opacity`
         node._opacity._isDirty = true;
       }
     });
