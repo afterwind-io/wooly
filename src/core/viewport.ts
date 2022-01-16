@@ -1,5 +1,5 @@
 import { Matrix2d } from "../util/matrix2d";
-import { ReadonlyVector2, Vector2 } from "../util/vector2";
+import { ReadonlyVector2 } from "../util/vector2";
 
 export class Viewport {
   private offsetMatrix: Matrix2d = Matrix2d.Identity();
@@ -10,7 +10,7 @@ export class Viewport {
     return this.offsetMatrix.translation;
   }
 
-  public set offset(offset: Vector2) {
+  public set offset(offset: ReadonlyVector2) {
     this.offsetMatrix.translation = offset;
     this.updateTransform();
   }
@@ -19,7 +19,7 @@ export class Viewport {
     return this.projectMatrix.translation;
   }
 
-  public set origin(origin: Vector2) {
+  public set origin(origin: ReadonlyVector2) {
     this.projectMatrix.translation = origin;
     this.updateTransform();
   }
@@ -33,11 +33,11 @@ export class Viewport {
     this.updateTransform();
   }
 
-  public get zoom(): Vector2 {
+  public get zoom(): ReadonlyVector2 {
     return this.offsetMatrix.scale;
   }
 
-  public set zoom(scale: Vector2) {
+  public set zoom(scale: ReadonlyVector2) {
     this.offsetMatrix.scale = scale;
     this.updateTransform();
   }
