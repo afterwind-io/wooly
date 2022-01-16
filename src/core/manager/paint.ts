@@ -1,7 +1,7 @@
 import { CompositionContext, RenderTreeManager } from "./renderTree";
 import { CanvasManager } from "./canvas";
 import { Matrix2d } from "../../util/matrix2d";
-import { RenderItem } from "../renderItem";
+import { CanvasItem } from "../canvasItem";
 import { DPRMatrix } from "../globals";
 import { ViewportManager } from "./viewport";
 
@@ -77,7 +77,7 @@ export const PaintManager = new (class PaintManager {
 
       layer.Traverse((stack) =>
         stack.Traverse((node) => {
-          if (node instanceof RenderItem) {
+          if (node instanceof CanvasItem) {
             this.DrawNode(node, ctx, baseAffineMatrix);
             node.$Melt();
           } else {
@@ -89,7 +89,7 @@ export const PaintManager = new (class PaintManager {
   }
 
   private DrawNode(
-    node: RenderItem,
+    node: CanvasItem,
     ctx: CanvasRenderingContext2D,
     baseAffineMatrix: Matrix2d
   ): void {

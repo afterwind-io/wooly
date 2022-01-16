@@ -1,6 +1,6 @@
 import { ReadonlyVector2, Vector2 } from "../util/vector2";
 import { ViewportManager } from "./manager/viewport";
-import { RenderItem } from "./renderItem";
+import { CanvasItem } from "./canvasItem";
 import { Transform } from "./transform";
 
 /**
@@ -19,7 +19,7 @@ export class CanvasComposition extends Transform {
     const parent = this.parent;
     if (parent) {
       /**
-       * 当前的所有parent只可能是 CanvasComposition | CanvasLayer | RenderItem
+       * 当前的所有parent只可能是 CanvasComposition | CanvasLayer | CanvasItem
        * 因此必有globalComposition
        */
       // @ts-ignore
@@ -31,7 +31,7 @@ export class CanvasComposition extends Transform {
 
   public get globalLayer(): number {
     const parent = this.parent;
-    if (parent instanceof RenderItem) {
+    if (parent instanceof CanvasItem) {
       return parent.globalLayer;
     }
 
@@ -40,7 +40,7 @@ export class CanvasComposition extends Transform {
 
   public get globalZIndex(): number {
     const parent = this.parent;
-    if (parent instanceof RenderItem) {
+    if (parent instanceof CanvasItem) {
       return parent.globalZIndex;
     }
 

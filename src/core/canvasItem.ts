@@ -9,10 +9,10 @@ import { Transform } from "./transform";
  *
  * @export
  * @abstract
- * @class RenderItem
+ * @class CanvasItem
  * @extends {Node}
  */
-export abstract class RenderItem extends Transform {
+export abstract class CanvasItem extends Transform {
   /**
    * A flag indicates the visibility of the Entity.
    *
@@ -20,7 +20,7 @@ export abstract class RenderItem extends Transform {
    * is skipped, but they still get updated.
    *
    * @type {boolean}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public visible: boolean = true;
 
@@ -39,7 +39,7 @@ export abstract class RenderItem extends Transform {
    * In this way you can "hide" the node behind the parent.
    *
    * @type {number}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public zIndex: number = 0;
 
@@ -69,7 +69,7 @@ export abstract class RenderItem extends Transform {
    * ```
    *
    * @type {boolean}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public customDrawing: boolean = false;
 
@@ -81,7 +81,7 @@ export abstract class RenderItem extends Transform {
    *
    * @protected
    * @type {boolean}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   protected isFreezed: boolean = false;
 
@@ -92,10 +92,10 @@ export abstract class RenderItem extends Transform {
    * The pointer to the parent node.
    *
    * @protected
-   * @type {(RenderItem | null)}
-   * @memberof RenderItem
+   * @type {(CanvasItem | null)}
+   * @memberof CanvasItem
    */
-  protected parent: RenderItem | null = null;
+  protected parent: CanvasItem | null = null;
 
   /**
    * [**Internal**]
@@ -105,7 +105,7 @@ export abstract class RenderItem extends Transform {
    *
    * @private
    * @type {number}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   private $freezedGlobalZIndex: number = 0;
 
@@ -123,7 +123,7 @@ export abstract class RenderItem extends Transform {
    * Get the canvas layer the node currently at.
    *
    * @type {CanvasLayer}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   @OneTimeCachedGetter({ emptyValue: -1 })
   public get globalLayer(): number {
@@ -169,14 +169,14 @@ export abstract class RenderItem extends Transform {
    *
    * @readonly
    * @type {number}
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public get globalZIndex(): number {
     if (this.isFreezed) {
       return this.$freezedGlobalZIndex;
     }
 
-    if (!(this.parent instanceof RenderItem)) {
+    if (!(this.parent instanceof CanvasItem)) {
       return this.zIndex;
     } else {
       return this.parent.globalZIndex + this.zIndex;
@@ -195,7 +195,7 @@ export abstract class RenderItem extends Transform {
    * no entity property manipulation should present in the `Draw` phase,
    * thus all values are fixed already.
    *
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public $Freeze() {
     this.$freezedGlobalZIndex = this.globalZIndex;
@@ -209,7 +209,7 @@ export abstract class RenderItem extends Transform {
    *
    * Rewind the freeze state.
    *
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public $Melt() {
     this.isFreezed = false;
@@ -220,7 +220,7 @@ export abstract class RenderItem extends Transform {
    *
    * @param {number} zIndex The zIndex.
    * @returns {this} This instance of the entity.
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public SetZIndex(zIndex: number): this {
     return (this.zIndex = zIndex), this;
@@ -231,7 +231,7 @@ export abstract class RenderItem extends Transform {
    *
    * @param {boolean} f The flag.
    * @returns {this} This instance of the entity.
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public SetVisible(f: boolean): this {
     return (this.visible = f), this;
@@ -244,13 +244,13 @@ export abstract class RenderItem extends Transform {
    * @public
    * @param {CanvasRenderingContext2D} ctx
    * The `CanvasRenderingContext2D` interface.
-   * @memberof RenderItem
+   * @memberof CanvasItem
    */
   public _Draw(ctx: CanvasRenderingContext2D) {}
 }
 
 abstract class CanvasItemGlobalProperty<T> extends GlobalComputedProperty<T> {
-  public constructor(initValue: T, protected host: RenderItem) {
+  public constructor(initValue: T, protected host: CanvasItem) {
     super(initValue);
   }
 }
@@ -260,7 +260,7 @@ class GlobalOpacity extends CanvasItemGlobalProperty<number> {
     // @ts-expect-error protected
     const parent = this.host.parent;
 
-    if (!(parent instanceof RenderItem)) {
+    if (!(parent instanceof CanvasItem)) {
       return this.local;
     }
 
@@ -269,7 +269,7 @@ class GlobalOpacity extends CanvasItemGlobalProperty<number> {
 
   public UpdateGlobalValue(): void {
     this.host.Traverse((node) => {
-      if (node instanceof RenderItem) {
+      if (node instanceof CanvasItem) {
         // @ts-expect-error private
         node._opacity._isDirty = true;
       }

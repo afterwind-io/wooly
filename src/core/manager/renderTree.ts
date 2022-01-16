@@ -1,11 +1,11 @@
 import { OrderedLinkedList } from "../struct/orderedLinkedList";
 import { LinkedList } from "../struct/linkedList";
-import { RenderItem } from "../renderItem";
+import { CanvasItem } from "../canvasItem";
 import { Transform } from "../transform";
 import { CanvasComposition } from "../canvasComposition";
 import { CanvasLayer } from "../canvasLayer";
 
-type RenderList = LinkedList<CompositionContext | RenderItem>;
+type RenderList = LinkedList<CompositionContext | CanvasItem>;
 type ZIndexStack = OrderedLinkedList<RenderList>;
 type LayerStack = OrderedLinkedList<ZIndexStack>;
 
@@ -18,7 +18,7 @@ export class CompositionContext {
     return this.root.globalZIndex;
   }
 
-  public AddItem(layer: number, node: CompositionContext | RenderItem) {
+  public AddItem(layer: number, node: CompositionContext | CanvasItem) {
     let layerStack = this.layerStack.GetByKey(layer);
     if (layerStack == null) {
       layerStack = new OrderedLinkedList<RenderList>();
@@ -28,7 +28,7 @@ export class CompositionContext {
     let zIndex = node.globalZIndex;
     let zIndexStack = layerStack.GetByKey(zIndex);
     if (zIndexStack == null) {
-      zIndexStack = new LinkedList<CompositionContext | RenderItem>();
+      zIndexStack = new LinkedList<CompositionContext | CanvasItem>();
       layerStack.Insert(zIndexStack, zIndex);
     }
 
@@ -47,7 +47,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
     const rootComposition = new CompositionContext(root);
 
     root.Traverse<Transform>((node) => {
-      if (node instanceof RenderItem) {
+      if (node instanceof CanvasItem) {
         if (!node.enabled || !node.visible) {
           return true;
         }
@@ -79,7 +79,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
     const rootLayer = root.index;
 
     root.Traverse<Transform>((node) => {
-      if (node instanceof RenderItem) {
+      if (node instanceof CanvasItem) {
         if (!node.enabled || !node.visible) {
           return true;
         }
