@@ -39,7 +39,7 @@ export class WidgetRoot extends Entity {
 
   public UpdateWidget() {
     for (const widget of this.updateQueue) {
-      widget.$Render();
+      widget.$Reconcile();
     }
     this.updateQueue.length = 0;
   }

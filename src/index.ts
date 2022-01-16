@@ -70,6 +70,8 @@ export {
   MouseAction,
   MouseDragDrop,
   MouseMovement,
+  WidgetElement,
+  WidgetRenderables,
   CommonWidgetOptions,
   MultiChildWidgetOptions,
   SingleChildWidgetOptions,

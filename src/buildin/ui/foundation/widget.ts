@@ -69,11 +69,13 @@ export abstract class Widget<
     return this._Layout(constraint);
   }
 
-  public $Render(): void {
+  public $Reconcile(): void {
     const widgets = this._Render();
 
     let childFibers: Nullable<WidgetFiber>[];
     if (Array.isArray(widgets)) {
+      // FIXME
+      // @ts-ignore w._fiber
       childFibers = widgets.map((w) => (w ? w._fiber : null));
     } else if (widgets) {
       childFibers = [widgets._fiber];
@@ -151,7 +153,7 @@ export abstract class Widget<
   ): WidgetFiber | null {
     if (!oldFiber && newFiber) {
       this.AddChild(newFiber.instance);
-      newFiber.instance.$Render();
+      newFiber.instance.$Reconcile();
       return newFiber;
     }
 
@@ -166,7 +168,7 @@ export abstract class Widget<
 
     if (oldFiber!.type !== newFiber!.type) {
       this.AddChild(newFiber!.instance);
-      newFiber!.instance.$Render();
+      newFiber!.instance.$Reconcile();
 
       oldFiber!.instance.Free();
       return newFiber;
@@ -177,7 +179,7 @@ export abstract class Widget<
 
     oldFiber!.options = newFiber!.options;
     oldFiber!.instance.options = newFiber!.instance.options;
-    oldFiber!.instance.$Render();
+    oldFiber!.instance.$Reconcile();
     return oldFiber;
   }
 
