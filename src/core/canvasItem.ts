@@ -25,25 +25,6 @@ export abstract class CanvasItem extends Transform {
   public visible: boolean = true;
 
   /**
-   * The value indicates the rendering order, relative to parent.
-   *
-   * When nodes are overlapping with each others,
-   * the node with higher value will be drawn "later",
-   * thus appears in front of those with lower value.
-   *
-   * Note that in the `Draw` phase, the actual value taken into calculation
-   * is the `GlobalZIndex`, which means then final drawing order is affected
-   * by its parent. Details see the explanation of `GlobalZIndex`.
-   *
-   * Though it is not intended, you can set local `zIndex` to a minus value.
-   * In this way you can "hide" the node behind the parent.
-   *
-   * @type {number}
-   * @memberof CanvasItem
-   */
-  public zIndex: number = 0;
-
-  /**
    * Indicate whether to enable custom drawing.
    *
    * In other words, if you need to override the `_Draw` method,
@@ -77,39 +58,12 @@ export abstract class CanvasItem extends Transform {
    * [**Internal**]
    * **Do not modify this manually**
    *
-   * A Flag indicates whether the node is freezed.
-   *
-   * @protected
-   * @type {boolean}
-   * @memberof CanvasItem
-   */
-  protected isFreezed: boolean = false;
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
    * The pointer to the parent node.
-   *
-   * @protected
-   * @type {(CanvasItem | null)}
-   * @memberof CanvasItem
    */
-  protected parent: CanvasItem | null = null;
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
-   * The cache value of `GlobalZIndex`.
-   *
-   * @private
-   * @type {number}
-   * @memberof CanvasItem
-   */
-  private $freezedGlobalZIndex: number = 0;
+  protected parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
 
   private _opacity: GlobalOpacity = new GlobalOpacity(1, this);
+  private _zIndex: GlobalZIndex = new GlobalZIndex(0, this);
 
   public get opacity(): number {
     return this._opacity.local;
@@ -117,6 +71,27 @@ export abstract class CanvasItem extends Transform {
 
   public set opacity(value: number) {
     this._opacity.local = value;
+  }
+
+  /**
+   * The value indicates the rendering order, relative to parent.
+   *
+   * When nodes are overlapping with each others,
+   * the node with higher value will be drawn "later",
+   * thus appears in front of those with lower value.
+   *
+   * Note that in the `Draw` phase, the actual value taken into calculation
+   * is the `GlobalZIndex`, which means then final drawing order is affected
+   * by its parent. Details see the explanation of `GlobalZIndex`.
+   *
+   * Though it is not intended, you can set local `zIndex` to a minus value.
+   * In this way you can "hide" the node behind the parent.
+   */
+  public get zIndex(): number {
+    return this._zIndex.local;
+  }
+  public set zIndex(value: number) {
+    this._zIndex.local = value;
   }
 
   /**
@@ -172,47 +147,7 @@ export abstract class CanvasItem extends Transform {
    * @memberof CanvasItem
    */
   public get globalZIndex(): number {
-    if (this.isFreezed) {
-      return this.$freezedGlobalZIndex;
-    }
-
-    if (!(this.parent instanceof CanvasItem)) {
-      return this.zIndex;
-    } else {
-      return this.parent.globalZIndex + this.zIndex;
-    }
-  }
-
-  /**
-   * [**Internal**]
-   * **Do not call this manually**
-   *
-   * Immediately calculate the value of global attributes,
-   * and store them to the local properties.
-   *
-   * It is usually called right before `Draw` phase, to prevent
-   * duplicate calculations. This "snapshot" should be safe, because
-   * no entity property manipulation should present in the `Draw` phase,
-   * thus all values are fixed already.
-   *
-   * @memberof CanvasItem
-   */
-  public $Freeze() {
-    this.$freezedGlobalZIndex = this.globalZIndex;
-
-    this.isFreezed = true;
-  }
-
-  /**
-   * [**Internal**]
-   * **Do not call this manually**
-   *
-   * Rewind the freeze state.
-   *
-   * @memberof CanvasItem
-   */
-  public $Melt() {
-    this.isFreezed = false;
+    return this._zIndex.global;
   }
 
   /**
@@ -272,6 +207,32 @@ class GlobalOpacity extends CanvasItemGlobalProperty<number> {
       if (node instanceof CanvasItem) {
         // @ts-expect-error private
         node._opacity._isDirty = true;
+      }
+    });
+  }
+}
+
+class GlobalZIndex extends CanvasItemGlobalProperty<number> {
+  public GetGlobalValue(): number {
+    // @ts-expect-error protected `parent`
+    const parent = this.host.parent;
+
+    if (!parent) {
+      return this.local;
+    }
+
+    if (parent instanceof CanvasLayer) {
+      return 0;
+    }
+
+    return this.local + parent.globalZIndex;
+  }
+
+  public UpdateGlobalValue(): void {
+    this.host.Traverse((node) => {
+      if (node instanceof CanvasItem) {
+        // @ts-expect-error private `_zIndex`
+        node._zIndex._isDirty = true;
       }
     });
   }

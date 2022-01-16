@@ -52,8 +52,6 @@ export const RenderTreeManager = new (class RenderTreeManager {
           return true;
         }
 
-        node.$Freeze();
-
         rootComposition.AddItem(0, node);
         return;
       }
@@ -83,8 +81,6 @@ export const RenderTreeManager = new (class RenderTreeManager {
         if (!node.enabled || !node.visible) {
           return true;
         }
-
-        node.$Freeze();
 
         parentComposition.AddItem(rootLayer, node);
         return;

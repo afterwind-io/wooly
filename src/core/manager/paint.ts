@@ -79,7 +79,6 @@ export const PaintManager = new (class PaintManager {
         stack.Traverse((node) => {
           if (node instanceof CanvasItem) {
             this.DrawNode(node, ctx, baseAffineMatrix);
-            node.$Melt();
           } else {
             this.DrawComposition(ctx, node);
           }
