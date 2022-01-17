@@ -61,6 +61,7 @@ export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll";
 export { Stack } from "./buildin/ui/stack";
 export { Text } from "./buildin/ui/text";
+export { Transition } from "./buildin/ui/transition";
 export { WidgetRoot } from "./buildin/ui/root";
 
 // UI types and structs
