@@ -1,23 +1,25 @@
-import { Entity } from '../../core/entity';
-import { Vector2 } from '../../util/vector2';
-import { GetInterpolationMethod, InterpolationMethod } from './interpolation';
+import { Vector2 } from "../../util/vector2";
+import { Interpolate, InterpolationMethod } from "./interpolation";
 
 export const enum AnimationPropertyType {
   Number,
   Vector2,
 }
 
-interface AnimationKeyframe<T = any> {
+export interface AnimationKeyframe<T = any> {
   time: number;
   value: T;
   interpolation?: InterpolationMethod;
 }
 
-export class AnimationTrack {
-  private target: Entity | null = null;
+interface AnimationTrackOptions<T> {
+  type: AnimationPropertyType;
+  onChange: (value: T) => void;
+}
 
+export class AnimationTrack<T = any> {
   private type: AnimationPropertyType;
-  private property: string = '';
+  private onChange: (value: T) => void;
 
   private keyframes: AnimationKeyframe[] = [];
   /**
@@ -29,8 +31,11 @@ export class AnimationTrack {
    */
   private timeline: number[] = [];
 
-  public constructor(type: AnimationPropertyType) {
+  public constructor(options: AnimationTrackOptions<T>) {
+    const { type, onChange } = options;
+
     this.type = type;
+    this.onChange = onChange;
   }
 
   /**
@@ -49,45 +54,44 @@ export class AnimationTrack {
   }
 
   public Reset() {
-    if (this.keyframes.length > 0) {
-      this.SetPropertyValue(this.keyframes[0].value);
+    if (this.keyframes.length === 0) {
+      return;
     }
-  }
 
-  public SetTarget<T extends Entity>(target: T, property: keyof T): this {
-    this.target = target;
-    this.property = property as string;
-
-    this.target.Connect('OnDestroy', this.OnTargetDestroy, this);
-    return this;
+    const value = this.keyframes[0].value;
+    this.onChange(value);
   }
 
   public Step(timestamp: number) {
-    const [start, end] = this.GetFrameSliceByTimestamp(timestamp);
-    const currentTime = timestamp - start.time;
-    const duration = end.time - start.time || 1;
+    const [startFrame, endFrame] = this.GetFrameSliceByTimestamp(timestamp);
 
-    const interpolate = GetInterpolationMethod(start.interpolation);
+    const currentTime = timestamp - startFrame.time;
+    const duration = endFrame.time - startFrame.time || 1;
+    const amount = currentTime / duration;
+
+    const method = startFrame.interpolation || InterpolationMethod.None;
+
+    let value: any = startFrame.value;
+
     const type = this.type;
-    let value: any = start.value;
     if (type === AnimationPropertyType.Vector2) {
-      const beginX = (start.value as Vector2).x;
-      const changeX = (end.value as Vector2).x - (start.value as Vector2).x;
-      const x = interpolate(beginX, changeX, currentTime, duration);
+      const startX = (startFrame.value as Vector2).x;
+      const endX = (endFrame.value as Vector2).x;
+      const x = Interpolate(method, startX, endX, amount);
 
-      const beginY = (start.value as Vector2).y;
-      const changeY = (end.value as Vector2).y - (start.value as Vector2).y;
-      const y = interpolate(beginY, changeY, currentTime, duration);
+      const startY = (startFrame.value as Vector2).y;
+      const endY = (endFrame.value as Vector2).y;
+      const y = Interpolate(method, startY, endY, amount);
 
       value = new Vector2(x, y);
     } else if (type === AnimationPropertyType.Number) {
-      const begin = start.value;
-      const change = end.value - start.value;
+      const start = startFrame.value;
+      const end = endFrame.value;
 
-      value = interpolate(begin, change, currentTime, duration);
+      value = Interpolate(method, start, end, amount);
     }
 
-    this.SetPropertyValue(value);
+    this.onChange(value);
   }
 
   private GetFrameSliceByTimestamp(
@@ -104,7 +108,7 @@ export class AnimationTrack {
       return [this.keyframes[0], this.keyframes[0]];
     }
 
-    if (timestamp > lastFrame) {
+    if (timestamp >= lastFrame) {
       return [this.keyframes[lastFrameIndex], this.keyframes[lastFrameIndex]];
     }
 
@@ -112,7 +116,7 @@ export class AnimationTrack {
     while (i < keyframesCount) {
       const frame = this.timeline[i];
 
-      if (timestamp <= frame) {
+      if (timestamp < frame) {
         break;
       }
 
@@ -120,14 +124,5 @@ export class AnimationTrack {
     }
 
     return [this.keyframes[i - 1], this.keyframes[i]];
-  }
-
-  private OnTargetDestroy() {
-    this.target = null;
-  }
-
-  private SetPropertyValue(value: any) {
-    // @ts-ignore
-    this.target[this.property] = value;
   }
 }

@@ -1,13 +1,13 @@
-import { Vector2 } from '../util/vector2';
+import { Vector2 } from "../util/vector2";
 import {
   Animation,
   AnimationLoopMode,
   AnimationPlayer,
   AnimationPropertyType,
   AnimationTrack,
-} from './animation';
-import { ImageResource } from './resource';
-import { Sprite } from './sprite';
+} from "./animation";
+import { ImageResource } from "./resource";
+import { Sprite } from "./sprite";
 
 export class SpriteSheet {
   public readonly imageSource: ImageResource;
@@ -63,7 +63,7 @@ export interface AnimatedSpriteKeyFrames {
  * @extends {Sprite}
  */
 export class AnimatedSprite extends Sprite {
-  public readonly name: string = 'AnimatedSprite';
+  public readonly name: string = "AnimatedSprite";
 
   private animation!: AnimationPlayer;
   private spriteSheet: SpriteSheet;
@@ -127,7 +127,7 @@ export class AnimatedSprite extends Sprite {
   }
 
   private InitAnimations() {
-    const animationName = '_';
+    const animationName = "_";
     const frameInterval = this.frameInterval;
     const duration = this.frameInterval * this.frames.length;
 
@@ -137,9 +137,12 @@ export class AnimatedSprite extends Sprite {
       .SetLoopMode(AnimationLoopMode.Loop)
       .SetDuration(duration);
 
-    const track = new AnimationTrack(AnimationPropertyType.Number);
-    // @ts-ignore
-    track.SetTarget(this, 'cursor');
+    const track = new AnimationTrack<number>({
+      type: AnimationPropertyType.Number,
+      onChange: (value) => {
+        this.cursor = value;
+      },
+    });
     for (let i = 0; i < this.frames.length; i++) {
       const frame = this.frames[i];
 
