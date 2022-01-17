@@ -1,4 +1,4 @@
-import { AnimationTrack } from './track';
+import { AnimationTrack } from "./track";
 
 export const enum AnimationLoopMode {
   /**
@@ -7,10 +7,17 @@ export const enum AnimationLoopMode {
   Once,
   /**
    * Only plays once. When animation finishes,
-   * changes the property to the value specified in the first keyframe.
+   * resets the property to the value specified in the first keyframe.
    */
   OnceAndReset,
+  /**
+   * Repeat infinitely. When animation finishes,
+   * it will start all over again.
+   */
   Loop,
+  /**
+   * Repeat infinitely, but will bounce between the start and the end.
+   */
   Swing,
 }
 
@@ -21,6 +28,7 @@ export class Animation {
 
   private timestamp: number = 0;
   private duration: number = 0;
+  private direction: 1 | -1 = 1;
 
   private tracks: AnimationTrack[] = [];
 
@@ -44,6 +52,7 @@ export class Animation {
 
   public Rewind() {
     this.timestamp = 0;
+    this.direction = 1;
   }
 
   public SetDuration(duration: number): this {
@@ -55,7 +64,11 @@ export class Animation {
   }
 
   public Step(delta: number) {
-    this.timestamp += delta;
+    if (this.isFinished) {
+      return;
+    }
+
+    this.timestamp += delta * this.direction;
 
     if (this.timestamp > this.duration) {
       if (this.loopMode === AnimationLoopMode.Once) {
@@ -69,7 +82,15 @@ export class Animation {
         this.Rewind();
         this.Step(i);
       } else if (this.loopMode === AnimationLoopMode.Swing) {
-        // TODO
+        this.direction *= -1;
+        const i = this.timestamp - this.duration;
+        this.Step(i);
+      }
+    } else if (this.timestamp < 0) {
+      if (this.loopMode === AnimationLoopMode.Swing) {
+        this.direction *= -1;
+        const i = 0 - this.timestamp;
+        this.Step(i);
       }
     } else {
       for (const track of this.tracks) {
