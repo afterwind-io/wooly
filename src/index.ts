@@ -56,6 +56,7 @@ export {
 export { Grid } from "./buildin/ui/grid";
 export { MouseSensor } from "./buildin/ui/mouseSensor";
 export { Offset } from "./buildin/ui/offset";
+export { Opacity } from "./buildin/ui/opacity";
 export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll";
 export { Stack } from "./buildin/ui/stack";
