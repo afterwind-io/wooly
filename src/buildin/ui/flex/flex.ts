@@ -220,17 +220,15 @@ export class Flex extends Widget<FlexOptions> {
   }
 
   private _PerformLayout(mainAxisFreeLength: number, crossAxisLength: number) {
-    const { direction, mainAxisAlignment, crossAxisAlignment, children } = this
-      .options as Required<FlexOptions>;
-
-    if (!children) {
-      return;
-    }
+    const children = this.children as Widget[];
 
     const childCount = children.length;
     if (childCount === 0) {
       return;
     }
+
+    const { direction, mainAxisAlignment, crossAxisAlignment } = this
+      .options as Required<FlexOptions>;
 
     let mainAxisLeading = 0;
     let mainAxisSpacing = 0;
@@ -279,7 +277,7 @@ export class Flex extends Widget<FlexOptions> {
     }
 
     let mainAxisPointer = mainAxisLeading;
-    for (const child of this.children as Widget[]) {
+    for (const child of children) {
       const childPosition = Vector2.Zero;
 
       // Main axis positioning
