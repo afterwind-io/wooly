@@ -23,7 +23,7 @@ export class Offset extends Widget<OffsetOptions> {
     const { offset = Vector2.Zero } = this.options;
 
     let size: Size = { width: 0, height: 0 };
-    const child = this.options.child;
+    const child = this.GetFirstChild();
     if (child) {
       size = child.$Layout(constraint);
       child.position = offset;
