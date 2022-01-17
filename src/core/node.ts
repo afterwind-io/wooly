@@ -220,9 +220,9 @@ export abstract class Node {
 
     if (this._lastChild) {
       this._lastChild.sibling = node;
-      this._lastChild = node;
-
       node._prevSibling = this._lastChild;
+
+      this._lastChild = node;
     } else {
       this.child = node;
       this._lastChild = node;
@@ -436,7 +436,7 @@ export abstract class Node {
     }
 
     if (this._lastChild === item) {
-      this._lastChild = item.sibling;
+      this._lastChild = item._prevSibling;
     }
 
     const prevSibling = item._prevSibling;
