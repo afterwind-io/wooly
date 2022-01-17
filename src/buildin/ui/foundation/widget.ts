@@ -230,10 +230,8 @@ export abstract class Widget<
     }
 
     const newFiber = (newChild as Widget)._fiber;
-    oldFiber!.options = newFiber.options;
-    oldFiber!.instance.options = newFiber.instance.options;
-    oldFiber!.instance.$Reconcile();
-    return oldFiber;
+    oldFiber.instance.options = newFiber.instance.options;
+    return oldFiber.instance.$Reconcile();
   }
 
   private ReconcileChildArray(
