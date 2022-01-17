@@ -4,6 +4,7 @@ import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
 import { Input } from "../buildin/media/input";
 import { ViewportManager } from "./manager/viewport";
+import { GetUniqId } from "../util/idgen";
 
 /**
  * The global entity group map.
@@ -78,7 +79,7 @@ export abstract class Entity<
    * @type {number}
    * @memberof Entity
    */
-  public id: number = 0;
+  public id: number = GetUniqId();
 
   /**
    * The name of the node.
