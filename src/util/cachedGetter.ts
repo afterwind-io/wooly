@@ -1,24 +1,19 @@
 /**
  * [**Decorator**]
  */
-export function OneTimeCachedGetter(options: { emptyValue: unknown }) {
-  const { emptyValue } = options;
+export function OneTimeCachedGetter(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const cacheKey = Symbol(`_cache_${propertyKey}_`);
 
-  return function (
-    target: any,
-    propertyKey: string,
-    descriptor: PropertyDescriptor
-  ) {
-    let cachedValue: unknown = emptyValue;
+  let originalGetter = descriptor.get!;
+  descriptor.get = function (this: any): unknown {
+    if (!Object.prototype.hasOwnProperty.call(this, cacheKey)) {
+      this[cacheKey] = originalGetter.call(this);
+    }
 
-    let originalGetter = descriptor.get!;
-    descriptor.get = function (this): unknown {
-      if (cachedValue != emptyValue) {
-        return cachedValue;
-      }
-
-      cachedValue = originalGetter.call(this);
-      return cachedValue;
-    };
+    return this[cacheKey];
   };
 }

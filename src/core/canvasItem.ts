@@ -102,7 +102,7 @@ export abstract class CanvasItem extends Transform {
    * @type {CanvasLayer}
    * @memberof CanvasItem
    */
-  @OneTimeCachedGetter({ emptyValue: -1 })
+  @OneTimeCachedGetter
   public get globalLayer(): number {
     let layer = 0;
 
@@ -119,7 +119,7 @@ export abstract class CanvasItem extends Transform {
   /**
    * Get the composition the node currently at.
    */
-  @OneTimeCachedGetter({ emptyValue: -1 })
+  @OneTimeCachedGetter
   public get globalComposition(): number {
     let composition = 0;
 

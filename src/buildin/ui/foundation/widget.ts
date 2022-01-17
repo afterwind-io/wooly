@@ -52,7 +52,7 @@ export abstract class Widget<
     };
   }
 
-  @OneTimeCachedGetter({ emptyValue: null })
+  @OneTimeCachedGetter
   protected get root(): WidgetRoot {
     let root = null;
     this.Bubble((node) => {
