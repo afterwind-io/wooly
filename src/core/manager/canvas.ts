@@ -1,12 +1,17 @@
-import { Vector2 } from '../../util/vector2';
+import { Vector2 } from "../../util/vector2";
 
 export const CanvasManager = new (class CanvasManager {
+  public container!: HTMLDivElement;
   public ctx!: CanvasRenderingContext2D;
 
-  public SetHost(canvas: HTMLCanvasElement, backend: '2d') {
+  public SetContainer(el: HTMLDivElement): void {
+    this.container = el;
+  }
+
+  public SetHost(canvas: HTMLCanvasElement, backend: "2d") {
     const ctx = canvas.getContext(backend, { alpha: false });
     if (ctx === null) {
-      throw new Error('[wooly] Cannot get 2d ctx.');
+      throw new Error("[wooly] Cannot get 2d ctx.");
     }
     this.ctx = ctx;
   }

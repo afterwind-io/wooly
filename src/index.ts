@@ -61,6 +61,7 @@ export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll";
 export { Stack } from "./buildin/ui/stack";
 export { Text } from "./buildin/ui/text";
+export { TextInput } from "./buildin/ui/textInput";
 export { Transition } from "./buildin/ui/transition";
 export { WidgetRoot } from "./buildin/ui/root";
 
@@ -80,7 +81,7 @@ export {
   SizableWidgetOptions,
 } from "./buildin/ui/foundation/types";
 export { Widget } from "./buildin/ui/foundation/widget";
-export { Reactive } from "./buildin/ui/foundation/decorator";
+export { BindThis, Reactive } from "./buildin/ui/foundation/decorator";
 export { NoChildWidget } from "./buildin/ui/foundation/noChildWidget";
 export { SingleChildWidget } from "./buildin/ui/foundation/singleChildWidget";
 

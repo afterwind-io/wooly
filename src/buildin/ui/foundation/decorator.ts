@@ -1,6 +1,41 @@
 import { Widget } from "./widget";
 
 /**
+ * Bind the method to `this`.
+ *
+ * ```ts
+ * class MyWidget extends Widget {
+ *   `@BindThis`
+ *   public DoSomething {
+ *     this.a = 1;
+ *   }
+ * }
+ * ```
+ */
+export function BindThis(
+  target: any,
+  propertyKey: string,
+  descriptor: TypedPropertyDescriptor<(...args: any[]) => any>
+): PropertyDescriptor {
+  return {
+    configurable: true,
+    get(this: Widget & Record<string, unknown>) {
+      const self = this;
+
+      const originalMethod = descriptor.value!;
+      const boundMethod = function (...args: any[]) {
+        originalMethod.apply(self, args);
+      }.bind(self);
+
+      // 不能Object.defineProperty，因为绑定的方法可能是重载基类绑定过的方法
+      this[propertyKey] = boundMethod;
+
+      return boundMethod;
+    },
+  };
+}
+
+/**
  * [**Decorator**]
  *
  * Auto call `this.Refresh` after execution and bind the method to `this`.
@@ -21,6 +56,7 @@ import { Widget } from "./widget";
  *     this.DoSomething = this.DoSomething.bind(this);
  *   }
  *
+ *   `@BindThis`
  *   public DoSomething {
  *     this.a = 1;
  *     this.Refresh();
