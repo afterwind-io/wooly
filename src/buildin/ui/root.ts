@@ -52,18 +52,16 @@ export class WidgetRoot extends Entity {
     /**
      * 重排冒泡阶段：
      *
-     * 对每一个请求元素，检查其上一轮的约束，如果约束为强约束（宽高确定），
-     * 则标记当前元素为顶节点，否则一直向上找到第一个强约束元素为止
+     * 对每一个请求元素，检查其自身或其祖先是否为`Relayout Boundary`。
+     * 如有，则标记该元素为relayout的根，后续的relayout将从这个根节点开始。
      */
     const layoutRoots: Widget[] = [];
     for (const widget of this.layoutQueue) {
-      const root = widget.FindNearestParent(
-        (node) => node._prevConstraint.IsTight
-      );
-      if (!root) {
-        layoutRoots.push(this.child as Widget);
-      } else {
+      const root = widget.FindNearestParent((node) => node.isRelayoutBoundary);
+      if (root) {
         layoutRoots.push(root);
+      } else {
+        layoutRoots.push(this.child as Widget);
       }
     }
 

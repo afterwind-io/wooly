@@ -4,7 +4,12 @@ import { Nullable } from "../../../util/common";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
-import { CommonWidgetOptions, WidgetElement, WidgetRenderables } from "./types";
+import {
+  CommonWidgetOptions,
+  SizableWidgetOptions,
+  WidgetElement,
+  WidgetRenderables,
+} from "./types";
 
 export function CreateContext() {
   // TODO 生成context组件，如何引用？如何刷新引用组件？
@@ -29,6 +34,7 @@ export abstract class Widget<
   SIG extends EntitySignals = EntitySignals
 > extends Entity<SIG> {
   public abstract readonly name: string;
+  public readonly childSizeIndependent: boolean = false;
 
   public _intrinsicWidth: number = 0;
   public _intrinsicHeight: number = 0;
@@ -50,6 +56,50 @@ export abstract class Widget<
       children: [],
       instance: this,
     };
+  }
+
+  /**
+   * 判断该widget是否为一个`Relayout Boundary`。
+   *
+   * `Relayout Boundary`意味着无论内部子节点如何变化，都不会影响其大小。
+   * 因此其子节点的大小布局变化将不会影响`Relayout Boundary`之外的树的布局结构。
+   *
+   * 具备以下特征的`Widget`可视为一个`Relayout Boundary`：
+   *
+   * - 具有`childSizeIndependent`标记，显式指出自己的大小不受子代影响；
+   *
+   * - 自身的宽高均为非`Infinity`的指定大小；
+   *
+   * - `Widget`的宽高分别受到严格约束，或始终依赖约束的最大值；
+   */
+  public get isRelayoutBoundary(): boolean {
+    if (this.childSizeIndependent) {
+      return true;
+    }
+
+    // TODO
+    // 下面这种写法是否是比较快速的实现方式？
+    // 一个比较常见的"shrink"节点需要走完所有逻辑才能知道是非`Relayout Boundary`
+
+    const { width, height } = this.options as unknown as SizableWidgetOptions;
+    if (
+      typeof width === "number" &&
+      width !== Infinity &&
+      typeof height === "number" &&
+      height !== Infinity
+    ) {
+      return true;
+    }
+
+    const { isHeightTight, isWidthTight } = this._prevConstraint;
+    if (
+      (isWidthTight || width === "stretch") &&
+      (isHeightTight || height === "stretch")
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   @OneTimeCachedGetter

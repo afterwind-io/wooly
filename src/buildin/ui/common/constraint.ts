@@ -21,13 +21,12 @@ export class Constraint {
     this.maxHeight = dimension.maxHeight || Infinity;
   }
 
-  public get IsTight(): boolean {
-    return (
-      this.minWidth === this.maxWidth &&
-      this.maxWidth !== Infinity &&
-      this.minHeight === this.maxHeight &&
-      this.maxHeight !== Infinity
-    );
+  public get isWidthTight(): boolean {
+    return this.minWidth === this.maxWidth && this.maxWidth !== Infinity;
+  }
+
+  public get isHeightTight(): boolean {
+    return this.minHeight === this.maxHeight && this.maxHeight !== Infinity;
   }
 
   public constrain(
