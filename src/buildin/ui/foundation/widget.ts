@@ -127,6 +127,11 @@ export abstract class Widget<
   }
 
   public $Reconcile(): WidgetFiber {
+    const ref = this.options.ref;
+    if (ref) {
+      ref.current = this;
+    }
+
     const widgets = this._Render();
 
     let childWidgets: WidgetElement[];

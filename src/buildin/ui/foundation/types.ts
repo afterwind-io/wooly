@@ -1,3 +1,4 @@
+import { WidgetRefObject } from "./ref";
 import { Widget } from "./widget";
 import { Length } from "../common/types";
 
@@ -32,6 +33,7 @@ export type WidgetRenderables = WidgetElement;
 
 export interface CommonWidgetOptions {
   key?: string | number | symbol;
+  ref?: WidgetRefObject<unknown>;
 }
 
 export interface SizableWidgetOptions {
