@@ -304,6 +304,42 @@ export abstract class Node {
   }
 
   /**
+   * Remove the specific child from the tree.
+   *
+   * @param {Node} item The poor child.
+   * @memberof Node
+   */
+  public RemoveChild(item: Node) {
+    const nextSibling = item.sibling;
+
+    if (this.child === item) {
+      this.child = nextSibling;
+    }
+
+    if (this._lastChild === item) {
+      this._lastChild = item._prevSibling;
+    }
+
+    const prevSibling = item._prevSibling;
+    if (prevSibling) {
+      prevSibling.sibling = nextSibling;
+    }
+    if (nextSibling) {
+      nextSibling._prevSibling = prevSibling;
+    }
+
+    /**
+     * 理论上这里应该清除节点对其他节点的引用，但是这会导致链表遍历时
+     * 引用被破坏。既然不清除也不会导致无法gc，于是么...
+     */
+    // item.parent = null;
+    // item.sibling = null;
+    item._prevSibling = null;
+
+    this._isCachedChildrenDirty = true;
+  }
+
+  /**
    * Set the value of `enabled` property.
    *
    * @param {boolean} f The flag.
@@ -421,40 +457,4 @@ export abstract class Node {
    * @memberof Node
    */
   protected $SelfDestroy() {}
-
-  /**
-   * Remove the specific child from the tree.
-   *
-   * @param {Node} item The poor child.
-   * @memberof Node
-   */
-  private RemoveChild(item: Node) {
-    const nextSibling = item.sibling;
-
-    if (this.child === item) {
-      this.child = nextSibling;
-    }
-
-    if (this._lastChild === item) {
-      this._lastChild = item._prevSibling;
-    }
-
-    const prevSibling = item._prevSibling;
-    if (prevSibling) {
-      prevSibling.sibling = nextSibling;
-    }
-    if (nextSibling) {
-      nextSibling._prevSibling = prevSibling;
-    }
-
-    /**
-     * 理论上这里应该清除节点对其他节点的引用，但是这会导致链表遍历时
-     * 引用被破坏。既然不清除也不会导致无法gc，于是么...
-     */
-    // item.parent = null;
-    // item.sibling = null;
-    item._prevSibling = null;
-
-    this._isCachedChildrenDirty = true;
-  }
 }
