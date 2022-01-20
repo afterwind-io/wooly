@@ -1,27 +1,22 @@
 import { Vector2 } from "../../util/vector2";
 import { Interpolate, InterpolationMethod } from "./interpolation";
 
-export const enum AnimationPropertyType {
-  Number,
-  Vector2,
-}
+export type AnimatableProperty = number | Vector2;
 
-export interface AnimationKeyframe<T = any> {
+export interface AnimationKeyframe<T extends AnimatableProperty> {
   time: number;
   value: T;
   interpolation?: InterpolationMethod;
 }
 
-interface AnimationTrackOptions<T> {
-  type: AnimationPropertyType;
+interface AnimationTrackOptions<T extends AnimatableProperty> {
   onChange: (value: T) => void;
 }
 
-export class AnimationTrack<T = any> {
-  private type: AnimationPropertyType;
+export class AnimationTrack<T extends AnimatableProperty> {
   private onChange: (value: T) => void;
 
-  private keyframes: AnimationKeyframe[] = [];
+  private keyframes: AnimationKeyframe<T>[] = [];
   /**
    * A collection contains all timestamps of keyframes.
    *
@@ -32,10 +27,7 @@ export class AnimationTrack<T = any> {
   private timeline: number[] = [];
 
   public constructor(options: AnimationTrackOptions<T>) {
-    const { type, onChange } = options;
-
-    this.type = type;
-    this.onChange = onChange;
+    this.onChange = options.onChange;
   }
 
   /**
@@ -47,7 +39,7 @@ export class AnimationTrack<T = any> {
    * @returns {this}
    * @memberof AnimationTrack
    */
-  public AddKeyFrame(keyframe: AnimationKeyframe): this {
+  public AddKeyFrame(keyframe: AnimationKeyframe<T>): this {
     this.keyframes.push(keyframe);
     this.timeline.push(keyframe.time);
     return this;
@@ -59,7 +51,7 @@ export class AnimationTrack<T = any> {
     }
 
     const value = this.keyframes[0].value;
-    this.onChange(value);
+    this.onChange(value as T);
   }
 
   public Step(timestamp: number) {
@@ -71,24 +63,22 @@ export class AnimationTrack<T = any> {
 
     const method = startFrame.interpolation || InterpolationMethod.None;
 
-    let value: any = startFrame.value;
+    const startValue: unknown = startFrame.value;
+    const endValue: unknown = endFrame.value;
 
-    const type = this.type;
-    if (type === AnimationPropertyType.Vector2) {
-      const startX = (startFrame.value as Vector2).x;
-      const endX = (endFrame.value as Vector2).x;
+    let value: any = startFrame.value;
+    if (typeof startValue === "number") {
+      value = Interpolate(method, startValue, endValue as number, amount);
+    } else if (startValue instanceof Vector2) {
+      const startX = startValue.x;
+      const endX = (endValue as Vector2).x;
       const x = Interpolate(method, startX, endX, amount);
 
-      const startY = (startFrame.value as Vector2).y;
-      const endY = (endFrame.value as Vector2).y;
+      const startY = startValue.y;
+      const endY = (endValue as Vector2).y;
       const y = Interpolate(method, startY, endY, amount);
 
       value = new Vector2(x, y);
-    } else if (type === AnimationPropertyType.Number) {
-      const start = startFrame.value;
-      const end = endFrame.value;
-
-      value = Interpolate(method, start, end, amount);
     }
 
     this.onChange(value);
@@ -96,7 +86,7 @@ export class AnimationTrack<T = any> {
 
   private GetFrameSliceByTimestamp(
     timestamp: number
-  ): [AnimationKeyframe, AnimationKeyframe] {
+  ): [AnimationKeyframe<T>, AnimationKeyframe<T>] {
     // NOTE: 这里的前提假设是this.keyframes中的frames是按照时间顺序插入的
 
     const keyframesCount = this.keyframes.length;

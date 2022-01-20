@@ -31,7 +31,6 @@ export {
   Animation,
   AnimationLoopMode,
   AnimationTrack,
-  AnimationPropertyType,
   InterpolationMethod,
 } from "./buildin/animation";
 export { State, StateMachine } from "./buildin/fsm";

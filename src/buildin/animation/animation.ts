@@ -30,13 +30,13 @@ export class Animation {
   private duration: number = 0;
   private direction: 1 | -1 = 1;
 
-  private tracks: AnimationTrack[] = [];
+  private tracks: AnimationTrack<any>[] = [];
 
   public constructor(name: string) {
     this.name = name;
   }
 
-  public AddTrack(track: AnimationTrack): this {
+  public AddTrack(track: AnimationTrack<any>): this {
     this.tracks.push(track);
     return this;
   }

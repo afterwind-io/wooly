@@ -1,43 +1,44 @@
 import {
   Animation,
   AnimationLoopMode,
-  AnimationPropertyType,
   AnimationTrack,
   InterpolationMethod,
 } from "../animation";
+import { AnimatableProperty } from "../animation/track";
 import { Length } from "./common/types";
 import { Reactive } from "./foundation/decorator";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import { CommonWidgetOptions, WidgetElement } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
-interface TransitionOptions<T = unknown> extends CommonWidgetOptions {
+interface TransitionOptions<T extends AnimatableProperty>
+  extends CommonWidgetOptions {
   duration: number;
   from: T;
   to: T;
-  propertyType: AnimationPropertyType;
   method?: InterpolationMethod;
   loopMode?: AnimationLoopMode;
   render: (value: T) => Widget;
 }
 
-export class Transition<T> extends SingleChildWidget<TransitionOptions> {
+export class Transition<T extends AnimatableProperty> extends SingleChildWidget<
+  TransitionOptions<T>
+> {
   public readonly name: string = "Transition";
 
   protected readonly isLooseBox: boolean = false;
 
   private _animation: Animation = new Animation("Transition");
-  private _propertyValue: unknown;
+  private _propertyValue!: T;
 
   public constructor(options: TransitionOptions<T>) {
-    super(options as TransitionOptions<unknown>);
+    super(options);
 
     this._animation
       .SetLoopMode(options.loopMode || AnimationLoopMode.Once)
       .SetDuration(options.duration);
 
-    const track = new AnimationTrack({
-      type: options.propertyType,
+    const track = new AnimationTrack<T>({
       onChange: this.OnAnimation,
     });
     track
@@ -72,7 +73,7 @@ export class Transition<T> extends SingleChildWidget<TransitionOptions> {
   }
 
   @Reactive
-  private OnAnimation(value: unknown) {
+  private OnAnimation(value: T) {
     this._propertyValue = value;
   }
 }

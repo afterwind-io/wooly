@@ -3,7 +3,6 @@ import {
   Animation,
   AnimationLoopMode,
   AnimationPlayer,
-  AnimationPropertyType,
   AnimationTrack,
 } from "./animation";
 import { ImageResource } from "./resource";
@@ -138,7 +137,6 @@ export class AnimatedSprite extends Sprite {
       .SetDuration(duration);
 
     const track = new AnimationTrack<number>({
-      type: AnimationPropertyType.Number,
       onChange: (value) => {
         this.cursor = value;
       },
