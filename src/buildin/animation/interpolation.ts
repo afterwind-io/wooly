@@ -31,7 +31,7 @@ export function GetInterpolationMethod(
 ) {
   switch (method) {
     case InterpolationMethod.None:
-      return Identity;
+      return None;
     case InterpolationMethod.Linear:
       return Identity;
     case InterpolationMethod.QuadraticIn:
@@ -49,9 +49,11 @@ export function GetInterpolationMethod(
 
     default:
       const _: never = method;
-      return Identity;
+      return None;
   }
 }
+
+const None: InterpolationFunction = () => 0;
 
 const QuadraticIn: InterpolationFunction = (amount) => {
   return amount * amount;
