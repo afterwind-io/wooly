@@ -59,6 +59,20 @@ export class CanvasComposition extends Transform {
     return parent.globalOpacity;
   }
 
+  public get globalVisible(): boolean {
+    const parent = this.parent;
+
+    if (!parent) {
+      return true;
+    }
+
+    if (parent instanceof CanvasLayer) {
+      return true;
+    }
+
+    return parent.globalVisible;
+  }
+
   public get globalZIndex(): number {
     const parent = this.parent;
 

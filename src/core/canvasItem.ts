@@ -10,17 +10,6 @@ import { Node } from "./node";
  */
 export abstract class CanvasItem extends Transform {
   /**
-   * A flag indicates the visibility of the Entity.
-   *
-   * When set to `false`, the `_Draw` cycle of the entity and its descendants
-   * is skipped, but they still get updated.
-   *
-   * @type {boolean}
-   * @memberof CanvasItem
-   */
-  public visible: boolean = true;
-
-  /**
    * Indicate whether to enable custom drawing.
    *
    * In other words, if you need to override the `_Draw` method,
@@ -59,6 +48,7 @@ export abstract class CanvasItem extends Transform {
   protected parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
 
   private _opacity: GlobalOpacity = new GlobalOpacity(this, 1);
+  private _visible: GlobalVisible = new GlobalVisible(this, true);
   private _zIndex: GlobalZIndex = new GlobalZIndex(this, 0);
 
   /**
@@ -69,6 +59,19 @@ export abstract class CanvasItem extends Transform {
   }
   public set opacity(value: number) {
     this._opacity.local = value;
+  }
+
+  /**
+   * A flag indicates the visibility of the Entity.
+   *
+   * When set to `false`, the `_Draw` cycle of the entity and its descendants
+   * is skipped, but they still get updated.
+   */
+  public get visible(): boolean {
+    return this._visible.local;
+  }
+  public set visible(value: boolean) {
+    this._visible.local = value;
   }
 
   /**
@@ -137,6 +140,15 @@ export abstract class CanvasItem extends Transform {
    */
   public get globalOpacity(): number {
     return this._opacity.global;
+  }
+
+  /**
+   * Check the visibility of the node itself and its ancestor.
+   *
+   * If any of them is `false`, then the node is invisible, and vice versa.
+   */
+  public get globalVisible(): boolean {
+    return this._visible.global;
   }
 
   /**
@@ -210,6 +222,34 @@ class GlobalOpacity extends GlobalComputedProperty<CanvasItem, number> {
     if (node instanceof CanvasItem) {
       // @ts-expect-error TS2341 private property
       return node._opacity;
+    }
+
+    return null;
+  }
+}
+
+class GlobalVisible extends GlobalComputedProperty<CanvasItem, boolean> {
+  public ComputeGlobalValue(): boolean {
+    // @ts-expect-error TS2445 protected property
+    const parent = this.host.parent;
+
+    if (!parent) {
+      return this.local;
+    }
+
+    if (parent instanceof CanvasLayer) {
+      return true;
+    }
+
+    return this.local && parent.globalVisible;
+  }
+
+  public GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<CanvasItem, boolean> | null {
+    if (node instanceof CanvasItem) {
+      // @ts-expect-error TS2341 private property
+      return node._visible;
     }
 
     return null;
