@@ -70,9 +70,6 @@ export { Constraint } from "./buildin/ui/common/constraint";
 export { Edge } from "./buildin/ui/common/edge";
 export { Length, Size } from "./buildin/ui/common/types";
 export {
-  MouseAction,
-  MouseDragDrop,
-  MouseMovement,
   WidgetElement,
   WidgetRenderables,
   CommonWidgetOptions,

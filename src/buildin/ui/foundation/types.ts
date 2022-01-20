@@ -11,13 +11,13 @@ export const enum MouseAction {
 
 export const enum MouseDragDrop {
   None,
-  DragFocus,
   DragPending,
   DragStart,
   DragEnd,
+  DragMove,
   DragEnter,
   DragLeave,
-  DragMove,
+  DragOver,
   Drop,
 }
 

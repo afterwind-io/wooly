@@ -15,7 +15,7 @@ import { Node } from "../../../core/node";
 import { BindThis } from "../foundation/decorator";
 import { CreateWidgetRef, WidgetRefObject } from "../foundation/ref";
 import { ScrollDirection } from "./types";
-import { BAR_SIZE, ScrollBar } from "./scrollBar";
+import { BAR_MIN_LENGTH, BAR_SIZE, ScrollBar } from "./scrollBar";
 
 export const enum ScrollOverflowBehavior {
   /**
@@ -120,9 +120,6 @@ export class Scroll extends Widget<ScrollOptions> {
   }
 
   private _LayoutBars(deltaH: number = 0, deltaV: number = 0) {
-    // FIXME 应该常规layout滚动条，否则MouseSensor大小无法确定
-    // TODO 滚动条应该有个最小高/宽度，否则无法拖动
-
     const child = this.GetFirstChild();
     if (!child) {
       return;
@@ -160,20 +157,42 @@ export class Scroll extends Widget<ScrollOptions> {
     if (shouldEnableBarH) {
       const gap = shouldEnableBarV ? BAR_SIZE : 0;
 
-      $barH.barOffset = (this.scrollH * (clientWidth - gap)) / scrollWidth;
-      $barH.barLength = (clientWidth * (clientWidth - gap)) / scrollWidth;
-      $barH.trackLength = clientWidth - gap;
+      const trackLength = clientWidth - gap;
+      const barLength = Math.max(
+        (clientWidth * trackLength) / scrollWidth,
+        BAR_MIN_LENGTH
+      );
+
+      $barH.trackLength = trackLength;
+      $barH.barLength = barLength;
+      $barH.barOffset =
+        (this.scrollH * (trackLength - barLength)) /
+        (scrollWidth - clientWidth);
+
       $barH.position = new Vector2(0, clientHeight - BAR_SIZE);
+
+      $barH.$Layout(new Constraint());
     }
 
     $barV.enabled = shouldEnableBarV;
     if (shouldEnableBarV) {
       const gap = shouldEnableBarH ? BAR_SIZE : 0;
 
-      $barV.barOffset = (this.scrollV * (clientHeight - gap)) / scrollHeight;
-      $barV.barLength = (clientHeight * (clientHeight - gap)) / scrollHeight;
-      $barV.trackLength = clientHeight - gap;
+      const trackLength = clientHeight - gap;
+      const barLength = Math.max(
+        (clientHeight * (clientHeight - gap)) / scrollHeight,
+        BAR_MIN_LENGTH
+      );
+
+      $barV.trackLength = trackLength;
+      $barV.barLength = barLength;
+      $barV.barOffset =
+        (this.scrollV * (trackLength - barLength)) /
+        (scrollHeight - clientHeight);
+
       $barV.position = new Vector2(clientWidth - BAR_SIZE, 0);
+
+      $barV.$Layout(new Constraint());
     }
   }
 
@@ -264,17 +283,56 @@ export class Scroll extends Widget<ScrollOptions> {
 
   @BindThis
   private OnScroll(direction: ScrollDirection, delta: number): void {
-    // TODO drag'n'drop event
+    const child = this.GetFirstChild();
+    if (!child) {
+      return;
+    }
+
+    const $barH = this.$refBarH.current!;
+    const $barV = this.$refBarV.current!;
+
+    const clientWidth = this._intrinsicWidth;
+    const clientHeight = this._intrinsicHeight;
+    const scrollWidth = child._intrinsicWidth;
+    const scrollHeight = child._intrinsicHeight;
+
+    if (direction === "horizontal") {
+      const trackLength = $barH.trackLength;
+      const barLength = $barH.barLength;
+
+      const scrollDelta = scrollWidth - clientWidth;
+      const barDelta = trackLength - barLength;
+
+      const ratio = scrollDelta / barDelta;
+      this.scrollH = Clamp(this.scrollH + delta * ratio, 0, scrollDelta);
+
+      $barH.barOffset = Clamp($barH.barOffset + delta, 0, barDelta);
+    } else {
+      const trackLength = $barV.trackLength;
+      const barLength = $barV.barLength;
+
+      const scrollDelta = scrollHeight - clientHeight;
+      const barDelta = trackLength - barLength;
+
+      const ratio = scrollDelta / barDelta;
+      this.scrollV = Clamp(this.scrollV + delta * ratio, 0, scrollDelta);
+
+      $barV.barOffset = Clamp($barV.barOffset + delta, 0, barDelta);
+    }
+
+    // 滚动位置发生变化不会变更自身及子代的layout，只会变更直接子代的位置
+    // 因此跳过常规layout流程，直接对直接子代进行位置重排
+    child.position = new Vector2(-this.scrollH, -this.scrollV);
   }
 
   @BindThis
   private OnWheel(event: WheelEvent): void {
-    if (!this.HitTest(this._intrinsicWidth, this._intrinsicHeight)) {
+    const child = this.GetFirstChild();
+    if (!child) {
       return;
     }
 
-    const child = this.GetFirstChild();
-    if (!child) {
+    if (!this.HitTest(this._intrinsicWidth, this._intrinsicHeight)) {
       return;
     }
 

@@ -21,6 +21,15 @@ export class Constraint {
     this.maxHeight = dimension.maxHeight || Infinity;
   }
 
+  public static Tight(width: number, height: number): Constraint {
+    return new Constraint({
+      minWidth: width,
+      maxWidth: width,
+      minHeight: height,
+      maxHeight: height,
+    });
+  }
+
   public get isWidthTight(): boolean {
     return this.minWidth === this.maxWidth && this.maxWidth !== Infinity;
   }
