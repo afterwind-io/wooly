@@ -54,7 +54,7 @@ export {
   Column,
 } from "./buildin/ui/flex/flex";
 export { Grid } from "./buildin/ui/grid";
-export { MouseSensor } from "./buildin/ui/mouseSensor";
+export { DragDropState, MouseSensor } from "./buildin/ui/mouseSensor";
 export { Offset } from "./buildin/ui/offset";
 export { Opacity } from "./buildin/ui/opacity";
 export { Radio } from "./buildin/ui/radio";
