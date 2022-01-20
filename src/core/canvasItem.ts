@@ -3,14 +3,10 @@ import { GlobalComputedProperty } from "../util/globalComputedProperty";
 import { CanvasComposition } from "./canvasComposition";
 import { CanvasLayer } from "./canvasLayer";
 import { Transform } from "./transform";
+import { Node } from "./node";
 
 /**
  * Base class of everything relates to drawing.
- *
- * @export
- * @abstract
- * @class CanvasItem
- * @extends {Node}
  */
 export abstract class CanvasItem extends Transform {
   /**
@@ -62,8 +58,8 @@ export abstract class CanvasItem extends Transform {
    */
   protected parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
 
-  private _opacity: GlobalOpacity = new GlobalOpacity(1, this);
-  private _zIndex: GlobalZIndex = new GlobalZIndex(0, this);
+  private _opacity: GlobalOpacity = new GlobalOpacity(this, 1);
+  private _zIndex: GlobalZIndex = new GlobalZIndex(this, 0);
 
   /**
    * The local transparency of the current node.
@@ -192,15 +188,9 @@ export abstract class CanvasItem extends Transform {
   public _Draw(ctx: CanvasRenderingContext2D) {}
 }
 
-abstract class CanvasItemGlobalProperty<T> extends GlobalComputedProperty<T> {
-  public constructor(initValue: T, protected host: CanvasItem) {
-    super(initValue);
-  }
-}
-
-class GlobalOpacity extends CanvasItemGlobalProperty<number> {
-  public GetGlobalValue(): number {
-    // @ts-expect-error protected `parent`
+class GlobalOpacity extends GlobalComputedProperty<CanvasItem, number> {
+  public ComputeGlobalValue(): number {
+    // @ts-expect-error TS2445 protected property
     const parent = this.host.parent;
 
     if (!parent) {
@@ -214,19 +204,21 @@ class GlobalOpacity extends CanvasItemGlobalProperty<number> {
     return this.local * parent.globalOpacity;
   }
 
-  public UpdateGlobalValue(): void {
-    this.host.Traverse((node) => {
-      if (node instanceof CanvasItem) {
-        // @ts-expect-error private `_opacity`
-        node._opacity._isDirty = true;
-      }
-    });
+  public GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<CanvasItem, number> | null {
+    if (node instanceof CanvasItem) {
+      // @ts-expect-error TS2341 private property
+      return node._opacity;
+    }
+
+    return null;
   }
 }
 
-class GlobalZIndex extends CanvasItemGlobalProperty<number> {
-  public GetGlobalValue(): number {
-    // @ts-expect-error protected `parent`
+class GlobalZIndex extends GlobalComputedProperty<CanvasItem, number> {
+  public ComputeGlobalValue(): number {
+    // @ts-expect-error TS2445 protected property
     const parent = this.host.parent;
 
     if (!parent) {
@@ -240,12 +232,14 @@ class GlobalZIndex extends CanvasItemGlobalProperty<number> {
     return this.local + parent.globalZIndex;
   }
 
-  public UpdateGlobalValue(): void {
-    this.host.Traverse((node) => {
-      if (node instanceof CanvasItem) {
-        // @ts-expect-error private `_zIndex`
-        node._zIndex._isDirty = true;
-      }
-    });
+  public GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<CanvasItem, number> | null {
+    if (node instanceof CanvasItem) {
+      // @ts-expect-error private `_zIndex`
+      return node._zIndex;
+    }
+
+    return null;
   }
 }
