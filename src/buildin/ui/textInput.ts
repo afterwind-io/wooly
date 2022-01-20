@@ -21,7 +21,7 @@ interface TextInputOptions extends CommonWidgetOptions, SizableWidgetOptions {
 
 /**
  * A wrapper around native HTML Input element.
- * 
+ *
  * TODO
  * 未考虑父级元素发生形变的场景（旋转、缩放）
  */
@@ -67,10 +67,9 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
     const inputElement = this._inputElement;
 
     // FIXME 是否显示input理论上需要检查:
-    // - 父元素是否visible
     // - 当前元素是否显示在canvas上
     // - 当前元素是否被composition裁剪
-    inputElement.style.display = this.visible ? "block" : "none";
+    inputElement.style.display = this.globalVisible ? "block" : "none";
 
     const width = this._intrinsicWidth;
     const height = this._intrinsicHeight;
