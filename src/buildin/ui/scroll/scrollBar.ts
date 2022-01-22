@@ -91,10 +91,6 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
     ctx.globalAlpha = 1;
   }
 
-  public _Update(delta: number): void {
-    SwitchCursor(this._isFocused || this._isDragging);
-  }
-
   protected _Layout(): Size {
     const child = this.GetFirstChild()!;
 
@@ -124,6 +120,8 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
 
   @BindThis
   private OnHover(isHovering: boolean): void {
+    SwitchCursor(isHovering || this._isDragging);
+
     this._isFocused = isHovering;
   }
 
@@ -152,6 +150,8 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
 
   @BindThis
   private OnDragEnd(): void {
+    SwitchCursor(this._isFocused || false);
+
     this._isDragging = false;
   }
 }
