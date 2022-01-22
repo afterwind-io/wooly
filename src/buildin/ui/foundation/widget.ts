@@ -1,6 +1,5 @@
 import { Entity, EntitySignals } from "../../../core/entity";
 import { OneTimeCachedGetter } from "../../../util/cachedGetter";
-import { Nullable } from "../../../util/common";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
@@ -8,29 +7,26 @@ import {
   CommonWidgetOptions,
   SizableWidgetOptions,
   WidgetElement,
-  WidgetRenderables,
 } from "./types";
 
-export function CreateContext() {
-  // TODO 生成context组件，如何引用？如何刷新引用组件？
-}
+type NonNull<T> = T extends null ? never : T;
 
 interface WidgetFragmentFiber {
   type: "fragment";
-  children: WidgetFiber[];
+  children: WidgetClassFiber[];
 }
 
 interface WidgetClassFiber {
   type: Function;
   options: CommonWidgetOptions;
-  children: WidgetFiber[];
+  child: WidgetFiber | null;
   instance: Widget;
 }
 
 type WidgetFiber = WidgetFragmentFiber | WidgetClassFiber;
 
 export abstract class Widget<
-  OPT extends CommonWidgetOptions = {},
+  OPT extends CommonWidgetOptions = CommonWidgetOptions,
   SIG extends EntitySignals = EntitySignals
 > extends Entity<SIG> {
   public abstract readonly name: string;
@@ -53,7 +49,7 @@ export abstract class Widget<
     this._fiber = {
       type: this.constructor,
       options,
-      children: [],
+      child: null,
       instance: this,
     };
   }
@@ -126,36 +122,20 @@ export abstract class Widget<
     return this._Layout(constraint);
   }
 
-  public $Reconcile(): WidgetFiber {
+  public $Reconcile(): WidgetClassFiber {
     const ref = this.options.ref;
     if (ref) {
       ref.current = this;
     }
 
-    const widgets = this._Render();
+    const prevFiber = this._fiber.child;
+    const newWidget = this._Render();
 
-    let childWidgets: WidgetElement[];
-    if (Array.isArray(widgets)) {
-      childWidgets = widgets;
-    } else if (widgets) {
-      childWidgets = [widgets];
-    } else {
-      childWidgets = [];
-    }
-
-    const prevFiber = this._fiber;
-    let prevChildFibers: WidgetFiber[];
-    if (prevFiber) {
-      prevChildFibers = prevFiber.children;
-    } else {
-      prevChildFibers = [];
-    }
-
-    const children = this.Reconcile(prevChildFibers, childWidgets);
+    const child = this.ReconcileChild(prevFiber, newWidget);
     this._fiber = {
       type: this.constructor,
       options: this.options,
-      children,
+      child,
       instance: this,
     };
     return this._fiber;
@@ -165,7 +145,7 @@ export abstract class Widget<
 
   protected abstract _Layout(constraint: Constraint): Size;
 
-  protected abstract _Render(): WidgetRenderables;
+  protected abstract _Render(): WidgetElement;
 
   public FindNearestParent(
     predicate: (widget: Widget) => boolean | undefined
@@ -209,55 +189,23 @@ export abstract class Widget<
     return options;
   }
 
-  private Reconcile(
-    oldFibers: WidgetFiber[],
-    newChildren: WidgetElement[]
-  ): WidgetFiber[] {
-    // NOTE 其实这个场景可以使用Levenshtein distance计算，但计算复杂度过高了
-
-    const oldChildCount = oldFibers.length;
-    const newChildCount = newChildren.length;
-
-    const maxCount = Math.max(oldChildCount, newChildCount);
-    if (maxCount === 0) {
-      return [];
-    }
-
-    const newChildFibers: WidgetFiber[] = [];
-    for (let i = 0; i < maxCount; i++) {
-      const oldFiber = oldFibers[i];
-      const newChild = newChildren[i];
-
-      let newChildFiber: WidgetFiber | null = this.ReconcileChild(
-        oldFiber,
-        newChild
-      );
-
-      if (newChildFiber) {
-        newChildFibers.push(newChildFiber);
-      }
-    }
-
-    return newChildFibers;
-  }
-
   private ReconcileChild(
-    oldFiber: WidgetFiber | undefined,
-    newChild: WidgetElement
+    oldFiber: WidgetFiber | null,
+    newWidget: WidgetElement
   ): WidgetFiber | null {
     if (!oldFiber) {
       // 如果老节点不存在，那么说明新渲染的节点比原有的多
 
-      if (!newChild) {
+      if (!newWidget) {
         // 如果新节点也不存在，那么说明新节点为null，则无需处理
         return null;
       }
 
       // 接下来的新节点都应为追加操作
-      return this.ReconcileAppendChild(newChild);
+      return this.ReconcileAppendChild(newWidget);
     }
 
-    if (!newChild) {
+    if (!newWidget) {
       // 如果老节点存在，但新节点不存在，无论是否遍历完成，均销毁老节点
       this.ReconcileRemoveChild(oldFiber);
       return null;
@@ -265,178 +213,277 @@ export abstract class Widget<
 
     const oldFiberType = oldFiber.type;
 
-    if (Array.isArray(newChild)) {
+    if (Array.isArray(newWidget)) {
       if (oldFiberType === "fragment") {
-        return this.ReconcileChildArray(oldFiber.children, newChild);
+        return this.ReconcileChildArray(oldFiber.children, newWidget);
       }
 
       this.ReconcileRemoveChildClass(oldFiber);
-      return this.ReconcileInsertChild(oldFiber, newChild);
+      return this.ReconcileInsertChild(oldFiber, newWidget);
     }
 
-    if (oldFiberType !== newChild._fiber.type) {
+    if (oldFiberType !== newWidget._fiber.type) {
       this.ReconcileRemoveChild(oldFiber);
-      return this.ReconcileInsertChild(oldFiber, newChild);
+      return this.ReconcileInsertChild(oldFiber, newWidget);
     }
 
-    if (oldFiber.options.key !== newChild.options.key) {
+    if (oldFiber.options.key !== newWidget.options.key) {
       this.ReconcileRemoveChildClass(oldFiber);
-      return this.ReconcileInsertChild(oldFiber, newChild);
+      return this.ReconcileInsertChild(oldFiber, newWidget);
     }
 
-    const newFiber = (newChild as Widget)._fiber;
-    oldFiber.instance.options = newFiber.instance.options;
-    return oldFiber.instance.$Reconcile();
+    return this.ReconcileUpdateChild(oldFiber, newWidget);
   }
 
   private ReconcileChildArray(
-    oldFibers: WidgetFiber[],
-    newChildren: WidgetElement[]
+    oldFibers: WidgetClassFiber[],
+    newWidgets: (Widget | null)[]
   ): WidgetFragmentFiber {
-    const newChildFibers: WidgetFiber[] = [];
+    const newWidgetsFibers: WidgetClassFiber[] = [];
 
-    // TODO
-    const oldChildCount = oldFibers.length;
-    const newChildCount = newChildren.length;
-    const maxCount = Math.max(oldChildCount, newChildCount);
+    let oldFibersTop: number = 0;
+    let oldFibersBottom: number = oldFibers.length - 1;
+    let newWidgetsTop: number = 0;
+    let newWidgetsBottom: number = newWidgets.length - 1;
 
-    const reservedFibers: Nullable<WidgetFiber>[] = [];
-    let lastReservedIndex: number = -1;
-    for (let i = 0; i < maxCount; i++, lastReservedIndex++) {
-      const oldFiber = oldFibers[i];
-      const newChild = newChildren[i];
+    let prevWidgetFiber: WidgetClassFiber | null = null;
+
+    // 从列表头部开始顺序检索，收集所有可以直接复用的节点
+    while (
+      oldFibersTop <= oldFibersBottom &&
+      newWidgetsTop <= newWidgetsBottom
+    ) {
+      const oldFiber = oldFibers[oldFibersTop];
+      const newWidget = newWidgets[newWidgetsTop];
+
+      if (!oldFiber || !newWidget) {
+        break;
+      }
+
+      if (oldFiber.type !== newWidget._fiber.type) {
+        break;
+      }
+
+      const oldKey = newWidget.options.key;
+      const newKey = oldFiber.options.key;
+
+      if (oldKey !== newKey) {
+        break;
+      }
+
+      newWidgetsFibers.push(this.ReconcileUpdateChild(oldFiber, newWidget));
+      prevWidgetFiber = oldFiber;
+
+      oldFibersTop++;
+      newWidgetsTop++;
+    }
+
+    // 从列表尾部开始逆序搜索，收集所有可以直接复用的节点
+    while (
+      oldFibersTop <= oldFibersBottom &&
+      newWidgetsTop <= newWidgetsBottom
+    ) {
+      const oldFiber = oldFibers[oldFibersBottom];
+      const newWidget = newWidgets[newWidgetsBottom];
+
+      if (!oldFiber || !newWidget) {
+        break;
+      }
+
+      if (oldFiber.type !== newWidget._fiber.type) {
+        break;
+      }
+
+      const oldKey = newWidget.options.key;
+      const newKey = oldFiber.options.key;
+
+      if (oldKey !== newKey) {
+        break;
+      }
+
+      oldFibersBottom--;
+      newWidgetsBottom--;
+    }
+
+    // 为剩余的所有旧fiber进行索引
+    const hasPreservedFibers = oldFibersTop <= oldFibersBottom;
+    let oldKeyMap: Map<CommonWidgetOptions["key"], WidgetClassFiber> | null =
+      null;
+    if (hasPreservedFibers) {
+      oldKeyMap = new Map();
+
+      while (oldFibersTop <= oldFibersBottom) {
+        const oldFiber = oldFibers[oldFibersTop];
+        const oldKey = oldFiber.options.key;
+
+        if (oldKey == null) {
+          console.warn(
+            `[wooly] Each child "${oldFiber.type.name}" widgets in "${this.constructor.name}"` +
+              ` must have a unique key,` +
+              " and the current node had been discarded."
+          );
+
+          // 未设定key的节点直接丢弃
+          oldFiber.instance.Free();
+          continue;
+        }
+
+        oldKeyMap.set(oldKey, oldFiber);
+        oldFibersTop++;
+      }
+    }
+
+    // 为剩余的所有新widget查找可复用fiber
+    while (newWidgetsTop <= newWidgetsBottom) {
+      const newWidget = newWidgets[newWidgetsTop];
+      if (newWidget) {
+        const newKey = newWidget.options.key;
+
+        let oldFiber: WidgetClassFiber | null = oldKeyMap?.get(newKey) || null;
+        let newChildFiber: WidgetClassFiber;
+
+        if (oldFiber == null) {
+          newChildFiber = this.ReconcileInsertChild(
+            prevWidgetFiber,
+            newWidget
+          ) as WidgetClassFiber;
+        } else {
+          newChildFiber = this.ReconcileMoveChild(
+            oldFiber,
+            prevWidgetFiber,
+            newWidget
+          );
+          oldKeyMap!.delete(newKey);
+        }
+
+        newWidgetsFibers.push(newChildFiber);
+        prevWidgetFiber = newChildFiber;
+      }
+
+      newWidgetsTop++;
+    }
+
+    // 清除未被复用的旧fiber
+    if (hasPreservedFibers && oldKeyMap && oldKeyMap.size !== 0) {
+      oldKeyMap.forEach((fiber) => {
+        fiber.instance.Free();
+      });
+    }
+
+    console.assert(oldFibersTop == oldFibersBottom + 1);
+    console.assert(newWidgetsTop == newWidgetsBottom + 1);
+    console.assert(
+      newWidgets.length - newWidgetsTop == oldFibers.length - oldFibersTop
+    );
+
+    // 追加之前收集的尾部可复用的节点
+    oldFibersBottom = oldFibers.length - 1;
+    newWidgetsBottom = newWidgets.length - 1;
+    while (
+      oldFibersTop <= oldFibersBottom &&
+      newWidgetsTop <= newWidgetsBottom
+    ) {
+      const oldFiber = oldFibers[oldFibersTop];
+      const newWidget = newWidgets[newWidgetsTop];
+      newWidgetsFibers.push(this.ReconcileUpdateChild(oldFiber, newWidget!));
+
+      oldFibersTop++;
+      newWidgetsTop++;
     }
 
     return {
       type: "fragment",
-      children: newChildFibers,
+      children: newWidgetsFibers,
     };
   }
 
-  private ReconcileAppendChild(child: WidgetElement): WidgetFiber {
-    if (!child) {
-      throw new Error("[wooly] Child to be appended should not be null.");
-    }
+  private ReconcileUpdateChild(
+    oldFiber: WidgetClassFiber,
+    newWidget: Widget
+  ): WidgetClassFiber {
+    const newFiber = newWidget._fiber;
+    oldFiber.instance.options = newFiber.instance.options;
+    return oldFiber.instance.$Reconcile();
+  }
 
-    if (Array.isArray(child)) {
-      return this.ReconcileAppendChildArray(child);
-    } else {
+  private ReconcileAppendChild(child: NonNull<WidgetElement>): WidgetFiber {
+    if (!Array.isArray(child)) {
       this.AddChild(child);
       return child.$Reconcile();
     }
-  }
 
-  private ReconcileAppendChildArray(
-    child: WidgetElement[]
-  ): WidgetFragmentFiber {
-    const childFibers: WidgetFiber[] = [];
-    const fragmentFiber: WidgetFragmentFiber = {
-      type: "fragment",
-      children: childFibers,
-    };
-
+    const childFibers: WidgetClassFiber[] = [];
     for (const element of child) {
       if (!element) {
         continue;
       }
 
-      if (Array.isArray(element)) {
-        childFibers.push(this.ReconcileAppendChildArray(element));
-      } else {
-        this.AddChild(element);
-        childFibers.push(element.$Reconcile());
-      }
+      this.AddChild(element);
+      childFibers.push(element.$Reconcile());
     }
 
-    return fragmentFiber;
+    return {
+      type: "fragment",
+      children: childFibers,
+    };
   }
 
   private ReconcileInsertChild(
-    oldFiber: WidgetFiber,
-    newChild: WidgetElement
+    oldFiber: WidgetFiber | null,
+    newChild: NonNull<WidgetElement>
   ): WidgetFiber {
-    if (!newChild) {
-      throw new Error("[wooly] Child to be inserted should not be null.");
-    }
-
-    let anchor: Widget;
-    if (oldFiber.type === "fragment") {
-      anchor = FindLastChild(oldFiber);
+    let anchor: Widget | null;
+    if (!oldFiber) {
+      anchor = null;
+    } else if (oldFiber.type === "fragment") {
+      anchor = oldFiber.children.at(-1)!.instance;
     } else {
       anchor = oldFiber.instance;
     }
 
-    if (Array.isArray(newChild)) {
-      return this.ReconcileInsertChildArray(newChild, anchor).fiber;
-    } else {
+    if (!Array.isArray(newChild)) {
       this.InsertChild(newChild, anchor);
-      return newChild!.$Reconcile();
+      return newChild.$Reconcile();
     }
-  }
 
-  private ReconcileInsertChildArray(
-    newChild: WidgetElement[],
-    anchor: Widget
-  ): { fiber: WidgetFragmentFiber; lastChild: Widget } {
-    const childFibers: WidgetFiber[] = [];
-
+    const childFibers: WidgetClassFiber[] = [];
     for (const child of newChild) {
       if (!child) {
         continue;
       }
 
-      if (Array.isArray(child)) {
-        const { fiber: subChildFibers, lastChild: lastSubChild } =
-          this.ReconcileInsertChildArray(child, anchor);
-        anchor = lastSubChild;
+      this.InsertChild(child, anchor);
+      childFibers.push(child.$Reconcile());
 
-        childFibers.push(subChildFibers);
-      } else {
-        this.InsertChild(child, anchor);
-        anchor = child;
-
-        childFibers.push(child.$Reconcile());
-      }
+      anchor = child;
     }
 
-    return {
-      fiber: { type: "fragment", children: childFibers },
-      lastChild: anchor,
-    };
+    return { type: "fragment", children: childFibers };
+  }
+
+  private ReconcileMoveChild(
+    targetFiber: WidgetClassFiber,
+    anchor: WidgetClassFiber | null,
+    newWidget: Widget
+  ): WidgetClassFiber {
+    const targetWidget = targetFiber.instance;
+    const anchorWidget = anchor?.instance || null;
+    this.MoveChild(targetWidget, anchorWidget);
+
+    return this.ReconcileUpdateChild(targetFiber, newWidget);
   }
 
   private ReconcileRemoveChild(fiber: WidgetFiber): void {
-    if (fiber.type === "fragment") {
-      this.ReconcileRemoveChildArray(fiber);
-    } else {
-      this.ReconcileRemoveChildClass(fiber);
+    if (fiber.type !== "fragment") {
+      return this.ReconcileRemoveChildClass(fiber);
     }
-  }
 
-  private ReconcileRemoveChildArray(fiber: WidgetFragmentFiber): void {
     for (const child of fiber.children) {
-      if (child.type === "fragment") {
-        this.ReconcileRemoveChildArray(child);
-      } else {
-        child.instance.Free();
-      }
+      child.instance.Free();
     }
   }
 
   private ReconcileRemoveChildClass(fiber: WidgetClassFiber): void {
     fiber.instance.Free();
   }
-}
-
-function FindLastChild(fiber: WidgetFragmentFiber): Widget {
-  let target: WidgetFiber | undefined = fiber.children.at(-1);
-  while (target) {
-    if (target.type !== "fragment") {
-      return target.instance;
-    }
-
-    target = target.children.at(-1);
-  }
-
-  throw new Error("[wooly] Should not exist empty WidgetFragmentFiber.");
 }

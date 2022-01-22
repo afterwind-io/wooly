@@ -276,20 +276,39 @@ export abstract class Node {
   /**
    * Insert a new node after the specified anchor node.
    *
+   * If the anchor node is null, the child node will become
+   * the first node in the children.
+   *
    * @param child The child node to be inserted
-   * @param anchor The anchor node. New child will be appended after the anchor.
+   * @param anchor The anchor node.
    */
-  public InsertChild(child: Node, anchor: Node): void {
+  public InsertChild(child: Node, anchor: Node | null): void {
+    if (child == anchor) {
+      return;
+    }
+
     child.parent = this;
 
-    const anchorNextSibling = anchor.sibling;
+    if (anchor == null) {
+      const firstChild = this.child;
 
-    anchor.sibling = child;
-    child._prevSibling = anchor;
+      child._prevSibling = null;
+      child.sibling = firstChild;
+      this.child = child;
 
-    child.sibling = anchorNextSibling;
-    if (anchorNextSibling) {
-      anchorNextSibling._prevSibling = child;
+      if (firstChild) {
+        firstChild._prevSibling = child;
+      }
+    } else {
+      const anchorSibling = anchor.sibling;
+      anchor.sibling = child;
+
+      child._prevSibling = anchor;
+      child.sibling = anchorSibling;
+
+      if (anchorSibling) {
+        anchorSibling._prevSibling = child;
+      }
     }
 
     if (this._lastChild === anchor) {
@@ -301,6 +320,60 @@ export abstract class Node {
     if (this.state === NodeState.Ready) {
       child.$Ready();
     }
+  }
+
+  /**
+   * Move a child node after the specified anchor node.
+   *
+   * If the anchor node is null, the child node will become
+   * the first node in the children.
+   *
+   * @param child The child node to be moved
+   * @param anchor The anchor node
+   */
+  public MoveChild(child: Node, anchor: Node | null): void {
+    if (child === anchor) {
+      return;
+    }
+
+    const childSibling = child._prevSibling;
+    const childPrevSibling = child.sibling;
+
+    if (anchor == null) {
+      const firstChild = this.child;
+
+      child._prevSibling = null;
+      child.sibling = firstChild;
+      this.child = child;
+
+      if (firstChild) {
+        firstChild._prevSibling = child;
+      }
+    } else {
+      const anchorSibling = anchor.sibling;
+      anchor.sibling = child;
+
+      child._prevSibling = anchor;
+      child.sibling = anchorSibling;
+
+      if (anchorSibling) {
+        anchorSibling._prevSibling = child;
+      }
+    }
+
+    if (this._lastChild === anchor) {
+      this._lastChild = child;
+    }
+
+    if (childPrevSibling) {
+      childPrevSibling.sibling = childSibling;
+    }
+
+    if (childSibling) {
+      childSibling._prevSibling = childPrevSibling;
+    }
+
+    this._isCachedChildrenDirty = true;
   }
 
   /**

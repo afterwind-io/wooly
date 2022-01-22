@@ -28,7 +28,7 @@ export const enum MouseMovement {
   MouseHover,
 }
 
-export type WidgetElement = Widget<any, any> | WidgetElement[] | null;
+export type WidgetElement = Widget | null | (Widget | null)[];
 export type WidgetRenderables = WidgetElement;
 
 export interface CommonWidgetOptions {
@@ -46,5 +46,5 @@ export interface SingleChildWidgetOptions {
 }
 
 export interface MultiChildWidgetOptions {
-  children: WidgetElement[] | null;
+  children: (Widget | null)[];
 }
