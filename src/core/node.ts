@@ -130,12 +130,8 @@ export abstract class Node {
 
   /**
    * A flag indicates whether the node has been destroyed.
-   *
-   * @protected
-   * @type {boolean}
-   * @memberof Node
    */
-  protected get IsDestroyed(): boolean {
+  public get IsDestroyed(): boolean {
     return (
       this.state === NodeState.Destroying || this.state === NodeState.Destroyed
     );

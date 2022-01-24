@@ -3,6 +3,7 @@ import { OneTimeCachedGetter } from "../../../util/cachedGetter";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
+import { WidgetContext, WidgetContextConstructor } from "./context";
 import {
   CommonWidgetOptions,
   SizableWidgetOptions,
@@ -40,6 +41,7 @@ export abstract class Widget<
   public options: OPT;
 
   private _fiber: WidgetClassFiber;
+  private _contexts: Map<WidgetContextConstructor, WidgetContext>;
 
   public constructor(options: OPT) {
     super();
@@ -52,6 +54,7 @@ export abstract class Widget<
       child: null,
       instance: this,
     };
+    this._contexts = new Map();
   }
 
   /**
@@ -147,9 +150,9 @@ export abstract class Widget<
 
   protected abstract _Render(): WidgetElement;
 
-  public FindNearestParent(
+  public FindNearestParent<T extends Widget = Widget>(
     predicate: (widget: Widget) => boolean | undefined
-  ): Widget | null {
+  ): T | null {
     let parent: Widget | null = null;
 
     this.Bubble((node) => {
@@ -164,6 +167,25 @@ export abstract class Widget<
     });
 
     return parent;
+  }
+
+  public FindNearestContext(
+    type: WidgetContextConstructor
+  ): WidgetContext | null {
+    let context: WidgetContext | null | undefined = this._contexts.get(type);
+    if (context) {
+      return context;
+    }
+
+    context = this.FindNearestParent<WidgetContext>(
+      (widget) => widget instanceof type
+    );
+    if (!context) {
+      return null;
+    }
+
+    this._contexts.set(type, context);
+    return context;
   }
 
   protected GetFirstChild(): Widget | null {

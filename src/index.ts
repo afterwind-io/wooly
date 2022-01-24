@@ -81,6 +81,7 @@ export { BindThis, Reactive } from "./buildin/ui/foundation/decorator";
 export { NoChildWidget } from "./buildin/ui/foundation/noChildWidget";
 export { SingleChildWidget } from "./buildin/ui/foundation/singleChildWidget";
 export { CreateWidgetRef, WidgetRefObject } from "./buildin/ui/foundation/ref";
+export { CreateWidgetContext } from "./buildin/ui/foundation/context";
 
 // utils
 export { Vector2 } from "./util/vector2";
