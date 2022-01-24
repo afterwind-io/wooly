@@ -28,6 +28,10 @@ export abstract class GlobalComputedProperty<H extends CanvasItem, T> {
   }
 
   public set local(v: T) {
+    if (v === this._local) {
+      return;
+    }
+
     this._local = v;
 
     this.host.Traverse((node) => {
