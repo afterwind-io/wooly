@@ -5,9 +5,9 @@ import {
   InterpolationMethod,
 } from "../animation";
 import { AnimatableProperty } from "../animation/track";
-import { Length } from "./common/types";
+import { Constraint } from "./common/constraint";
+import { Size } from "./common/types";
 import { Reactive } from "./foundation/decorator";
-import { SingleChildWidget } from "./foundation/singleChildWidget";
 import { CommonWidgetOptions, WidgetElement } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
@@ -21,12 +21,10 @@ interface TransitionOptions<T extends AnimatableProperty>
   render: (value: T) => Widget;
 }
 
-export class Transition<T extends AnimatableProperty> extends SingleChildWidget<
+export class Transition<T extends AnimatableProperty> extends Widget<
   TransitionOptions<T>
 > {
   public readonly name: string = "Transition";
-
-  protected readonly isLooseBox: boolean = false;
 
   private _animation: Animation = new Animation("Transition");
   private _propertyValue!: T;
@@ -56,16 +54,12 @@ export class Transition<T extends AnimatableProperty> extends SingleChildWidget<
     this._animation.AddTrack(track);
   }
 
-  protected GetHeight(): Length {
-    return "shrink";
-  }
-
-  protected GetWidth(): Length {
-    return "shrink";
-  }
-
   public _Update(delta: number): void {
     this._animation.Step(delta);
+  }
+
+  protected _Layout(constraint: Constraint): Size {
+    return this.GetFirstChild()!.$Layout(constraint);
   }
 
   protected _Render(): WidgetElement {
