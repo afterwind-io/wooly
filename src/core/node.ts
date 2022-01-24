@@ -336,8 +336,12 @@ export abstract class Node {
       return;
     }
 
-    const childSibling = child._prevSibling;
-    const childPrevSibling = child.sibling;
+    const childSibling = child.sibling;
+    const childPrevSibling = child._prevSibling;
+
+    if (childPrevSibling === anchor) {
+      return;
+    }
 
     if (anchor == null) {
       const firstChild = this.child;

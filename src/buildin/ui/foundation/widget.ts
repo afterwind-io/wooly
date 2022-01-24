@@ -264,8 +264,8 @@ export abstract class Widget<
         break;
       }
 
-      const oldKey = newWidget.options.key;
-      const newKey = oldFiber.options.key;
+      const oldKey = oldFiber.options.key;
+      const newKey = newWidget.options.key;
 
       if (oldKey !== newKey) {
         break;
@@ -294,8 +294,8 @@ export abstract class Widget<
         break;
       }
 
-      const oldKey = newWidget.options.key;
-      const newKey = oldFiber.options.key;
+      const oldKey = oldFiber.options.key;
+      const newKey = newWidget.options.key;
 
       if (oldKey !== newKey) {
         break;
