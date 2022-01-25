@@ -2,14 +2,10 @@ import { CanvasManager } from "../../core/manager/canvas";
 import { Length } from "./common/types";
 import { BindThis } from "./foundation/decorator";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import {
-  CommonWidgetOptions,
-  SizableWidgetOptions,
-  WidgetElement,
-} from "./foundation/types";
+import { SizableWidgetOptions, WidgetElement } from "./foundation/types";
 import { MouseSensor } from "./mouseSensor";
 
-interface TextInputOptions extends CommonWidgetOptions, SizableWidgetOptions {
+interface TextInputOptions extends SizableWidgetOptions {
   value: string;
   placeholder?: string;
   onChange(value: string): void;
@@ -32,10 +28,6 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
   protected readonly isLooseBox: boolean = false;
 
   private _inputElement!: HTMLInputElement;
-
-  public constructor(options: TextInputOptions) {
-    super(options);
-  }
 
   protected _Ready(): void {
     const input = document.createElement("input");

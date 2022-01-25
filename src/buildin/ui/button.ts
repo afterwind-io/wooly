@@ -1,8 +1,4 @@
-import {
-  CommonWidgetOptions,
-  SizableWidgetOptions,
-  WidgetRenderables,
-} from "./foundation/types";
+import { SizableWidgetOptions, WidgetRenderables } from "./foundation/types";
 import { Align } from "./align";
 import { Text } from "./text";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
@@ -14,7 +10,7 @@ import { SwitchCursor } from "./common/utils";
 import { Length } from "./common/types";
 import { Reactive } from "./foundation/decorator";
 
-interface ButtonOptions extends CommonWidgetOptions, SizableWidgetOptions {
+interface ButtonOptions extends SizableWidgetOptions {
   label?: string;
   onClick?(): void;
 }
@@ -26,10 +22,6 @@ export class Button extends SingleChildWidget<ButtonOptions> {
 
   protected _backgroundColor: string = "white";
   protected _borderColor: string = Theme.BorderNormal;
-
-  public constructor(options: ButtonOptions = {}) {
-    super(options);
-  }
 
   protected _Render(): WidgetRenderables {
     const { label = "" } = this.options;

@@ -1,5 +1,4 @@
 import { ProxyWidget } from "./proxyWidget";
-import { CommonWidgetOptions } from "./types";
 import { Widget } from "./widget";
 
 export interface WidgetContextConstructor<T = unknown> {
@@ -8,7 +7,7 @@ export interface WidgetContextConstructor<T = unknown> {
   Of(host: Widget): T;
 }
 
-interface WidgetContextOptions<T> extends CommonWidgetOptions {
+interface WidgetContextOptions<T> {
   child: Widget;
   value: T;
 }

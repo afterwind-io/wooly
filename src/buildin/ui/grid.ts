@@ -2,16 +2,13 @@ import { Widget } from "./foundation/widget";
 import { Constraint } from "./common/constraint";
 import { Size } from "./common/types";
 import {
-  CommonWidgetOptions,
   MultiChildWidgetOptions,
   SizableWidgetOptions,
   WidgetRenderables,
 } from "./foundation/types";
 import { Vector2 } from "../../util/vector2";
 
-type BaseOptions = CommonWidgetOptions &
-  MultiChildWidgetOptions &
-  SizableWidgetOptions;
+type BaseOptions = MultiChildWidgetOptions & SizableWidgetOptions;
 
 interface GridOptions extends BaseOptions {
   mainAxisSpacing?: number;
@@ -22,10 +19,6 @@ interface GridOptions extends BaseOptions {
 
 export class Grid extends Widget<GridOptions> {
   public readonly name: string = "Grid";
-
-  public constructor(options: GridOptions) {
-    super(options);
-  }
 
   protected _Render(): WidgetRenderables {
     return this.options.children;

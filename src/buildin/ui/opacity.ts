@@ -1,31 +1,14 @@
-import { Length } from "./common/types";
-import { SingleChildWidget } from "./foundation/singleChildWidget";
-import {
-  CommonWidgetOptions,
-  SingleChildWidgetOptions,
-  WidgetElement,
-} from "./foundation/types";
+import { ProxyWidget } from "./foundation/proxyWidget";
+import { WidgetElement } from "./foundation/types";
+import { Widget } from "./foundation/widget";
 
-interface OpacityOptions extends CommonWidgetOptions, SingleChildWidgetOptions {
+interface OpacityOptions {
   opacity: number;
+  child: Widget;
 }
 
-export class Opacity extends SingleChildWidget<OpacityOptions> {
+export class Opacity extends ProxyWidget<OpacityOptions> {
   public readonly name: string = "Opacity";
-
-  protected readonly isLooseBox: boolean = false;
-
-  public constructor(options: OpacityOptions) {
-    super(options);
-  }
-
-  protected GetHeight(): Length {
-    return "shrink";
-  }
-
-  protected GetWidth(): Length {
-    return "shrink";
-  }
 
   protected _Render(): WidgetElement {
     this.opacity = this.options.opacity;

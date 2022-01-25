@@ -1,7 +1,6 @@
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   SingleChildWidgetOptions,
-  CommonWidgetOptions,
   SizableWidgetOptions,
   WidgetRenderables,
 } from "./foundation/types";
@@ -55,9 +54,7 @@ export class Alignment {
   }
 }
 
-type BaseOptions = CommonWidgetOptions &
-  SizableWidgetOptions &
-  SingleChildWidgetOptions;
+type BaseOptions = SizableWidgetOptions & SingleChildWidgetOptions;
 
 interface AlignOptions extends BaseOptions {
   alignment?: Alignment;
@@ -68,10 +65,6 @@ export class Align extends SingleChildWidget<AlignOptions> {
   public readonly name: string = "Align";
 
   protected readonly isLooseBox: boolean = true;
-
-  public constructor(options: AlignOptions) {
-    super(options);
-  }
 
   public static Center(options: Omit<AlignOptions, "alignment">): Align {
     return new Align({ ...options, alignment: Alignment.Center });

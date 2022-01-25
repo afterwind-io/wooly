@@ -3,22 +3,15 @@ import { Widget } from "./widget";
 import { Constraint } from "../common/constraint";
 import { Length, Size } from "../common/types";
 import { GetLocalLength } from "../common/utils";
-import {
-  SingleChildWidgetOptions as _SingleChildWidgetOptions,
-  CommonWidgetOptions,
-} from "./types";
+import { SingleChildWidgetOptions as _SingleChildWidgetOptions } from "./types";
 
 export abstract class SingleChildWidget<
-  OPT extends CommonWidgetOptions = CommonWidgetOptions,
+  OPT = {},
   SIG extends EntitySignals = EntitySignals
 > extends Widget<OPT, SIG> {
   public abstract readonly name: string;
 
   protected abstract readonly isLooseBox: boolean;
-
-  public constructor(options: OPT) {
-    super(options);
-  }
 
   protected _Layout(constraint: Constraint): Size {
     const size = this.PerformSizing(constraint);

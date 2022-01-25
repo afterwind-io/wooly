@@ -3,7 +3,6 @@ import { Length } from "./common/types";
 import { Container } from "./container";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
-  CommonWidgetOptions,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
   WidgetRenderables,
@@ -16,9 +15,7 @@ interface BoxShadow {
   offsetY?: number;
 }
 
-type BaseOptions = CommonWidgetOptions &
-  Partial<SingleChildWidgetOptions> &
-  SizableWidgetOptions;
+type BaseOptions = Partial<SingleChildWidgetOptions> & SizableWidgetOptions;
 
 interface BoxDecorationOptions extends BaseOptions {
   backgroundColor?: string;
@@ -32,10 +29,6 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
   public readonly customDrawing: boolean = true;
 
   protected readonly isLooseBox: boolean = false;
-
-  public constructor(options: BoxDecorationOptions) {
-    super(options);
-  }
 
   public _Draw(ctx: CanvasRenderingContext2D): void {
     const { backgroundColor, border, borderColor, shadows } = this.options;

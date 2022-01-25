@@ -1,14 +1,13 @@
 import { Size } from "./common/types";
 import { Constraint } from "./common/constraint";
-import { CommonWidgetOptions } from "./foundation/types";
 import { NoChildWidget } from "./foundation/noChildWidget";
 
 // FIXME OffscreenCanvas只有chromium支持，替换成普通canvas?
 // @ts-ignore
 const offscreenContext = new OffscreenCanvas(0, 0).getContext("2d")!;
 
-interface TextOptions extends CommonWidgetOptions {
-  content?: string;
+interface TextOptions {
+  content: string;
   fontName?: string;
   fontSize?: number;
   fontWeight?: number;
@@ -23,10 +22,6 @@ const DEFAULT_FILL_STYLE = "black";
 export class Text extends NoChildWidget<TextOptions> {
   public readonly name: string = "Text";
   public readonly customDrawing: boolean = true;
-
-  public constructor(options: TextOptions = {}) {
-    super(options);
-  }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
     const {

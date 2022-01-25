@@ -2,22 +2,17 @@ import { Vector2 } from "../../util/vector2";
 import { Constraint } from "./common/constraint";
 import { Size } from "./common/types";
 import {
-  CommonWidgetOptions,
   SingleChildWidgetOptions,
   WidgetRenderables,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
-interface OffsetOptions extends CommonWidgetOptions, SingleChildWidgetOptions {
+interface OffsetOptions extends SingleChildWidgetOptions {
   offset: Vector2;
 }
 
 export class Offset extends Widget<OffsetOptions> {
   public readonly name: string = "Offset";
-
-  public constructor(options: OffsetOptions) {
-    super(options);
-  }
 
   protected _Layout(constraint: Constraint): Size {
     const { offset = Vector2.Zero } = this.options;

@@ -5,7 +5,6 @@ import { Input } from "../media/input";
 import { Length } from "./common/types";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
-  CommonWidgetOptions,
   MouseAction,
   MouseDragDrop,
   MouseMovement,
@@ -61,9 +60,7 @@ const DragDropState = new (class DragDropState {
 
 export type DragDropState = typeof DragDropState;
 
-type BaseOptions = CommonWidgetOptions &
-  Partial<SingleChildWidgetOptions> &
-  SizableWidgetOptions;
+type BaseOptions = Partial<SingleChildWidgetOptions> & SizableWidgetOptions;
 
 interface MouseSensorOptions extends BaseOptions {
   /**
@@ -135,10 +132,6 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
   private mouseActionState: MouseAction = MouseAction.None;
   private mouseDragDropState: MouseDragDrop = MouseDragDrop.None;
   private mouseMovementState: MouseMovement = MouseMovement.None;
-
-  public constructor(options: MouseSensorOptions) {
-    super(options);
-  }
 
   public _Update(delta: number): void {
     const isMouseDown = Input.IsMouseDown(Input.BUTTON_LEFT);

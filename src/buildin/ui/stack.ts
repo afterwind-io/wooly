@@ -1,14 +1,10 @@
 import { Vector2 } from "../../util/vector2";
 import { Constraint } from "./common/constraint";
 import { Size } from "./common/types";
-import {
-  CommonWidgetOptions,
-  MultiChildWidgetOptions,
-  WidgetRenderables,
-} from "./foundation/types";
+import { MultiChildWidgetOptions, WidgetRenderables } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
-type StackOptions = CommonWidgetOptions & MultiChildWidgetOptions;
+type StackOptions = MultiChildWidgetOptions;
 
 export class Stack extends Widget<StackOptions> {
   public readonly name: string = "Stack";

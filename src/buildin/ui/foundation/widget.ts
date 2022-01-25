@@ -26,8 +26,10 @@ interface WidgetClassFiber {
 
 type WidgetFiber = WidgetFragmentFiber | WidgetClassFiber;
 
+type CommonWidgetOptionsMixin<OPT extends {}> = CommonWidgetOptions & OPT;
+
 export abstract class Widget<
-  OPT extends CommonWidgetOptions = CommonWidgetOptions,
+  OPT = {},
   SIG extends EntitySignals = EntitySignals
 > extends Entity<SIG> {
   public abstract readonly name: string;
@@ -38,12 +40,12 @@ export abstract class Widget<
   public _isLayoutDirty: boolean = false;
   public _prevConstraint: Constraint = new Constraint();
 
-  public options: OPT;
+  public options: CommonWidgetOptionsMixin<OPT>;
 
   private _fiber: WidgetClassFiber;
   private _contexts: Map<WidgetContextConstructor, WidgetContext>;
 
-  public constructor(options: OPT) {
+  public constructor(options: CommonWidgetOptionsMixin<OPT>) {
     super();
 
     this.options = this.NormalizeOptions(options);

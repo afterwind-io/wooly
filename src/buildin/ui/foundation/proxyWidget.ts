@@ -1,10 +1,10 @@
 import { EntitySignals } from "../../../core/entity";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
-import { CommonWidgetOptions, WidgetElement } from "./types";
+import { WidgetElement } from "./types";
 import { Widget } from "./widget";
 
-interface ProxyWidgetOptions extends CommonWidgetOptions {
+interface ProxyWidgetOptions {
   child: Widget;
 }
 
