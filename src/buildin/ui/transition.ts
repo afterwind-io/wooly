@@ -31,6 +31,8 @@ export class Transition<T extends AnimatableProperty> extends CompositeWidget<
       TransitionOptions<T>
     >;
 
+    this._propertyValue = from;
+
     this._animation = new Animation("Transition")
       .SetLoopMode(loopMode || AnimationLoopMode.Once)
       .SetDuration(duration);
