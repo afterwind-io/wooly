@@ -106,6 +106,10 @@ export abstract class CanvasItem extends Transform {
     let layer = 0;
 
     this.Bubble((node) => {
+      if (node instanceof CanvasComposition) {
+        return true;
+      }
+
       if (node instanceof CanvasLayer) {
         layer = node.index;
         return true;
