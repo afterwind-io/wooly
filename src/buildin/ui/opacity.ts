@@ -1,5 +1,4 @@
-import { ProxyWidget } from "./foundation/proxyWidget";
-import { WidgetElement } from "./foundation/types";
+import { CompositeWidget } from "./foundation/compositeWidget";
 import { Widget } from "./foundation/widget";
 
 interface OpacityOptions {
@@ -7,10 +6,10 @@ interface OpacityOptions {
   child: Widget;
 }
 
-export class Opacity extends ProxyWidget<OpacityOptions> {
+export class Opacity extends CompositeWidget<OpacityOptions> {
   public readonly name: string = "Opacity";
 
-  protected _Render(): WidgetElement {
+  protected _Render(): Widget | null {
     this.opacity = this.options.opacity;
 
     return this.options.child;

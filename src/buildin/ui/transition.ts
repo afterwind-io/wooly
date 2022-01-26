@@ -5,10 +5,8 @@ import {
   InterpolationMethod,
 } from "../animation";
 import { AnimatableProperty } from "../animation/track";
-import { Constraint } from "./common/constraint";
-import { Size } from "./common/types";
+import { CompositeWidget } from "./foundation/compositeWidget";
 import { Reactive } from "./foundation/decorator";
-import { WidgetElement } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
 interface TransitionOptions<T extends AnimatableProperty> {
@@ -20,7 +18,7 @@ interface TransitionOptions<T extends AnimatableProperty> {
   render: (value: T) => Widget;
 }
 
-export class Transition<T extends AnimatableProperty> extends Widget<
+export class Transition<T extends AnimatableProperty> extends CompositeWidget<
   TransitionOptions<T>
 > {
   public readonly name: string = "Transition";
@@ -59,11 +57,7 @@ export class Transition<T extends AnimatableProperty> extends Widget<
     this._animation.Step(delta);
   }
 
-  protected _Layout(constraint: Constraint): Size {
-    return this.GetFirstChild()!.$Layout(constraint);
-  }
-
-  protected _Render(): WidgetElement {
+  protected _Render(): Widget | null {
     return this.options.render(this._propertyValue);
   }
 
