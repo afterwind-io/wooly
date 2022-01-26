@@ -3,14 +3,10 @@ import { Length } from "./common/types";
 import { SwitchCursor } from "./common/utils";
 import { Reactive } from "./foundation/decorator";
 import { SingleChildWidget } from "./foundation/singleChildWidget";
-import {
-  CommonWidgetOptions,
-  SizableWidgetOptions,
-  WidgetRenderables,
-} from "./foundation/types";
+import { SizableWidgetOptions, WidgetRenderables } from "./foundation/types";
 import { MouseSensor } from "./mouseSensor";
 
-interface RadioOptions<T> extends CommonWidgetOptions, SizableWidgetOptions {
+interface RadioOptions<T> extends SizableWidgetOptions {
   toggled: boolean;
   onToggle?(value: T | undefined): void;
   value?: T;
@@ -22,12 +18,10 @@ export class Radio<T = unknown> extends SingleChildWidget<RadioOptions<T>> {
 
   protected readonly isLooseBox: boolean = false;
 
-  protected _backgroundColor: string;
-  protected _borderColor: string;
+  protected _backgroundColor!: string;
+  protected _borderColor!: string;
 
-  public constructor(options: RadioOptions<T>) {
-    super(options);
-
+  protected _Ready(): void {
     const { toggled } = this.options;
     this._backgroundColor = Theme.BackgroundNormal;
     this._borderColor = toggled ? Theme.Primary : Theme.BorderNormal;

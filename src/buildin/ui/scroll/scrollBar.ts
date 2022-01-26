@@ -4,7 +4,7 @@ import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { SwitchCursor } from "../common/utils";
 import { BindThis } from "../foundation/decorator";
-import { CommonWidgetOptions, WidgetElement } from "../foundation/types";
+import { WidgetElement } from "../foundation/types";
 import { Widget } from "../foundation/widget";
 import { DragDropState, MouseSensor } from "../mouseSensor";
 import { ScrollDirection } from "./types";
@@ -13,7 +13,7 @@ export const BAR_SIZE = 6;
 export const BAR_MIN_LENGTH = 16;
 const BAR_RADIUS = BAR_SIZE / 2;
 
-interface ScrollBarOptions extends CommonWidgetOptions {
+interface ScrollBarOptions {
   direction: ScrollDirection;
   onScroll(direction: ScrollDirection, delta: number): void;
 }
@@ -30,10 +30,6 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
   private _prevDragPosition: Vector2 = Vector2.Zero;
   private _isDragging: boolean = false;
   private _isFocused: boolean = false;
-
-  public constructor(options: ScrollBarOptions) {
-    super(options);
-  }
 
   public _Draw(ctx: CanvasRenderingContext2D) {
     const { direction } = this.options;

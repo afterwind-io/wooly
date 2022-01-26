@@ -1,16 +1,13 @@
 import { Length } from "../common/types";
 import { SingleChildWidget } from "../foundation/singleChildWidget";
 import {
-  CommonWidgetOptions,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
   WidgetRenderables,
 } from "../foundation/types";
 import { Widget } from "../foundation/widget";
 
-type BaseOptions = CommonWidgetOptions &
-  SingleChildWidgetOptions &
-  SizableWidgetOptions;
+type BaseOptions = SingleChildWidgetOptions & SizableWidgetOptions;
 
 export interface ExpandedOptions extends BaseOptions {
   flex?: number;
@@ -20,10 +17,6 @@ export class Expanded extends SingleChildWidget<ExpandedOptions> {
   public readonly name: string = "Expanded";
 
   protected readonly isLooseBox: boolean = true;
-
-  public constructor(options: ExpandedOptions) {
-    super(options);
-  }
 
   protected _Render(): WidgetRenderables {
     return this.options.child;

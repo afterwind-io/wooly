@@ -3,7 +3,6 @@ import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import {
   SingleChildWidgetOptions,
-  CommonWidgetOptions,
   SizableWidgetOptions,
   WidgetElement,
 } from "../foundation/types";
@@ -33,9 +32,7 @@ export const enum ScrollOverflowBehavior {
   Limit,
 }
 
-type BaseOptions = CommonWidgetOptions &
-  SingleChildWidgetOptions &
-  SizableWidgetOptions;
+type BaseOptions = SingleChildWidgetOptions & SizableWidgetOptions;
 
 interface ScrollOptions extends BaseOptions {
   overflowH?: ScrollOverflowBehavior;
@@ -45,23 +42,19 @@ interface ScrollOptions extends BaseOptions {
 export class Scroll extends Widget<ScrollOptions> {
   public readonly name: string = "Scroll";
 
-  private $composition: CanvasComposition;
-  private $refBarH: WidgetRefObject<ScrollBar>;
-  private $refBarV: WidgetRefObject<ScrollBar>;
+  private $composition!: CanvasComposition;
+  private $refBarH!: WidgetRefObject<ScrollBar>;
+  private $refBarV!: WidgetRefObject<ScrollBar>;
   private scrollH: number = 0;
   private scrollV: number = 0;
 
-  public constructor(options: ScrollOptions) {
-    super(options);
-
+  public _Ready() {
     this.$refBarH = CreateWidgetRef();
     this.$refBarV = CreateWidgetRef();
 
     this.$composition = new CanvasComposition(GetUniqId());
     super.AddChild(this.$composition);
-  }
 
-  public _Ready() {
     window.addEventListener("wheel", this.OnWheel);
   }
 

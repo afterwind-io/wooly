@@ -8,11 +8,10 @@ import { AnimatableProperty } from "../animation/track";
 import { Constraint } from "./common/constraint";
 import { Size } from "./common/types";
 import { Reactive } from "./foundation/decorator";
-import { CommonWidgetOptions, WidgetElement } from "./foundation/types";
+import { WidgetElement } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
-interface TransitionOptions<T extends AnimatableProperty>
-  extends CommonWidgetOptions {
+interface TransitionOptions<T extends AnimatableProperty> {
   duration: number;
   from: T;
   to: T;
@@ -26,15 +25,17 @@ export class Transition<T extends AnimatableProperty> extends Widget<
 > {
   public readonly name: string = "Transition";
 
-  private _animation: Animation = new Animation("Transition");
+  private _animation!: Animation;
   private _propertyValue!: T;
 
-  public constructor(options: TransitionOptions<T>) {
-    super(options);
+  protected _Ready(): void {
+    const { loopMode, duration, from, to, method } = this.options as Required<
+      TransitionOptions<T>
+    >;
 
-    this._animation
-      .SetLoopMode(options.loopMode || AnimationLoopMode.Once)
-      .SetDuration(options.duration);
+    this._animation = new Animation("Transition")
+      .SetLoopMode(loopMode || AnimationLoopMode.Once)
+      .SetDuration(duration);
 
     const track = new AnimationTrack<T>({
       onChange: this.OnAnimation,
@@ -42,12 +43,12 @@ export class Transition<T extends AnimatableProperty> extends Widget<
     track
       .AddKeyFrame({
         time: 0,
-        value: options.from,
-        interpolation: options.method,
+        value: from,
+        interpolation: method,
       })
       .AddKeyFrame({
-        time: options.duration,
-        value: options.to,
+        time: duration,
+        value: to,
         interpolation: InterpolationMethod.None,
       });
 
@@ -64,6 +65,16 @@ export class Transition<T extends AnimatableProperty> extends Widget<
 
   protected _Render(): WidgetElement {
     return this.options.render(this._propertyValue);
+  }
+
+  protected NormalizeOptions(
+    options: TransitionOptions<T>
+  ): TransitionOptions<T> {
+    return {
+      method: InterpolationMethod.None,
+      loopMode: AnimationLoopMode.Once,
+      ...options,
+    };
   }
 
   @Reactive

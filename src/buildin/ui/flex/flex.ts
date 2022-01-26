@@ -2,7 +2,6 @@ import { Vector2 } from "../../../util/vector2";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import {
-  CommonWidgetOptions,
   MultiChildWidgetOptions,
   SizableWidgetOptions,
   WidgetRenderables,
@@ -36,9 +35,7 @@ export const enum FlexCrossAxisAlignment {
   Stretch,
 }
 
-type BaseFlexOptions = CommonWidgetOptions &
-  MultiChildWidgetOptions &
-  SizableWidgetOptions;
+type BaseFlexOptions = MultiChildWidgetOptions & SizableWidgetOptions;
 
 interface FlexOptions extends BaseFlexOptions {
   direction?: FlexDirection;
@@ -48,10 +45,6 @@ interface FlexOptions extends BaseFlexOptions {
 
 export class Flex extends Widget<FlexOptions> {
   public readonly name: string = "Flex";
-
-  public constructor(options: FlexOptions) {
-    super(options);
-  }
 
   public static Expanded(options: ExpandedOptions): Expanded {
     return new Expanded(options);
