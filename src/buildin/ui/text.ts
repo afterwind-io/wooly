@@ -47,6 +47,7 @@ export class Text extends NoChildWidget<TextOptions> {
     ctx.fillStyle = fillStyle;
     ctx.font = this.GetFontRepr(fontWeight, fontSize, fontName);
     ctx.textBaseline = "top";
+    ctx.textAlign = "start";
     ctx.fillText(content, 0, 0);
 
     ctx.restore();
