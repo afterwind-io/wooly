@@ -54,13 +54,13 @@ export {
 } from "./buildin/ui/flex/flex";
 export { Grid } from "./buildin/ui/grid";
 export { DragDropState, MouseSensor } from "./buildin/ui/mouseSensor";
-export { Offset } from "./buildin/ui/offset";
 export { Opacity } from "./buildin/ui/opacity";
 export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll/scroll";
 export { Stack } from "./buildin/ui/stack";
 export { Text } from "./buildin/ui/text";
 export { TextInput } from "./buildin/ui/textInput";
+export { Transform } from "./buildin/ui/transform";
 export { Transition } from "./buildin/ui/transition";
 export { WidgetRoot } from "./buildin/ui/root";
 
