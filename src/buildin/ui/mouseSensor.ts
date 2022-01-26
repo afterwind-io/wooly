@@ -25,12 +25,16 @@ const DragDropState = new (class DragDropState {
   }
 
   public get isDragStart(): boolean {
-    return this.delta >= DRAG_START_THRESHOLD;
+    return this.dragDistance >= DRAG_START_THRESHOLD;
   }
 
-  public get delta(): number {
+  public get dragDistance(): number {
+    return this.dragOffset.Length;
+  }
+
+  public get dragOffset(): Vector2 {
     const currentPosition = Input.GetMousePosition();
-    return this.dragStartPosition.DistanceTo(currentPosition);
+    return currentPosition.Subtract(this.dragStartPosition);
   }
 
   public ClearSource(): void {
