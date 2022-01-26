@@ -80,6 +80,7 @@ export { Widget } from "./buildin/ui/foundation/widget";
 export { BindThis, Reactive } from "./buildin/ui/foundation/decorator";
 export { NoChildWidget } from "./buildin/ui/foundation/noChildWidget";
 export { SingleChildWidget } from "./buildin/ui/foundation/singleChildWidget";
+export { CompositeWidget } from "./buildin/ui/foundation/compositeWidget";
 export { CreateWidgetRef, WidgetRefObject } from "./buildin/ui/foundation/ref";
 export { CreateWidgetContext } from "./buildin/ui/foundation/context";
 
