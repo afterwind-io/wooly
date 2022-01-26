@@ -175,55 +175,37 @@ export class Container extends Widget<ContainerWidgetOptions> {
       height: desiredHeight,
     } = this.options as Required<ContainerWidgetOptions>;
 
-    let localWidth = 0;
-    let localHeight = 0;
+    let horizontal = margin.Horizontal + border.Horizontal + padding.Horizontal;
+    let vertical = margin.Vertical + border.Vertical + padding.Vertical;
+
+    let childWidth = 0;
+    let childHeight = 0;
 
     const child = this.GetFirstChild();
     if (child) {
       const localConstraint = constraint
         .constrain(true, desiredWidth, desiredHeight)
-        .shrink(
-          border.Horizontal + padding.Horizontal,
-          border.Vertical + padding.Vertical
-        );
+        .shrink(horizontal, vertical);
 
-      const { width: childWidth, height: childHeight } =
-        child.$Layout(localConstraint);
-
-      localWidth = GetLocalLength(
-        constraint.minWidth,
-        constraint.maxWidth,
-        desiredWidth,
-        childWidth + border.Horizontal + padding.Horizontal
-      );
-
-      localHeight = GetLocalLength(
-        constraint.minHeight,
-        constraint.maxHeight,
-        desiredHeight,
-        childHeight + border.Vertical + padding.Vertical
-      );
-    } else {
-      localWidth = GetLocalLength(
-        constraint.minWidth,
-        constraint.maxWidth,
-        desiredWidth,
-        border.Horizontal + padding.Horizontal
-      );
-
-      localHeight = GetLocalLength(
-        constraint.minHeight,
-        constraint.maxHeight,
-        desiredHeight,
-        border.Vertical + padding.Vertical
-      );
+      const size = child.$Layout(localConstraint);
+      childWidth = size.width;
+      childHeight = size.height;
     }
 
-    return {
-      // FIXME stretch怎么办？
-      width: localWidth + margin.Horizontal,
-      height: localHeight + margin.Vertical,
-    };
+    const width = GetLocalLength(
+      constraint.minWidth,
+      constraint.maxWidth,
+      desiredWidth,
+      childWidth + horizontal
+    );
+    const height = GetLocalLength(
+      constraint.minHeight,
+      constraint.maxHeight,
+      desiredHeight,
+      childHeight + vertical
+    );
+
+    return { width, height };
   }
 
   private PerformLayout(): void {
