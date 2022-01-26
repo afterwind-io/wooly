@@ -3,7 +3,7 @@ import { Matrix2d } from "../util/matrix2d";
 import { Node } from "./node";
 
 export class Transform extends Node {
-  protected parent: Transform | null = null;
+  public parent: Transform | null = null;
 
   private localTransform: Matrix2d = Matrix2d.Identity();
   private cachedGlobalTransform: Matrix2d = Matrix2d.Identity();

@@ -45,7 +45,7 @@ export abstract class CanvasItem extends Transform {
    *
    * The pointer to the parent node.
    */
-  protected parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
+  public parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
 
   private _opacity: GlobalOpacity = new GlobalOpacity(this, 1);
   private _visible: GlobalVisible = new GlobalVisible(this, true);
@@ -206,7 +206,6 @@ export abstract class CanvasItem extends Transform {
 
 class GlobalOpacity extends GlobalComputedProperty<CanvasItem, number> {
   public ComputeGlobalValue(): number {
-    // @ts-expect-error TS2445 protected property
     const parent = this.host.parent;
 
     if (!parent) {
@@ -234,7 +233,6 @@ class GlobalOpacity extends GlobalComputedProperty<CanvasItem, number> {
 
 class GlobalVisible extends GlobalComputedProperty<CanvasItem, boolean> {
   public ComputeGlobalValue(): boolean {
-    // @ts-expect-error TS2445 protected property
     const parent = this.host.parent;
 
     if (!parent) {
@@ -262,7 +260,6 @@ class GlobalVisible extends GlobalComputedProperty<CanvasItem, boolean> {
 
 class GlobalZIndex extends GlobalComputedProperty<CanvasItem, number> {
   public ComputeGlobalValue(): number {
-    // @ts-expect-error TS2445 protected property
     const parent = this.host.parent;
 
     if (!parent) {

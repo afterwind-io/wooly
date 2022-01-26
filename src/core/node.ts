@@ -65,6 +65,14 @@ export abstract class Node {
   public enabled: boolean = true;
 
   /**
+   * [**Internal**]
+   * **Do not modify this manually**
+   *
+   * The pointer to the parent node.
+   */
+  public parent: Node | null = null;
+
+  /**
    * A flag indicates the inner state of the node.
    *
    * Currently it is only for **internal** purpose.
@@ -79,18 +87,6 @@ export abstract class Node {
    * [**Internal**]
    * **Do not modify this manually**
    *
-   * The pointer to the parent node.
-   *
-   * @protected
-   * @type {(Node | null)}
-   * @memberof Node
-   */
-  protected parent: Node | null = null;
-
-  /**
-   * [**Internal**]
-   * **Do not modify this manually**
-   *
    * The pointer to the next sibling node.
    *
    * @protected
@@ -98,6 +94,15 @@ export abstract class Node {
    * @memberof Node
    */
   protected sibling: Node | null = null;
+
+  /**
+   * A flag indicates whether the node has been destroyed.
+   */
+  public get IsDestroyed(): boolean {
+    return (
+      this.state === NodeState.Destroying || this.state === NodeState.Destroyed
+    );
+  }
 
   /**
    * [**Internal**]
@@ -127,15 +132,6 @@ export abstract class Node {
   private _isCachedChildrenDirty: boolean = true;
   private _lastChild: Node | null = null;
   private _prevSibling: Node | null = null;
-
-  /**
-   * A flag indicates whether the node has been destroyed.
-   */
-  public get IsDestroyed(): boolean {
-    return (
-      this.state === NodeState.Destroying || this.state === NodeState.Destroyed
-    );
-  }
 
   /**
    * [**Internal**]
