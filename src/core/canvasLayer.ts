@@ -25,7 +25,7 @@ export class CanvasLayer extends Transform {
     this.Bubble((node) => {
       if (node instanceof CanvasComposition) {
         composition = node;
-        return true;
+        return false;
       }
     });
 

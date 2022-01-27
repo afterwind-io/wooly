@@ -228,11 +228,12 @@ export abstract class Node {
   }
 
   public Bubble<T extends Node = Node>(
-    cb: (node: T) => boolean | undefined
+    cb: (node: T) => false | void,
+    skipSelf: boolean = true
   ): void {
-    let node: Node | null = this.parent;
+    let node: Node | null = skipSelf ? this.parent : this;
     while (node != null) {
-      if (cb(node as T)) {
+      if (cb(node as T) === false) {
         return;
       }
 

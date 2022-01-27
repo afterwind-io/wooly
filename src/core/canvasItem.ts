@@ -99,12 +99,12 @@ export abstract class CanvasItem extends Transform {
 
     this.Bubble((node) => {
       if (node instanceof CanvasComposition) {
-        return true;
+        return false;
       }
 
       if (node instanceof CanvasLayer) {
         layer = node.index;
-        return true;
+        return false;
       }
     });
 
@@ -121,7 +121,7 @@ export abstract class CanvasItem extends Transform {
     this.Bubble((node) => {
       if (node instanceof CanvasComposition) {
         composition = node.index;
-        return true;
+        return false;
       }
     });
 

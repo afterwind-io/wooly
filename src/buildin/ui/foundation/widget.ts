@@ -109,7 +109,7 @@ export abstract class Widget<
     this.Bubble((node) => {
       if (node instanceof WidgetRoot) {
         root = node;
-        return true;
+        return false;
       }
     });
 
@@ -164,7 +164,7 @@ export abstract class Widget<
 
       if (predicate(node)) {
         parent = node;
-        return true;
+        return false;
       }
     });
 
