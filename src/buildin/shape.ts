@@ -47,7 +47,7 @@ export class Shape extends Entity {
   }
 
   private DrawRectangle(ctx: CanvasRenderingContext2D) {
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.fillRect(0, 0, this.width, this.height);
   }
 
   private DrawCircle(ctx: CanvasRenderingContext2D) {

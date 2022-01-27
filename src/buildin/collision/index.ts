@@ -43,8 +43,8 @@ export class Collision extends Entity {
   public get Vertices(): Vector2[] {
     if (this.type === COLLISION_RECTANGLE) {
       return this.rectVerticesGetter(
-        this.w,
-        this.h,
+        this.width,
+        this.height,
         this.globalPosition,
         this.globalRotation,
         this.globalScale
@@ -73,9 +73,9 @@ export class Collision extends Entity {
 
     if (this.type === COLLISION_RECTANGLE) {
       ctx.moveTo(0, 0);
-      ctx.lineTo(this.w, 0);
-      ctx.lineTo(this.w, this.h);
-      ctx.lineTo(0, this.h);
+      ctx.lineTo(this.width, 0);
+      ctx.lineTo(this.width, this.height);
+      ctx.lineTo(0, this.height);
     }
     ctx.fill();
   }

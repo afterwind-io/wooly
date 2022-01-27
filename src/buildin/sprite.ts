@@ -41,10 +41,10 @@ export class Sprite extends Entity {
     const sw = this.clipSize.x || this.image.naturalWidth;
     const sh = this.clipSize.y || this.image.naturalHeight;
 
-    const dx = this.isCentered ? -this.w / 2 : this.offset.x;
-    const dy = this.isCentered ? -this.h / 2 : this.offset.y;
-    const dw = this.w || sw;
-    const dh = this.h || sh;
+    const dx = this.isCentered ? -this.width / 2 : this.offset.x;
+    const dy = this.isCentered ? -this.height / 2 : this.offset.y;
+    const dw = this.width || sw;
+    const dh = this.height || sh;
 
     const fh = this.isFlipH;
     const fv = this.isFlipV;

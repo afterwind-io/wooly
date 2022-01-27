@@ -97,7 +97,7 @@ export abstract class Entity<
    * @type {number}
    * @memberof Entity
    */
-  public w: number = 0;
+  public width: number = 0;
 
   /**
    * The height of the node.
@@ -105,7 +105,7 @@ export abstract class Entity<
    * @type {number}
    * @memberof Entity
    */
-  public h: number = 0;
+  public height: number = 0;
 
   /**
    * A flag indicates whether to update the entity or not.
@@ -220,7 +220,10 @@ export abstract class Entity<
    * @returns {boolean} True if hovering, and vice versa.
    * @memberof Entity
    */
-  public HitTest(width: number = this.w, height: number = this.h): boolean {
+  public HitTest(
+    width: number = this.width,
+    height: number = this.height
+  ): boolean {
     if (width * height === 0) {
       return false;
     }
@@ -314,7 +317,7 @@ export abstract class Entity<
    * @memberof Entity
    */
   public SetSize(w: number, h: number): this {
-    return (this.w = w), (this.h = h), this;
+    return (this.width = w), (this.height = h), this;
   }
 
   /**
