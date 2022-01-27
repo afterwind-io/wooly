@@ -10,7 +10,7 @@ import { ImageResource } from "./resource";
  * @extends {Entity}
  */
 export class Sprite extends Entity {
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
   public readonly name: string = "Sprite";
 
   public clipOrigin: Vector2 = new Vector2();

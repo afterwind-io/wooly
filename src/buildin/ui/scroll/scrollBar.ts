@@ -20,7 +20,7 @@ interface ScrollBarOptions {
 
 export class ScrollBar extends Widget<ScrollBarOptions> {
   public readonly name: string = "ScrollBar";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
   public readonly childSizeIndependent: boolean = true;
 
   public barLength: number = 0;

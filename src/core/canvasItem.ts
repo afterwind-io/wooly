@@ -19,12 +19,7 @@ export abstract class CanvasItem extends Transform {
    * ```typescript
    * export class MyEntity extends Entity {
    *   // Directly declare a property...
-   *   public readonly customDrawing: boolean = true;
-   *
-   *   public _Ready() {
-   *     // ...**Or** do it here ...
-   *     this.customDrawing = true;
-   *   }
+   *   public readonly enableDrawing: boolean = true;
    *
    *   public _Draw(ctx: CanvasRenderingContext2D) {
    *     // ...If you need some custom drawing
@@ -33,11 +28,8 @@ export abstract class CanvasItem extends Transform {
    *   }
    * }
    * ```
-   *
-   * @type {boolean}
-   * @memberof CanvasItem
    */
-  public customDrawing: boolean = false;
+  public readonly enableDrawing: boolean = false;
 
   /**
    * [**Internal**]

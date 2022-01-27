@@ -21,7 +21,7 @@ const DEFAULT_FILL_STYLE = "black";
 
 export class Text extends NoChildWidget<TextOptions> {
   public readonly name: string = "Text";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   public _Draw(ctx: CanvasRenderingContext2D) {
     const {

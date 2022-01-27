@@ -1,21 +1,24 @@
-import { SizableWidgetOptions, WidgetRenderables } from "./foundation/types";
+import { SizableWidgetOptions } from "./foundation/types";
 import { Align } from "./align";
 import { Text } from "./text";
-import { SingleChildWidget } from "./foundation/singleChildWidget";
 import { BoxDecoration } from "./boxDecoration";
 import { Edge } from "./common/edge";
 import { MouseSensor } from "./mouseSensor";
 import { Theme } from "./common/theme";
 import { SwitchCursor } from "./common/utils";
-import { Length } from "./common/types";
 import { Reactive } from "./foundation/decorator";
+import { CompositeWidget } from "./foundation/compositeWidget";
+import { Widget } from "./foundation/widget";
+import { Blackhole } from "../../util/common";
+import { Container } from "./container";
 
 interface ButtonOptions extends SizableWidgetOptions {
   label?: string;
   onClick?(): void;
+  padding?: Edge;
 }
 
-export class Button extends SingleChildWidget<ButtonOptions> {
+export class Button extends CompositeWidget<ButtonOptions> {
   public readonly name: string = "Button";
 
   protected readonly isLooseBox: boolean = false;
@@ -23,8 +26,9 @@ export class Button extends SingleChildWidget<ButtonOptions> {
   protected _backgroundColor: string = "white";
   protected _borderColor: string = Theme.BorderNormal;
 
-  protected _Render(): WidgetRenderables {
-    const { label = "" } = this.options;
+  protected _Render(): Widget | null {
+    const { width, height, padding, label } = this
+      .options as Required<ButtonOptions>;
 
     return new MouseSensor({
       onHover: this.OnMouseHover,
@@ -36,20 +40,28 @@ export class Button extends SingleChildWidget<ButtonOptions> {
         border: Edge.All(1),
         borderColor: this._borderColor,
         child: Align.Center({
-          child: new Text({
-            content: label,
+          width,
+          height,
+          child: Container.Shrink({
+            padding,
+            child: new Text({
+              content: label,
+            }),
           }),
         }),
       }),
     });
   }
 
-  protected GetHeight(): Length {
-    return this.options.height || "shrink";
-  }
-
-  protected GetWidth(): Length {
-    return this.options.width || "shrink";
+  protected NormalizeOptions(options: ButtonOptions): ButtonOptions {
+    return {
+      width: "shrink",
+      height: "shrink",
+      padding: Edge.All(8),
+      label: "",
+      onClick: Blackhole,
+      ...options,
+    };
   }
 
   @Reactive

@@ -92,7 +92,7 @@ export const PaintManager = new (class PaintManager {
     ctx: CanvasRenderingContext2D,
     baseAffineMatrix: Matrix2d
   ): void {
-    if (!node.customDrawing) {
+    if (!node.enableDrawing) {
       return;
     }
 

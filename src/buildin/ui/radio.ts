@@ -14,7 +14,7 @@ interface RadioOptions<T> extends SizableWidgetOptions {
 
 export class Radio<T = unknown> extends SingleChildWidget<RadioOptions<T>> {
   public readonly name: string = "Radio";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   protected readonly isLooseBox: boolean = false;
 

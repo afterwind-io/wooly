@@ -26,7 +26,7 @@ interface BoxDecorationOptions extends BaseOptions {
 
 export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
   public readonly name: string = "BoxDecoration";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   protected readonly isLooseBox: boolean = false;
 

@@ -190,6 +190,10 @@ export abstract class Widget<
     return context;
   }
 
+  public GetDisplayName(): string {
+    return this.name || this.constructor.name;
+  }
+
   protected GetFirstChild(): Widget | null {
     const child = this.child;
     if (!child) {

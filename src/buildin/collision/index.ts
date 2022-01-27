@@ -15,7 +15,7 @@ const CollisionLayers: number[] = [];
 const CollisionLayerMap: Record<number, Collision[]> = {};
 
 export class Collision extends Entity {
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   public type: CollisionType = COLLISION_CIRCLE;
   public radius: number = 0;

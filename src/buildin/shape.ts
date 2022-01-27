@@ -7,7 +7,7 @@ export const SHAPE_RECT = 0 as ShapeType;
 export const SHAPE_CIRCLE = 1 as ShapeType;
 
 export class Shape extends Entity {
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   private type: ShapeType;
 

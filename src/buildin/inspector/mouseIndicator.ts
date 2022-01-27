@@ -75,7 +75,7 @@ export class InspectorMouseIndicator extends SingleChildWidget {
 
 class MouseIndicator extends Entity {
   public readonly name: string = "MouseIndicator";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   private _x: number = 0;
   private _y: number = 0;

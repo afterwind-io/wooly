@@ -13,7 +13,7 @@ interface CheckboxOptions extends SizableWidgetOptions {
 
 export class Checkbox extends SingleChildWidget<CheckboxOptions> {
   public readonly name: string = "Checkbox";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   protected readonly isLooseBox: boolean = false;
 

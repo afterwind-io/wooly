@@ -23,7 +23,7 @@ interface TextInputOptions extends SizableWidgetOptions {
  */
 export class TextInput extends SingleChildWidget<TextInputOptions> {
   public readonly name: string = "TextInput";
-  public readonly customDrawing: boolean = true;
+  public readonly enableDrawing: boolean = true;
 
   protected readonly isLooseBox: boolean = false;
 
