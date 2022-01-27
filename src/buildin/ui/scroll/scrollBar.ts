@@ -1,3 +1,4 @@
+import { DragDropState } from "../../../core/manager/input";
 import { Vector2 } from "../../../util/vector2";
 import { Input } from "../../media/input";
 import { Constraint } from "../common/constraint";
@@ -6,7 +7,7 @@ import { SwitchCursor } from "../common/utils";
 import { BindThis } from "../foundation/decorator";
 import { WidgetElement } from "../foundation/types";
 import { Widget } from "../foundation/widget";
-import { DragDropState, MouseSensor } from "../mouseSensor";
+import { MouseSensor } from "../mouseSensor";
 import { ScrollDirection } from "./types";
 
 export const BAR_SIZE = 6;

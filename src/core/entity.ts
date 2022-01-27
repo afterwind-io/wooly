@@ -5,6 +5,7 @@ import { Vector2 } from "../util/vector2";
 import { Input } from "../buildin/media/input";
 import { ViewportManager } from "./manager/viewport";
 import { GetUniqId } from "../util/idgen";
+import { EntityInputEvent, MouseState } from "./manager/input";
 
 /**
  * The global entity group map.
@@ -73,7 +74,37 @@ export abstract class Entity<
   SIGNALS extends EntitySignals = EntitySignals
 > extends CanvasItem {
   /**
-   * [**Not Implemented**]
+   * Indicates whether to receive input events through `_Input` lifecycle method.
+   * 
+   * @example
+   * ```typescript
+   * export class MyEntity extends Entity {
+   *   // Directly declare a property...
+   *   public readonly enableInputEvents: boolean = true;
+   *
+   *   public _Input(event: EntityInputEvent): false | void {
+   *     // ...If you need some input events
+   *   }
+   * }
+   * ```
+   */
+  public readonly enableInputEvents: boolean = false;
+
+  /**
+   * Defines whether the entity can be dragged or not.
+   *
+   * @default false
+   */
+  public draggable: boolean = false;
+
+  /**
+   * Defines whether the entity is a valid drop target.
+   *
+   * @default false
+   */
+  public droppable: boolean = false;
+
+  /**
    * The unique id.
    *
    * @type {number}
@@ -117,6 +148,14 @@ export abstract class Entity<
    * @memberof Entity
    */
   public paused: boolean = false;
+
+  /**
+   * [**Internal**]
+   * **Do not modify this manually**
+   *
+   * The state machine for mouse events.
+   */
+  public _mouseState: MouseState = new MouseState(this);
 
   /**
    * [**Internal**]
@@ -319,6 +358,15 @@ export abstract class Entity<
   public SetSize(w: number, h: number): this {
     return (this.width = w), (this.height = h), this;
   }
+
+  /**
+   * [**Lifecycle**]
+   * Called on input event occurs iif `enableInputEvents` set to `true`.
+   *
+   * @param event An object represents the detail of the triggered event.
+   * @returns If returns false, the propagation of the events will be stopped.
+   */
+  public _Input(event: EntityInputEvent): false | void {}
 
   /**
    * [**Lifecycle**]

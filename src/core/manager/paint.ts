@@ -6,6 +6,8 @@ import { DPRMatrix } from "../globals";
 import { ViewportManager } from "./viewport";
 
 export const PaintManager = new (class PaintManager {
+  public onPaintNode!: (node: CanvasItem) => void;
+
   private clearColor: string = "white";
 
   public Paint() {
@@ -79,6 +81,7 @@ export const PaintManager = new (class PaintManager {
         stack.Traverse((node) => {
           if (node instanceof CanvasItem) {
             this.DrawNode(node, ctx, baseAffineMatrix);
+            this.onPaintNode(node);
           } else {
             this.DrawComposition(ctx, node);
           }

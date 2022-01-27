@@ -37,6 +37,7 @@ export { State, StateMachine } from "./buildin/fsm";
 export { Timer, TimerBehavior } from "./buildin/timer";
 export { Camera } from "./buildin/camera";
 export { Inspector } from "./buildin/inspector/index";
+export { DevTools } from "./buildin/devtools";
 
 // UI Widgets
 export { Align, Alignment } from "./buildin/ui/align";
@@ -53,7 +54,7 @@ export {
   Column,
 } from "./buildin/ui/flex/flex";
 export { Grid } from "./buildin/ui/grid";
-export { DragDropState, MouseSensor } from "./buildin/ui/mouseSensor";
+export { MouseSensor } from "./buildin/ui/mouseSensor";
 export { Opacity } from "./buildin/ui/opacity";
 export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll/scroll";

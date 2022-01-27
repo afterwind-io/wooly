@@ -1,4 +1,5 @@
 export const enum PipelineTaskPriority {
+  Input = 50,
   Update = 100,
   UpdateWidget = 150,
   BatchFree = 200,

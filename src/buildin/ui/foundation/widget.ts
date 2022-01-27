@@ -146,8 +146,6 @@ export abstract class Widget<
     return this._fiber;
   }
 
-  public _Input(e: InputEvent) {}
-
   protected abstract _Layout(constraint: Constraint): Size;
 
   protected abstract _Render(): WidgetElement;
