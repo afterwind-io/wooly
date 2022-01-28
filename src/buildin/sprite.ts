@@ -15,7 +15,6 @@ export class Sprite extends Entity {
 
   public clipOrigin: Vector2 = new Vector2();
   public clipSize: Vector2 = new Vector2();
-  public offset: Vector2 = new Vector2();
 
   protected image: HTMLImageElement = new Image();
   protected isFlipH: boolean = false;
@@ -41,8 +40,8 @@ export class Sprite extends Entity {
     const sw = this.clipSize.x || this.image.naturalWidth;
     const sh = this.clipSize.y || this.image.naturalHeight;
 
-    const dx = this.isCentered ? -this.width / 2 : this.offset.x;
-    const dy = this.isCentered ? -this.height / 2 : this.offset.y;
+    const dx = this.isCentered ? -this.width / 2 : this.origin.x;
+    const dy = this.isCentered ? -this.height / 2 : this.origin.y;
     const dw = this.width || sw;
     const dh = this.height || sh;
 
@@ -164,6 +163,6 @@ export class Sprite extends Entity {
    * @memberof Sprite
    */
   public SetOffset(o: Vector2): this {
-    return (this.offset = o), this;
+    return (this.origin = o), this;
   }
 }

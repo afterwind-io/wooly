@@ -22,6 +22,7 @@ export class Transform extends Widget<TransformOptions> {
 
       const { translate, rotation, scale } = this
         .options as Required<TransformOptions>;
+      child.origin = new Vector2(-size.width / 2, -size.height / 2);
       child.position = translate;
       child.rotation = rotation;
       child.scale = new Vector2(scale, scale);

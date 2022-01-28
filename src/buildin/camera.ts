@@ -8,7 +8,6 @@ export class Camera extends Entity {
   public readonly name: string = "Camera";
 
   private isCentered: boolean = false;
-  private offset: Vector2 = new Vector2();
   private targetComposition: number | undefined = void 0;
   private targetLayer: number | undefined = void 0;
 
@@ -26,7 +25,7 @@ export class Camera extends Entity {
     viewport.rotation = this.globalRotation;
     viewport.zoom = this.scale;
 
-    let offset = this.offset;
+    let offset = this.origin;
     if (this.isCentered) {
       offset = offset.Add(CanvasManager.Dimension.Multiply(0.5));
     }
@@ -42,7 +41,7 @@ export class Camera extends Entity {
   }
 
   public Pan(delta: Vector2) {
-    this.offset = this.offset.Add(delta);
+    this.origin = this.origin.Add(delta);
   }
 
   public Rotate(delta: number) {

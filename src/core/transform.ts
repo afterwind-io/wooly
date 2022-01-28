@@ -5,9 +5,25 @@ import { Node } from "./node";
 export class Transform extends Node {
   public parent: Transform | null = null;
 
+  private offsetMatrix: Matrix2d = Matrix2d.Identity();
   private localTransform: Matrix2d = Matrix2d.Identity();
   private cachedGlobalTransform: Matrix2d = Matrix2d.Identity();
   private isCachedGlobalTransformDirty: boolean = true;
+
+  /**
+   * The pivot point of the local transform.
+   * Default is the left-top corner of the Entity.
+   *
+   * For example, if you want to rotate the Entity by its center,
+   * you may set `origin` to `new Vector2(this.width / 2, this.height / 2)`.
+   */
+  public get origin(): ReadonlyVector2 {
+    return this.offsetMatrix.translation;
+  }
+  public set origin(offset: ReadonlyVector2) {
+    this.offsetMatrix.translation = offset;
+    this.$UpdateCachedTransform();
+  }
 
   /**
    * The local position relative to parent.
@@ -15,7 +31,6 @@ export class Transform extends Node {
   public get position(): ReadonlyVector2 {
     return this.localTransform.translation;
   }
-
   public set position(pos: ReadonlyVector2) {
     this.localTransform.translation = pos;
     this.$UpdateCachedTransform();
@@ -27,7 +42,6 @@ export class Transform extends Node {
   public get rotation(): number {
     return this.localTransform.rotation;
   }
-
   public set rotation(rad: number) {
     this.localTransform.rotation = rad;
     this.$UpdateCachedTransform();
@@ -35,16 +49,12 @@ export class Transform extends Node {
 
   /**
    * The local scale relative to parent.
+   *
+   * *Negative scale is not supported.*
    */
   public get scale(): ReadonlyVector2 {
     return this.localTransform.scale;
   }
-
-  /**
-   * Set the scale of the transform.
-   *
-   * *Negative scale is not supported.*
-   */
   public set scale(s: ReadonlyVector2) {
     this.localTransform.scale = s;
     this.$UpdateCachedTransform();
@@ -90,9 +100,11 @@ export class Transform extends Node {
     if (this.isCachedGlobalTransformDirty) {
       this.isCachedGlobalTransformDirty = false;
 
-      this.cachedGlobalTransform = this.parent.globalTransformMatrix.Multiply(
-        this.localTransform
-      );
+      const local = this.offsetMatrix
+        .Invert()
+        .MultiplyMut(this.localTransform.Multiply(this.offsetMatrix));
+      this.cachedGlobalTransform =
+        this.parent.globalTransformMatrix.Multiply(local);
     }
 
     return this.cachedGlobalTransform;
