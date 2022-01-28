@@ -358,10 +358,10 @@ export abstract class Widget<
 
           // 未设定key的节点直接丢弃
           oldFiber.instance.Free();
-          continue;
+        } else {
+          oldKeyMap.set(oldKey, oldFiber);
         }
 
-        oldKeyMap.set(oldKey, oldFiber);
         oldFibersTop++;
       }
     }
