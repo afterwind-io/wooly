@@ -325,7 +325,7 @@ export class Scroll extends Widget<ScrollOptions> {
       return;
     }
 
-    if (!this.HitTest(this._intrinsicWidth, this._intrinsicHeight)) {
+    if (!this.HitTest()) {
       return;
     }
 

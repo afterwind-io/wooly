@@ -192,6 +192,17 @@ export abstract class Widget<
     return this.name || this.constructor.name;
   }
 
+  /**
+   * @override
+   */
+  public HitTest(): boolean {
+    return super.HitTest(this._intrinsicWidth, this._intrinsicHeight);
+  }
+
+  public Refresh(): void {
+    this.root.OnWidgetUpdate(this);
+  }
+
   protected GetFirstChild(): Widget | null {
     const child = this.child;
     if (!child) {
@@ -205,10 +216,6 @@ export abstract class Widget<
     }
 
     return child as Widget;
-  }
-
-  public Refresh(): void {
-    this.root.OnWidgetUpdate(this);
   }
 
   protected NormalizeOptions(options: OPT): OPT {
