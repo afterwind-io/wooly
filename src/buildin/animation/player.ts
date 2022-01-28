@@ -1,5 +1,5 @@
-import { Entity } from '../../core/entity';
-import { Animation } from './animation';
+import { Entity } from "../../core/entity";
+import { Animation } from "./animation";
 
 export class AnimationPlayer extends Entity {
   private animeMap: Record<string, Animation> = {};
@@ -10,9 +10,7 @@ export class AnimationPlayer extends Entity {
       return;
     }
 
-    if (!this.current.isFinished) {
-      this.current.Step(delta);
-    }
+    this.current.Step(delta);
   }
 
   public AddAnimation(animation: Animation): this {
