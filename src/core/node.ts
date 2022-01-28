@@ -223,6 +223,7 @@ export abstract class Node {
     this._isCachedChildrenDirty = true;
 
     if (this.state === NodeState.Ready) {
+      node.depth = this.depth + 1;
       node.$Ready();
     }
   }
@@ -311,6 +312,7 @@ export abstract class Node {
     this._isCachedChildrenDirty = true;
 
     if (this.state === NodeState.Ready) {
+      child.depth = this.depth + 1;
       child.$Ready();
     }
   }
