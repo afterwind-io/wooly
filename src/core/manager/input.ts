@@ -1,6 +1,7 @@
 import { Input } from "../../buildin/media/input";
 import { Blackhole } from "../../util/common";
 import { ReadonlyVector2, Vector2 } from "../../util/vector2";
+import { CanvasItem } from "../canvasItem";
 import { Entity } from "../entity";
 import { Node } from "../node";
 import { PipeLineTask } from "../pipeline";
@@ -323,9 +324,12 @@ interface EntityInputEventListener {
 }
 
 export const InputManager = new (class InputManager {
-  public readonly listeners: EntityInputEventListener[] = [];
+  /**
+   * 所有`_Input`事件监听元素的临时缓存
+   */
+  private readonly listeners: EntityInputEventListener[] = [];
 
-  public PickListener = (node: Node): void => {
+  public PickListener = (node: CanvasItem): void => {
     if (node instanceof Entity && node.enableInputEvents) {
       this.listeners.push({
         target: node,
@@ -335,62 +339,65 @@ export const InputManager = new (class InputManager {
   };
 
   public DispatchEvents(): void {
+    // 分发队列
     const queue = this.listeners;
 
-    // 记录是否有元素通过了HitTest
-    let hasPassedHitTest = false;
+    // 记录通过了HitTest的元素
+    let hitTarget: Entity | null = null;
 
-    // 由于队列中的元素顺序跟随绘图顺序，但HitTest需要从元素叠放次序自顶向下检查，
+    // 记录鼠标左键是否按下
+    let isMouseButtonDown: boolean = Input.IsMouseDown(Input.BUTTON_LEFT);
+
+    // 由于分发队列中的元素顺序跟随绘图顺序，但HitTest需要根据元素叠放次序自顶向下检查，
     // 因此以逆序遍历数组
-    let count = queue.length;
-    while (count-- > 0) {
-      const { target, version } = queue[count];
+    let i = queue.length;
+    while (i-- > 0) {
+      const { target, version } = queue[i];
 
       // 在事件分发过程中，如果队列中的某个元素是之前另一个已经派发过事件的元素的祖先，
-      // 并且该元素的version比进入队列时的version快照要大，那么说明
+      // 并且该元素当前的version比进入队列时的version快照要大，那么说明
       // 该元素之前已经被冒泡派发过一次事件了，不应该再重复步进事件状态机，因此直接跳过。
       if (version < target._mouseState.version) {
         continue;
       }
 
-      // 如果有元素通过HitTest，则队列中后续元素的鼠标悬浮和点击判定结果一律视作false。
+      // 如果有元素通过HitTest，则分发队列中后续元素的鼠标悬浮和点击判定结果一律视作false。
       // 该机制主要用以防止鼠标操作穿透。
-      let isKeyDown = false;
-      let isHit = false;
-      if (!hasPassedHitTest) {
-        isKeyDown = Input.IsMouseDown(Input.BUTTON_LEFT);
-        isHit = target.HitTest();
-        if (isHit) {
-          hasPassedHitTest = true;
-        }
+      if (hitTarget) {
+        Dispatch(target, false, false);
+        continue;
       }
 
-      target._mouseState.Step(
-        isHit,
-        isKeyDown,
+      const isHit = target.HitTest();
+      if (isHit) {
+        hitTarget = target;
 
-        // 状态机更新途中可能会多次触发事件
-        (type: keyof EntityInputEventMap) => {
-          let canPropagate: boolean = true;
+        // HitTest通过的元素会被递延执行事件派发（原因见下方注释）
+        // 如果该元素的祖先节点也监听了_Input，那么它一定会出现在分发队列的后续元素中。
+        // 因此为了避免祖先节点被后续队列遍历派发了错误的事件，此处先向上冒泡一次，
+        // 更新祖先节点的状态version，从而利用上方的版本比对机制跳过派发操作。
+        target.Bubble((ancestor) => {
+          if (IsDispatchTarget(ancestor)) {
+            ancestor._mouseState.version++;
+          }
+        }, false);
 
-          const event = new EntityInputEvent(target, type, GlobalDragDropState);
-          canPropagate = (target._Input(event) ?? true) && canPropagate;
+        continue;
+      }
 
-          // 对事件进行冒泡
-          target.Bubble((ancestor) => {
-            if (!(ancestor instanceof Entity) || !ancestor.enableInputEvents) {
-              return;
-            }
+      // 为未通过HitTest的元素正常分发事件
+      Dispatch(target, false, isMouseButtonDown);
+    }
 
-            // 由于父节点的事件由子节点冒泡而来，因此自身状态机不再生成新的事件
-            ancestor._mouseState.Step(ancestor.HitTest(), isKeyDown, Blackhole);
-
-            if (canPropagate) {
-              canPropagate = (ancestor._Input(event) ?? true) && canPropagate;
-            }
-          });
-        }
-      );
+    // 递延分发先前通过HitTest的元素的事件。
+    // 该机制保证了通过HitTest元素触发事件的执行结果，不会被未通过元素的事件操作所覆盖。
+    //
+    // 比如，有两个元素A、B均分别监听了"MouseEnter"和"MouseLeave"两个事件，
+    // 并且都在事件回调中操作了某个相同的变量。如果在分发队列中，A的顺序在B之前，
+    // 那么就会发生A的"MouseEnter"结果被B的"MouseLeave"覆写。这种错误常发生于
+    // 切换鼠标光标等场合。
+    if (hitTarget) {
+      Dispatch(hitTarget, true, isMouseButtonDown);
     }
   }
 
@@ -398,6 +405,49 @@ export const InputManager = new (class InputManager {
     this.listeners.length = 0;
   }
 })();
+
+function IsDispatchTarget(node: Node): node is Entity {
+  return node instanceof Entity && node.enableInputEvents;
+}
+
+function Dispatch(
+  target: Entity,
+  isHit: boolean,
+  isMouseButtonDown: boolean
+): void {
+  target._mouseState.Step(
+    isHit,
+    isMouseButtonDown,
+
+    // 状态机更新途中可能会多次触发事件
+    (type: keyof EntityInputEventMap) => {
+      const event = new EntityInputEvent(target, type, GlobalDragDropState);
+
+      let canPropagate = target._Input(event) ?? true;
+      if (!isHit && !isMouseButtonDown) {
+        return;
+      }
+
+      // 对事件进行冒泡
+      target.Bubble((ancestor) => {
+        if (!IsDispatchTarget(ancestor)) {
+          return;
+        }
+
+        ancestor._mouseState.Step(
+          ancestor.HitTest(),
+          isMouseButtonDown,
+          // 由于祖先节点的事件由子节点冒泡而来，因此自身状态机不再生成新的事件
+          Blackhole
+        );
+
+        if (canPropagate) {
+          canPropagate = (ancestor._Input(event) ?? true) && canPropagate;
+        }
+      });
+    }
+  );
+}
 
 export class TaskInput implements PipeLineTask {
   public readonly priority: number = PipelineTaskPriority.Input;
