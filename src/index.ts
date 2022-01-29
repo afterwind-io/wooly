@@ -85,6 +85,9 @@ export { CompositeWidget } from "./buildin/ui/foundation/compositeWidget";
 export { CreateWidgetRef, WidgetRefObject } from "./buildin/ui/foundation/ref";
 export { CreateWidgetContext } from "./buildin/ui/foundation/context";
 
+// UI utils
+export { SwitchCursor } from "./buildin/ui/common/utils";
+
 // utils
 export { Vector2 } from "./util/vector2";
 export { Color } from "./util/color";
