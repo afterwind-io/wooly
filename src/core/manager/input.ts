@@ -207,7 +207,7 @@ export class MouseState {
       }
 
       case MouseDragDrop.DragPending: {
-        if (!isMouseWithin || !isMouseButtonDown) {
+        if (!isMouseButtonDown) {
           return MouseDragDrop.None;
         }
 
