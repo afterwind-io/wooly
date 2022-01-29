@@ -231,6 +231,10 @@ export abstract class Entity<
     this.signals.EmitWithWarning(signal, ...args);
   }
 
+  public GetDisplayName(): string {
+    return this.name || this.constructor.name;
+  }
+
   /**
    * Get all Entities from the specified group.
    *

@@ -188,8 +188,18 @@ export abstract class Widget<
     return context;
   }
 
+  /**
+   * @override
+   */
   public GetDisplayName(): string {
-    return this.name || this.constructor.name;
+    const tag = this.options.tag;
+
+    const name = this.name || this.constructor.name;
+    if (!tag) {
+      return name;
+    }
+
+    return `${tag} (${name})`;
   }
 
   /**

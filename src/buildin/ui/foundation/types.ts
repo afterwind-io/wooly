@@ -8,6 +8,7 @@ export type WidgetRenderables = WidgetElement;
 export interface CommonWidgetOptions {
   key?: string | number | symbol;
   ref?: WidgetRefObject<unknown>;
+  tag?: string;
 }
 
 export interface SizableWidgetOptions {
