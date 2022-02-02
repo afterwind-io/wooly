@@ -31,28 +31,32 @@ const GlobalDragDropState = new (class DragDropState {
     return currentPosition.Subtract(this.dragStartPosition);
   }
 
-  public ClearSource(): void {
-    this.source = null;
-  }
-
   public ClearData(): void {
     this.data = null;
+  }
+
+  public ClearSource(): void {
+    this.source = null;
   }
 
   public GetData(): any {
     return this.data;
   }
 
+  public GetSource(): Entity | null {
+    return this.source;
+  }
+
   public SetData(data: any = null): void {
     this.data = data;
   }
 
-  public SetDragStartPoint(): void {
-    this.dragStartPosition = Input.GetMousePosition();
-  }
-
   public SetSource(source: Entity): void {
     this.source = source;
+  }
+
+  public SetDragStartPoint(): void {
+    this.dragStartPosition = Input.GetMousePosition();
   }
 })();
 
@@ -346,7 +350,7 @@ export const InputManager = new (class InputManager {
     let hitTarget: Entity | null = null;
 
     // 记录鼠标左键是否按下
-    let isMouseButtonDown: boolean = Input.IsMouseDown(Input.BUTTON_LEFT);
+    const isMouseButtonDown: boolean = Input.IsMouseDown(Input.BUTTON_LEFT);
 
     // 由于分发队列中的元素顺序跟随绘图顺序，但HitTest需要根据元素叠放次序自顶向下检查，
     // 因此以逆序遍历数组
@@ -358,6 +362,17 @@ export const InputManager = new (class InputManager {
       // 并且该元素当前的version比进入队列时的version快照要大，那么说明
       // 该元素之前已经被冒泡派发过一次事件了，不应该再重复步进事件状态机，因此直接跳过。
       if (version < target._mouseState.version) {
+        continue;
+      }
+
+      // 如果当前处于拖放操作中，那么除了被拖动的元素外，
+      // 其它元素均不应再进行HitTest，鼠标悬浮和点击判定结果一律视作false。
+      // 该机制主要为了防止被拖动元素的状态被某个其它接收点击事件的元素意外打断。
+      if (
+        GlobalDragDropState.isDragging &&
+        target !== GlobalDragDropState.GetSource()
+      ) {
+        Dispatch(target, false, false);
         continue;
       }
 
