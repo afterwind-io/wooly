@@ -75,7 +75,7 @@ export abstract class Entity<
 > extends CanvasItem {
   /**
    * Indicates whether to receive input events through `_Input` lifecycle method.
-   * 
+   *
    * @example
    * ```typescript
    * export class MyEntity extends Entity {
@@ -409,16 +409,13 @@ export abstract class Entity<
    * Calculate the actual screen position of a specified point relative to the
    * current entity.
    *
-   * @protected
-   * @internal
-   * @param {Vector2} [point]
+   * @param point
    * The point relative to the current entity. If not given, returns the result
    * of current local position.
    *
-   * @returns {Vector2}
-   * @memberof Entity
+   * @returns
    */
-  protected ConvertToScreenPosition(point: Vector2): Vector2 {
+  public ConvertToScreenPosition(point: Vector2): Vector2 {
     let position: Vector2 = point;
 
     const viewport = ViewportManager.Get(

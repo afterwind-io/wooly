@@ -1,5 +1,5 @@
-import { SystemSignal } from "./systemSignal";
 import { LinkedList } from "./struct/linkedList";
+import { SystemSignal } from "./systemSignal";
 
 /**
  * The flag indicates the lifecycle of the node.
@@ -88,12 +88,8 @@ export abstract class Node {
    * **Do not modify this manually**
    *
    * The pointer to the next sibling node.
-   *
-   * @protected
-   * @type {(Node | null)}
-   * @memberof Node
    */
-  protected sibling: Node | null = null;
+  public sibling: Node | null = null;
 
   /**
    * A flag indicates whether the node has been destroyed.
@@ -109,12 +105,8 @@ export abstract class Node {
    * **Do not modify this manually**
    *
    * The child nodes.
-   *
-   * @abstract
-   * @type {Node[]}
-   * @memberof Node
    */
-  protected get children(): Node[] {
+  public get children(): Node[] {
     if (this._isCachedChildrenDirty) {
       this._isCachedChildrenDirty = false;
 
@@ -265,6 +257,16 @@ export abstract class Node {
     this.state = NodeState.Destroying;
 
     SystemSignal.Emit("OnTreeUpdate", this, "delete");
+  }
+
+  /**
+   * [**Internal**]
+   * *For Devtools Only*
+   * 
+   * Get a proper name to identify what the current node is for.
+   */
+  public GetDisplayName(): string {
+    return this.constructor.name;
   }
 
   /**
