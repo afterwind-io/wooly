@@ -5,10 +5,18 @@ export class NodeMask extends Entity {
   public readonly name: string = "NodeMask";
   public readonly enableDrawing: boolean = true;
 
-  public _node: Node | null = null;
+  public _inspectingNode: Node | null = null;
+  public _peekingNode: Node | null = null;
 
   public _Draw(ctx: CanvasRenderingContext2D): void {
-    const node = this._node;
+    this.DrawMask(ctx, this._inspectingNode);
+
+    if (this._inspectingNode !== this._peekingNode) {
+      this.DrawMask(ctx, this._peekingNode);
+    }
+  }
+
+  private DrawMask(ctx: CanvasRenderingContext2D, node: Node | null) {
     if (!node) {
       return;
     }

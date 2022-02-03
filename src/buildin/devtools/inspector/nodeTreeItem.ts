@@ -16,76 +16,146 @@ import { Size } from "../../ui/common/types";
 import { WidgetRoot } from "../../ui/root";
 import { CanvasLayer } from "../../../core/canvasLayer";
 import { CanvasComposition } from "../../../core/canvasComposition";
+import { InspectorContext } from "./context";
+import { BoxDecoration } from "../../ui/boxDecoration";
+import { Align, Alignment } from "../../ui/align";
+import { SwitchCursor } from "../../ui/common/utils";
+import { Input } from "../../media/input";
 
-interface NodeTreeItemOptions {
+interface NodeTreeOptions {
   node: Node;
-  onInspect(entity: Node): void;
+  recursiveExpand?: boolean;
 }
 
-export class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
-  public readonly name: string = "NodeTreeItem";
+export class NodeTree extends CompositeWidget<NodeTreeOptions> {
+  public readonly name: string = "NodeTree";
 
-  private _isExpanded: boolean = false;
+  private _isExpanded: boolean;
+  private _isRecursiveExpand: boolean;
+
+  public constructor(options: NodeTreeOptions) {
+    super(options);
+
+    const { recursiveExpand = false } = options;
+    this._isExpanded = recursiveExpand;
+    this._isRecursiveExpand = recursiveExpand;
+  }
 
   @Reactive
   private OnExpand(): void {
     this._isExpanded = !this._isExpanded;
+
+    if (Input.IsKeyDown(" ")) {
+      this._isRecursiveExpand = true;
+    }
   }
 
   protected _Render(): Widget | null {
-    const { node, onInspect } = this.options;
+    const { node } = this.options;
 
-    const { colorTextNormal } = ThemeContext.Of(this);
+    let recursiveExpand = this._isRecursiveExpand;
+    if (recursiveExpand) {
+      this._isRecursiveExpand = false;
+    }
+
+    return Column.Shrink({
+      children: [
+        new NodeTreeItem({
+          node,
+          isExpand: this._isExpanded,
+          onExpand: this.OnExpand,
+        }),
+
+        this._isExpanded
+          ? Column.Shrink({
+              children: node.children.map(
+                (child) =>
+                  new NodeTree({
+                    node: child,
+                    recursiveExpand,
+                  })
+              ),
+            })
+          : null,
+      ],
+    });
+  }
+}
+
+interface NodeTreeItemOptions {
+  node: Node;
+  isExpand: boolean;
+  onExpand(): void;
+}
+
+class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
+  public readonly name: string = "NodeTreeItem";
+
+  private _isHovering: boolean = false;
+
+  @Reactive
+  private OnHover(isHovering: boolean) {
+    this._isHovering = isHovering;
+
+    const { node } = this.options;
+    const { onPeek } = InspectorContext.Of(this);
+    onPeek(isHovering ? node : null);
+
+    SwitchCursor(isHovering, "pointer");
+  }
+
+  protected _Render(): Widget | null {
+    const { node, isExpand, onExpand } = this.options;
+
+    const { backgroundL1, colorTextNormal } = ThemeContext.Of(this);
+    const { inspectingNode, onInspect } = InspectorContext.Of(this);
 
     // FIXME 用_lastChild判断开销比较小
     const hasChildren = node.children.length !== 0;
 
-    return Column.Shrink({
+    const isInspectingSelf: boolean = inspectingNode === node;
+
+    return Row({
+      width: "shrink",
+      height: 20,
+      crossAxisAlignment: FlexCrossAxisAlignment.Center,
       children: [
-        Row({
-          width: "shrink",
-          height: 20,
-          crossAxisAlignment: FlexCrossAxisAlignment.Center,
-          children: [
-            Container.Shrink({
-              margin: Edge.Right(6),
-              child: new Transform({
-                rotation: this._isExpanded ? Deg2Rad(90) : 0,
-                child: new ExpandSwitcher({
-                  enabled: hasChildren,
-                  onExpand: this.OnExpand,
+        new Container({
+          width: 8 * node.depth,
+          child: null,
+        }),
+        Container.Shrink({
+          margin: Edge.Right(6),
+          child: new Transform({
+            rotation: isExpand ? Deg2Rad(90) : 0,
+            child: new ExpandSwitcher({
+              enabled: hasChildren,
+              onExpand,
+            }),
+          }),
+        }),
+        new TypeIcon({
+          node,
+        }),
+        new MouseSensor({
+          onClick: () => onInspect(node),
+          onHover: this.OnHover,
+          child: new BoxDecoration({
+            height: "stretch",
+            backgroundColor:
+              isInspectingSelf || this._isHovering ? backgroundL1 : void 0,
+            child: Container.Shrink({
+              padding: Edge.Horizontal(6),
+              child: new Align({
+                width: "shrink",
+                alignment: Alignment.Left,
+                child: new Text({
+                  content: node.GetDisplayName(),
+                  fillStyle: colorTextNormal,
                 }),
               }),
             }),
-            Container.Shrink({
-              margin: Edge.Right(6),
-              child: new TypeIcon({
-                node,
-              }),
-            }),
-            new MouseSensor({
-              onClick: () => onInspect(node),
-              child: new Text({
-                content: node.GetDisplayName(),
-                fillStyle: colorTextNormal,
-              }),
-            }),
-          ],
-        }),
-
-        Container.Shrink({
-          padding: Edge.Left(8),
-          child: this._isExpanded
-            ? Column.Shrink({
-                children: node.children.map(
-                  (child) =>
-                    new NodeTreeItem({
-                      node: child,
-                      onInspect,
-                    })
-                ),
-              })
-            : null,
+          }),
         }),
       ],
     });
@@ -99,6 +169,10 @@ interface ExpandSwitcherOptions {
 class ExpandSwitcher extends CompositeWidget<ExpandSwitcherOptions> {
   public readonly name: string = "EntityTreeItemExpandSwitcher";
   public readonly enableDrawing: boolean = true;
+
+  private OnHover(isHovering: boolean) {
+    SwitchCursor(isHovering, "pointer");
+  }
 
   public _Draw(ctx: CanvasRenderingContext2D): void {
     const { enabled } = this.options;
@@ -123,6 +197,7 @@ class ExpandSwitcher extends CompositeWidget<ExpandSwitcherOptions> {
       ? new MouseSensor({
           width: 12,
           height: 12,
+          onHover: this.OnHover,
           onClick: onExpand,
         })
       : new Container({ width: 12, height: 12, child: null });
@@ -175,6 +250,8 @@ class TypeIcon extends NoChildWidget<TypeIconOptions> {
   }
 
   protected _Layout(constraint: Constraint): Size {
-    return { width: 12, height: 12 };
+    this._intrinsicWidth = 14;
+    this._intrinsicHeight = 12;
+    return { width: 14, height: 12 };
   }
 }
