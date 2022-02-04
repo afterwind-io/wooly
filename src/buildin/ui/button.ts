@@ -1,7 +1,5 @@
 import { SizableWidgetOptions } from "./foundation/types";
-import { Align } from "./align";
 import { Text } from "./text";
-import { BoxDecoration } from "./boxDecoration";
 import { Edge } from "./common/edge";
 import { MouseSensor } from "./mouseSensor";
 import { Theme } from "./common/theme";
@@ -10,7 +8,7 @@ import { Reactive } from "./foundation/decorator";
 import { CompositeWidget } from "./foundation/compositeWidget";
 import { Widget } from "./foundation/widget";
 import { Blackhole } from "../../util/common";
-import { Container } from "./container";
+import { Box } from "./box";
 
 interface ButtonOptions extends SizableWidgetOptions {
   label?: string;
@@ -35,19 +33,15 @@ export class Button extends CompositeWidget<ButtonOptions> {
       onKeyDown: this.OnMouseDown,
       onKeyUp: this.OnMouseUp,
       onClick: this.OnMouseClick,
-      child: new BoxDecoration({
+      child: new Box({
+        width,
+        height,
         backgroundColor: this._backgroundColor,
         border: Edge.All(1),
         borderColor: this._borderColor,
-        child: Align.Center({
-          width,
-          height,
-          child: Container.Shrink({
-            padding,
-            child: new Text({
-              content: label,
-            }),
-          }),
+        padding,
+        child: new Text({
+          content: label,
         }),
       }),
     });
@@ -55,12 +49,12 @@ export class Button extends CompositeWidget<ButtonOptions> {
 
   protected NormalizeOptions(options: ButtonOptions): ButtonOptions {
     return {
-      width: "shrink",
-      height: "shrink",
-      padding: Edge.All(8),
-      label: "",
-      onClick: Blackhole,
       ...options,
+      width: options.width ?? "shrink",
+      height: options.height ?? "shrink",
+      padding: options.padding || Edge.All(8),
+      label: options.label || "",
+      onClick: options.onClick || Blackhole,
     };
   }
 
@@ -89,6 +83,6 @@ export class Button extends CompositeWidget<ButtonOptions> {
 
   @Reactive
   private OnMouseClick(): void {
-    this.options.onClick?.();
+    this.options.onClick!();
   }
 }
