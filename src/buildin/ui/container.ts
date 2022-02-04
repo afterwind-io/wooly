@@ -12,7 +12,7 @@ import {
 import { Widget } from "./foundation/widget";
 
 type BaseOptions = CommonWidgetOptions &
-  SingleChildWidgetOptions &
+  Partial<SingleChildWidgetOptions> &
   SizableWidgetOptions;
 
 export interface ContainerOptions extends BaseOptions {
@@ -141,7 +141,7 @@ export class Container extends Widget<ContainerOptions> {
   }
 
   protected _Render(): WidgetElement {
-    return this.options.child;
+    return this.options.child || null;
   }
 
   protected NormalizeOptions(options: ContainerOptions): ContainerOptions {
