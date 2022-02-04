@@ -1,12 +1,14 @@
+import { Vector2 } from "../../util/vector2";
+import { Constraint } from "./common/constraint";
 import { Edge } from "./common/edge";
-import { Length } from "./common/types";
-import { Container } from "./container";
-import { SingleChildWidget } from "./foundation/singleChildWidget";
+import { Size } from "./common/types";
+import { GetLocalLength } from "./common/utils";
 import {
   SingleChildWidgetOptions,
   SizableWidgetOptions,
-  WidgetRenderables,
+  WidgetElement,
 } from "./foundation/types";
+import { Widget } from "./foundation/widget";
 
 interface BoxShadow {
   blur: number;
@@ -24,11 +26,9 @@ interface BoxDecorationOptions extends BaseOptions {
   shadows?: BoxShadow[];
 }
 
-export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
+export class BoxDecoration extends Widget<BoxDecorationOptions> {
   public readonly name: string = "BoxDecoration";
   public readonly enableDrawing: boolean = true;
-
-  protected readonly isLooseBox: boolean = false;
 
   public _Draw(ctx: CanvasRenderingContext2D): void {
     const { backgroundColor, border, borderColor, shadows } = this.options;
@@ -74,26 +74,78 @@ export class BoxDecoration extends SingleChildWidget<BoxDecorationOptions> {
     }
   }
 
-  protected _Render(): WidgetRenderables {
-    const { border, child = null } = this.options;
+  protected _Layout(constraint: Constraint): Size {
+    const size = this.PerformSizing(constraint);
+    this._intrinsicWidth = size.width;
+    this._intrinsicHeight = size.height;
 
-    if (!border) {
-      return child;
+    this.PerformLayout();
+
+    return size;
+  }
+
+  protected _Render(): WidgetElement {
+    return this.options.child || null;
+  }
+
+  protected NormalizeOptions(
+    options: BoxDecorationOptions
+  ): BoxDecorationOptions {
+    return {
+      ...options,
+      width: options.width ?? "shrink",
+      height: options.height ?? "shrink",
+      border: options.border || Edge.None,
+    };
+  }
+
+  private PerformSizing(constraint: Constraint): Size {
+    const {
+      border,
+      width: desiredWidth,
+      height: desiredHeight,
+    } = this.options as Required<BoxDecorationOptions>;
+
+    let horizontal = border.Horizontal;
+    let vertical = border.Vertical;
+
+    let childWidth = 0;
+    let childHeight = 0;
+
+    const child = this.GetFirstChild();
+    if (child) {
+      const localConstraint = constraint
+        .constrain(true, desiredWidth, desiredHeight)
+        .shrink(horizontal, vertical);
+
+      const size = child.$Layout(localConstraint);
+      childWidth = size.width;
+      childHeight = size.height;
     }
 
-    return new Container({
-      width: "shrink",
-      height: "shrink",
-      border,
-      child,
-    });
+    const width = GetLocalLength(
+      constraint.minWidth,
+      constraint.maxWidth,
+      desiredWidth,
+      childWidth + horizontal
+    );
+    const height = GetLocalLength(
+      constraint.minHeight,
+      constraint.maxHeight,
+      desiredHeight,
+      childHeight + vertical
+    );
+
+    return { width, height };
   }
 
-  protected GetWidth(): Length {
-    return this.options.width || "shrink";
-  }
+  private PerformLayout(): void {
+    const child = this.GetFirstChild();
+    if (!child) {
+      return;
+    }
 
-  protected GetHeight(): Length {
-    return this.options.height || "shrink";
+    const { border } = this.options as Required<BoxDecorationOptions>;
+    child.position = new Vector2(border.left, border.top);
   }
 }
