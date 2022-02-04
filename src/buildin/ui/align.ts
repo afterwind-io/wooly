@@ -2,7 +2,7 @@ import { SingleChildWidget } from "./foundation/singleChildWidget";
 import {
   SingleChildWidgetOptions,
   SizableWidgetOptions,
-  WidgetRenderables,
+  WidgetElement,
 } from "./foundation/types";
 import { Clamp } from "./common/utils";
 import { Vector2 } from "../../util/vector2";
@@ -56,7 +56,7 @@ export class Alignment {
 
 type BaseOptions = SizableWidgetOptions & SingleChildWidgetOptions;
 
-interface AlignOptions extends BaseOptions {
+export interface AlignOptions extends BaseOptions {
   alignment?: Alignment;
   offset?: Vector2;
 }
@@ -70,23 +70,25 @@ export class Align extends SingleChildWidget<AlignOptions> {
     return new Align({ ...options, alignment: Alignment.Center });
   }
 
-  protected _Render(): WidgetRenderables {
+  protected _Render(): WidgetElement {
     return this.options.child;
   }
 
   protected GetHeight(): Length {
-    return this.options.height || "stretch";
+    return this.options.height!;
   }
 
   protected GetWidth(): Length {
-    return this.options.width || "stretch";
+    return this.options.width!;
   }
 
   protected NormalizeOptions(options: AlignOptions): AlignOptions {
     return {
-      alignment: Alignment.TopLeft,
-      offset: Vector2.Zero,
       ...options,
+      width: options.width ?? "stretch",
+      height: options.height ?? "stretch",
+      alignment: options.alignment || Alignment.TopLeft,
+      offset: options.offset || Vector2.Zero,
     };
   }
 

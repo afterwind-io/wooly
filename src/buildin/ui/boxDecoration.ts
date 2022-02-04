@@ -19,7 +19,7 @@ interface BoxShadow {
 
 type BaseOptions = Partial<SingleChildWidgetOptions> & SizableWidgetOptions;
 
-interface BoxDecorationOptions extends BaseOptions {
+export interface BoxDecorationOptions extends BaseOptions {
   backgroundColor?: string;
   border?: Edge;
   borderColor?: string;

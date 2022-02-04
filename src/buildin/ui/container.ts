@@ -7,7 +7,7 @@ import {
   CommonWidgetOptions,
   SingleChildWidgetOptions,
   SizableWidgetOptions,
-  WidgetRenderables,
+  WidgetElement,
 } from "./foundation/types";
 import { Widget } from "./foundation/widget";
 
@@ -15,7 +15,7 @@ type BaseOptions = CommonWidgetOptions &
   SingleChildWidgetOptions &
   SizableWidgetOptions;
 
-interface ContainerWidgetOptions extends BaseOptions {
+export interface ContainerOptions extends BaseOptions {
   border?: Edge;
   margin?: Edge;
   padding?: Edge;
@@ -30,25 +30,25 @@ interface ContainerWidgetOptions extends BaseOptions {
  * @class Container
  * @extends {Widget}
  */
-export class Container extends Widget<ContainerWidgetOptions> {
+export class Container extends Widget<ContainerOptions> {
   public readonly name: string = "Container";
 
   private _debug: boolean;
 
-  public constructor(options: ContainerWidgetOptions, debug: boolean = false) {
+  public constructor(options: ContainerOptions, debug: boolean = false) {
     super(options);
 
     this._debug = debug;
   }
 
   public static Stretch(
-    options: Omit<ContainerWidgetOptions, "width" | "height">
+    options: Omit<ContainerOptions, "width" | "height">
   ): Container {
     return new Container({ ...options, width: "stretch", height: "stretch" });
   }
 
   public static Shrink(
-    options: Omit<ContainerWidgetOptions, "width" | "height">
+    options: Omit<ContainerOptions, "width" | "height">
   ): Container {
     return new Container({ ...options, width: "shrink", height: "shrink" });
   }
@@ -59,19 +59,10 @@ export class Container extends Widget<ContainerWidgetOptions> {
     }
 
     const { margin, border, padding } = this
-      .options as Required<ContainerWidgetOptions>;
+      .options as Required<ContainerOptions>;
 
     const w = this._intrinsicWidth;
     const h = this._intrinsicHeight;
-
-    // Dimension
-    // ctx.globalAlpha = 0.05;
-    // ctx.fillStyle = 'black';
-    // ctx.fillRect(0, 0, w, h);
-    // ctx.globalAlpha = 1;
-    // ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    // ctx.font = '8px sans-serif';
-    // ctx.fillText(`${this.name}(${w.toFixed(3)}, ${h.toFixed(3)})`, 2, 10);
 
     ctx.globalAlpha = 0.3;
 
@@ -149,20 +140,18 @@ export class Container extends Widget<ContainerWidgetOptions> {
     return size;
   }
 
-  protected _Render(): WidgetRenderables {
+  protected _Render(): WidgetElement {
     return this.options.child;
   }
 
-  protected NormalizeOptions(
-    options: ContainerWidgetOptions
-  ): ContainerWidgetOptions {
+  protected NormalizeOptions(options: ContainerOptions): ContainerOptions {
     return {
-      margin: Edge.None,
-      border: Edge.None,
-      padding: Edge.None,
-      width: "stretch",
-      height: "stretch",
       ...options,
+      width: options.width ?? "stretch",
+      height: options.height ?? "stretch",
+      margin: options.margin || Edge.None,
+      border: options.border || Edge.None,
+      padding: options.padding || Edge.None,
     };
   }
 
@@ -173,7 +162,7 @@ export class Container extends Widget<ContainerWidgetOptions> {
       padding,
       width: desiredWidth,
       height: desiredHeight,
-    } = this.options as Required<ContainerWidgetOptions>;
+    } = this.options as Required<ContainerOptions>;
 
     let horizontal = margin.Horizontal + border.Horizontal + padding.Horizontal;
     let vertical = margin.Vertical + border.Vertical + padding.Vertical;
@@ -215,7 +204,7 @@ export class Container extends Widget<ContainerWidgetOptions> {
     }
 
     const { margin, border, padding } = this
-      .options as Required<ContainerWidgetOptions>;
+      .options as Required<ContainerOptions>;
 
     child.position = new Vector2(
       margin.left + border.left + padding.left,

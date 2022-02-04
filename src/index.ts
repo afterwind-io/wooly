@@ -41,6 +41,7 @@ export { DevTools } from "./buildin/devtools";
 
 // UI Widgets
 export { Align, Alignment } from "./buildin/ui/align";
+export { Box } from "./buildin/ui/box";
 export { BoxDecoration } from "./buildin/ui/boxDecoration";
 export { Button } from "./buildin/ui/button";
 export { Checkbox } from "./buildin/ui/checkbox";
