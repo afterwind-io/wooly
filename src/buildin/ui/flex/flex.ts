@@ -325,6 +325,9 @@ Row.Stretch = function Stretch(
 ): Flex {
   return Flex.Stretch({ ...options, direction: FlexDirection.Horizontal });
 };
+Row.Expanded = function (options: ExpandedOptions): Expanded {
+  return new Expanded(options);
+};
 
 export function Column(options: Omit<FlexOptions, "direction">): Flex {
   return new Flex({ ...options, direction: FlexDirection.Vertical });
@@ -338,4 +341,7 @@ Column.Stretch = function Stretch(
   options: Omit<FlexOptions, "direction" | "width" | "height">
 ): Flex {
   return Flex.Stretch({ ...options, direction: FlexDirection.Vertical });
+};
+Column.Expanded = function (options: ExpandedOptions): Expanded {
+  return new Expanded(options);
 };

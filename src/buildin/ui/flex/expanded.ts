@@ -1,9 +1,13 @@
 import { Length } from "../common/types";
 import { SingleChildWidget } from "../foundation/singleChildWidget";
-import { SingleChildWidgetOptions, WidgetElement } from "../foundation/types";
+import {
+  SingleChildWidgetOptions,
+  SizableWidgetOptions,
+  WidgetElement,
+} from "../foundation/types";
 import { Widget } from "../foundation/widget";
 
-type BaseOptions = SingleChildWidgetOptions;
+type BaseOptions = SingleChildWidgetOptions & SizableWidgetOptions;
 
 export interface ExpandedOptions extends BaseOptions {
   flex?: number;
@@ -19,17 +23,19 @@ export class Expanded extends SingleChildWidget<ExpandedOptions> {
   }
 
   protected GetHeight(): Length {
-    return "stretch";
+    return this.options.height!;
   }
 
   protected GetWidth(): Length {
-    return "stretch";
+    return this.options.width!;
   }
 
   protected NormalizeOptions(options: ExpandedOptions): ExpandedOptions {
     return {
-      flex: 1,
       ...options,
+      flex: options.flex ?? 1,
+      width: options.width || "stretch",
+      height: options.height || "stretch",
     };
   }
 }
