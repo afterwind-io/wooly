@@ -55,6 +55,18 @@ export class Matrix2d {
     return new Matrix2d(1, 0, 0, 1);
   }
 
+  public get isIdentity(): boolean {
+    const data = this.data;
+    return (
+      data[4] === 0 &&
+      data[5] === 0 &&
+      data[0] === 1 &&
+      data[1] === 0 &&
+      data[2] === 0 &&
+      data[3] === 1
+    );
+  }
+
   public get translation(): Vector2 {
     const [, , , , dx, dy] = this.data;
     return new Vector2(dx, dy);

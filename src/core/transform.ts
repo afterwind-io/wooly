@@ -100,9 +100,15 @@ export class Transform extends Node {
     if (this.isCachedGlobalTransformDirty) {
       this.isCachedGlobalTransformDirty = false;
 
-      const local = this.offsetMatrix
-        .Invert()
-        .MultiplyMut(this.localTransform.Multiply(this.offsetMatrix));
+      let local: Matrix2d;
+      if (this.offsetMatrix.isIdentity) {
+        local = this.localTransform;
+      } else {
+        local = this.offsetMatrix
+          .Invert()
+          .MultiplyMut(this.localTransform.Multiply(this.offsetMatrix));
+      }
+
       this.cachedGlobalTransform =
         this.parent.globalTransformMatrix.Multiply(local);
     }
