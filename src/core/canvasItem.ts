@@ -2,13 +2,14 @@ import { OneTimeCachedGetter } from "../util/cachedGetter";
 import { GlobalComputedProperty } from "../util/globalComputedProperty";
 import { CanvasComposition } from "./canvasComposition";
 import { CanvasLayer } from "./canvasLayer";
-import { Transform } from "./transform";
+import { Tangible } from "./tangible";
 import { Node } from "./node";
+import { Matrix2d } from "../util/matrix2d";
 
 /**
  * Base class of everything relates to drawing.
  */
-export abstract class CanvasItem extends Transform {
+export abstract class CanvasItem extends Tangible {
   /**
    * Indicate whether to enable custom drawing.
    *
@@ -38,6 +39,9 @@ export abstract class CanvasItem extends Transform {
    * The pointer to the parent node.
    */
   public parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
+
+  protected _screenSpaceTransform: GlobalComputedProperty<Tangible, Matrix2d> =
+    new ScreenSpaceTransform(this, Matrix2d.Identity());
 
   private _opacity: GlobalOpacity = new GlobalOpacity(this, 1);
   private _visible: GlobalVisible = new GlobalVisible(this, true);
@@ -94,7 +98,7 @@ export abstract class CanvasItem extends Transform {
    * @memberof CanvasItem
    */
   @OneTimeCachedGetter
-  public get globalLayer(): number {
+  public get parentLayer(): number {
     let layer = 0;
 
     this.Bubble((node) => {
@@ -115,17 +119,18 @@ export abstract class CanvasItem extends Transform {
    * Get the composition the node currently at.
    */
   @OneTimeCachedGetter
-  public get globalComposition(): number {
-    let composition = 0;
+  public get parentComposition(): CanvasComposition {
+    let composition: CanvasComposition | null = null;
 
     this.Bubble((node) => {
       if (node instanceof CanvasComposition) {
-        composition = node.index;
+        composition = node;
         return false;
       }
     });
 
-    return composition;
+    console.assert(composition != null, "没有找到根composition");
+    return composition!;
   }
 
   /**
@@ -274,5 +279,32 @@ class GlobalZIndex extends GlobalComputedProperty<CanvasItem, number> {
     }
 
     return null;
+  }
+}
+
+class ScreenSpaceTransform extends GlobalComputedProperty<
+  CanvasItem,
+  Matrix2d
+> {
+  public ComputeGlobalValue(): Matrix2d {
+    const host = this.host;
+
+    let parentScreenTransform: Matrix2d;
+    if (!host.parent) {
+      parentScreenTransform = Matrix2d.Identity();
+    } else {
+      parentScreenTransform = host.parent.screenTransform;
+    }
+
+    const localTransform = host.localTransform;
+
+    return parentScreenTransform.Multiply(localTransform);
+  }
+
+  public GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<CanvasItem, Matrix2d> | null {
+    // @ts-expect-error TS2341 protected property
+    return (node as Tangible)._screenSpaceTransform;
   }
 }

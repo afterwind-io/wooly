@@ -1,0 +1,46 @@
+import { Matrix2d } from "../util/matrix2d";
+
+export class RenderContext {
+  public readonly nativeContext: CanvasRenderingContext2D;
+
+  private readonly transformStack: Matrix2d[] = [];
+  private readonly accumulativeTransformStack: Matrix2d[] = [];
+  private pointer: number = -1;
+
+  public constructor(nativeContext: CanvasRenderingContext2D) {
+    this.nativeContext = nativeContext;
+  }
+
+  /**
+   * 将当前累积的仿射变换写入原生canvas上下文
+   */
+  public CommitTransform(): void {
+    const t = this.accumulativeTransformStack[this.pointer];
+    if (!t) {
+      return;
+    }
+
+    this.nativeContext.setTransform(...t.data);
+  }
+
+  public ClearTransform(): void {
+    this.pointer = -1;
+  }
+
+  public PopTransform(): void {
+    this.pointer--;
+  }
+
+  public PushTransform(transform: Matrix2d): void {
+    const i = ++this.pointer;
+
+    this.transformStack[i] = transform;
+
+    let t = this.accumulativeTransformStack[i - 1];
+    if (!t) {
+      t = Matrix2d.Identity();
+    }
+
+    this.accumulativeTransformStack[i] = t.Multiply(transform);
+  }
+}

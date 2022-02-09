@@ -1,7 +1,7 @@
 import { CanvasComposition } from "../canvasComposition";
 import { Entity } from "../entity";
 import { SystemTimer } from "../systemTimer";
-import { Transform } from "../transform";
+import { Tangible } from "../tangible";
 
 export const EntityTreeManager = new (class SceneTreeManager {
   public readonly sceneRoot: CanvasComposition = new CanvasComposition(0);
@@ -18,7 +18,7 @@ export const EntityTreeManager = new (class SceneTreeManager {
   public Update() {
     const delta = SystemTimer.Tick();
 
-    this.sceneRoot.Traverse<Transform>((node) => {
+    this.sceneRoot.Traverse<Tangible>((node) => {
       if (!(node instanceof Entity)) {
         return false;
       }

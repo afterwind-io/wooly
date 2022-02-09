@@ -1,9 +1,7 @@
 import { CompositionContext, RenderTreeManager } from "./renderTree";
 import { CanvasManager } from "./canvas";
-import { Matrix2d } from "../../util/matrix2d";
 import { CanvasItem } from "../canvasItem";
 import { DPRMatrix } from "../globals";
-import { ViewportManager } from "./viewport";
 
 export const PaintManager = new (class PaintManager {
   public onPaintNode!: (node: CanvasItem) => void;
@@ -11,8 +9,7 @@ export const PaintManager = new (class PaintManager {
   private clearColor: string = "white";
 
   public Paint() {
-    // TODO
-    const ctx = CanvasManager.ctx;
+    const ctx = CanvasManager.GetRenderContext();
 
     this.ResetCanvas(ctx);
     this.DrawComposition(ctx, RenderTreeManager.compositionRoot);
@@ -42,21 +39,13 @@ export const PaintManager = new (class PaintManager {
     } else {
       ctx.save();
 
-      const viewport = ViewportManager.Get(
-        canvasComposition.globalComposition,
-        canvasComposition.globalLayer
-      );
-      const baseAffineMatrix = DPRMatrix.Multiply(
-        viewport.GetViewportTransform()
-      );
-      const transform = baseAffineMatrix.Multiply(
-        canvasComposition.globalTransformMatrix
+      const transform = DPRMatrix.Multiply(
+        canvasComposition.selfScreenTransform
       );
       ctx.setTransform(...transform.data);
 
       const rect = new Path2D();
-      const { x, y } = canvasComposition.size;
-      rect.rect(0, 0, x, y);
+      rect.rect(0, 0, canvasComposition.width, canvasComposition.height);
       ctx.clip(rect);
 
       this.DrawTree(ctx, composition);
@@ -69,18 +58,11 @@ export const PaintManager = new (class PaintManager {
     ctx: CanvasRenderingContext2D,
     compositionContext: CompositionContext
   ) {
-    const compositionIndex = compositionContext.root.index;
-
-    compositionContext.layerStack.Traverse((layer, layerIndex) => {
-      const viewport = ViewportManager.Get(compositionIndex, layerIndex!);
-      const baseAffineMatrix = DPRMatrix.Multiply(
-        viewport.GetViewportTransform()
-      );
-
+    compositionContext.layerStack.Traverse((layer) => {
       layer.Traverse((stack) =>
         stack.Traverse((node) => {
           if (node instanceof CanvasItem) {
-            this.DrawNode(node, ctx, baseAffineMatrix);
+            this.DrawNode(node, ctx);
             this.onPaintNode(node);
           } else {
             this.DrawComposition(ctx, node);
@@ -90,11 +72,7 @@ export const PaintManager = new (class PaintManager {
     });
   }
 
-  private DrawNode(
-    node: CanvasItem,
-    ctx: CanvasRenderingContext2D,
-    baseAffineMatrix: Matrix2d
-  ): void {
+  private DrawNode(node: CanvasItem, ctx: CanvasRenderingContext2D): void {
     if (!node.enableDrawing) {
       return;
     }
@@ -104,20 +82,18 @@ export const PaintManager = new (class PaintManager {
       return;
     }
 
-    const transform = baseAffineMatrix.Multiply(node.globalTransformMatrix);
+    const transform = DPRMatrix.Multiply(node.screenTransform);
     ctx.setTransform(...transform.data);
 
     ctx.globalAlpha = opacity;
-
     node._Draw(ctx);
-
     ctx.globalAlpha = 1;
   }
 
   private ResetCanvas(ctx: CanvasRenderingContext2D) {
-    const canvas = ctx.canvas;
     ctx.resetTransform();
 
+    const canvas = ctx.canvas;
     ctx.fillStyle = this.clearColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }

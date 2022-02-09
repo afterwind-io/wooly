@@ -349,6 +349,8 @@ export const InputManager = new (class InputManager {
     // 记录通过了HitTest的元素
     let hitTarget: Entity | null = null;
 
+    const mousePosition = Input.GetMousePosition();
+
     // 记录鼠标左键是否按下
     const isMouseButtonDown: boolean = Input.IsMouseDown(Input.BUTTON_LEFT);
 
@@ -383,7 +385,7 @@ export const InputManager = new (class InputManager {
         continue;
       }
 
-      const isHit = target.HitTest();
+      const isHit = target.HitTest(mousePosition);
       if (isHit) {
         hitTarget = target;
 
@@ -450,7 +452,7 @@ function Dispatch(
         }
 
         ancestor._mouseState.Step(
-          ancestor.HitTest(),
+          isHit,
           isMouseButtonDown,
           // 由于祖先节点的事件由子节点冒泡而来，因此自身状态机不再生成新的事件
           Blackhole

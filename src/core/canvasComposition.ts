@@ -1,48 +1,66 @@
-import { ReadonlyVector2, Vector2 } from "../util/vector2";
+import { Vector2 } from "../util/vector2";
 import { ViewportManager } from "./manager/viewport";
 import { CanvasItem } from "./canvasItem";
 import { CanvasLayer } from "./canvasLayer";
-import { Transform } from "./transform";
+import { Tangible } from "./tangible";
+import { Node } from "./node";
+import { GlobalComputedProperty } from "../util/globalComputedProperty";
+import { Matrix2d } from "../util/matrix2d";
+import { OneTimeCachedGetter } from "../util/cachedGetter";
 
 /**
  * CanvasComposition
  */
-export class CanvasComposition extends Transform {
+export class CanvasComposition extends Tangible {
   public readonly name: string = "CanvasComposition";
 
   public parent: CanvasItem | CanvasLayer | CanvasComposition | null = null;
-  public size: ReadonlyVector2 = Vector2.Zero;
+
+  protected _screenSpaceTransform: GlobalComputedProperty<
+    CanvasComposition,
+    Matrix2d
+  > = new ScreenSpaceTransform(this, Matrix2d.Identity());
 
   public constructor(public readonly index: number) {
     super();
   }
 
-  public get globalComposition(): number {
-    const parent = this.parent;
-
-    if (!parent) {
-      return this.index;
+  @OneTimeCachedGetter
+  public get parentComposition(): CanvasComposition {
+    // 如果是系统默认的根，直接返回自身
+    if (this.index === 0) {
+      return this;
     }
 
-    if (parent instanceof CanvasLayer) {
-      return parent.globalComposition.index;
-    }
+    let composition: CanvasComposition | null = null;
 
-    return parent.globalComposition;
+    this.Bubble((node) => {
+      if (node instanceof CanvasComposition) {
+        composition = node;
+        return false;
+      }
+    });
+
+    console.assert(composition != null, "没有找到根composition");
+    return composition!;
   }
 
-  public get globalLayer(): number {
-    const parent = this.parent;
+  @OneTimeCachedGetter
+  public get parentLayer(): number {
+    let layer = 0;
 
-    if (!parent) {
-      return 0;
-    }
+    this.Bubble((node) => {
+      if (node instanceof CanvasComposition) {
+        return false;
+      }
 
-    if (parent instanceof CanvasLayer) {
-      return parent.index;
-    }
+      if (node instanceof CanvasLayer) {
+        layer = node.index;
+        return false;
+      }
+    });
 
-    return parent.globalLayer;
+    return layer;
   }
 
   public get globalOpacity(): number {
@@ -87,15 +105,66 @@ export class CanvasComposition extends Transform {
     return parent.globalZIndex;
   }
 
-  public SetSize(size: Vector2): this {
-    return (this.size = size), this;
+  /**
+   * 不包含composition默认layer0的viewport变换的屏幕空间变换矩阵，
+   * 用于获取自身在屏幕上的位置，及为子代layer计算屏幕位置提供一个根。
+   *
+   * 这个local值是在ScreenSpaceTransform的global计算中同时写入的。
+   */
+  public get selfScreenTransform(): Matrix2d {
+    return this._screenSpaceTransform.local;
   }
 
   protected _Ready(): void {
-    ViewportManager.Add(this.index, 0);
+    const viewport = ViewportManager.Add(this.index, 0);
+    viewport.AddListener(() => {
+      this._screenSpaceTransform.Notify();
+    });
   }
 
   protected _Destroy(): void {
     ViewportManager.Remove(this.index, 0);
+  }
+
+  public SetSize(size: Vector2): this {
+    const { x, y } = size;
+    this.width = x;
+    this.height = y;
+
+    return this;
+  }
+}
+
+class ScreenSpaceTransform extends GlobalComputedProperty<
+  CanvasComposition,
+  Matrix2d
+> {
+  public ComputeGlobalValue(): Matrix2d {
+    const host = this.host;
+
+    let parentScreenTransform: Matrix2d;
+    if (!host.parent) {
+      parentScreenTransform = Matrix2d.Identity();
+    } else {
+      parentScreenTransform = host.parent.screenTransform;
+    }
+
+    const localTransform = host.localTransform;
+    const selfScreenTransform = parentScreenTransform.Multiply(localTransform);
+
+    // 向local写入一个不包含viewport变换的纯屏幕空间变换，用于外部快速获取，避免重复计算
+    // @ts-expect-error TS2341 private property
+    this._local = selfScreenTransform;
+
+    const viewport = ViewportManager.Get(host.index, 0);
+    const viewportTransform = viewport.GetViewportTransform();
+    return selfScreenTransform.Multiply(viewportTransform);
+  }
+
+  public GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<CanvasComposition, Matrix2d> | null {
+    // @ts-expect-error TS2341 protected property
+    return (node as Tangible)._screenSpaceTransform;
   }
 }

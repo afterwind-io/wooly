@@ -2,8 +2,6 @@ import { CanvasItem } from "./canvasItem";
 import { Signal } from "./signal";
 import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
-import { Input } from "../buildin/media/input";
-import { ViewportManager } from "./manager/viewport";
 import { GetUniqId } from "../util/idgen";
 import { EntityInputEvent, MouseState } from "./manager/input";
 
@@ -121,22 +119,6 @@ export abstract class Entity<
    * @memberof Entity
    */
   public name: string = "";
-
-  /**
-   * The width of the node.
-   *
-   * @type {number}
-   * @memberof Entity
-   */
-  public width: number = 0;
-
-  /**
-   * The height of the node.
-   *
-   * @type {number}
-   * @memberof Entity
-   */
-  public height: number = 0;
 
   /**
    * A flag indicates whether to update the entity or not.
@@ -258,48 +240,6 @@ export abstract class Entity<
   }
 
   /**
-   * Check if the cursor hovering over the rect of the Entity.
-   *
-   * @returns {boolean} True if hovering, and vice versa.
-   * @memberof Entity
-   */
-  public HitTest(
-    width: number = this.width,
-    height: number = this.height
-  ): boolean {
-    if (width * height === 0) {
-      return false;
-    }
-
-    const position = this.position;
-
-    const B = this.ConvertToScreenPosition(position);
-    const A = this.ConvertToScreenPosition(
-      position.Add(new Vector2(0, height))
-    );
-    const C = this.ConvertToScreenPosition(position.Add(new Vector2(width, 0)));
-    const M = Input.GetMousePosition();
-
-    let projection: number = 0;
-
-    const ab = B.Subtract(A);
-    const am = M.Subtract(A);
-    projection = ab.DotProduct(am);
-    if (projection < 0 || ab.DotProduct(ab) < projection) {
-      return false;
-    }
-
-    const bc = C.Subtract(B);
-    const bm = M.Subtract(B);
-    projection = bc.DotProduct(bm);
-    if (projection < 0 || bc.DotProduct(bc) < projection) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
    * A helper method to rotate the node towards the target point.
    *
    * Note that the "forward" here is actually the right side of the node,
@@ -400,30 +340,5 @@ export abstract class Entity<
     }
 
     super.$SelfDestroy();
-  }
-
-  /**
-   * [**Internal**]
-   * **Do not call this manually**
-   *
-   * Calculate the actual screen position of a specified point relative to the
-   * current entity.
-   *
-   * @param point
-   * The point relative to the current entity. If not given, returns the result
-   * of current local position.
-   *
-   * @returns
-   */
-  public ConvertToScreenPosition(point: Vector2): Vector2 {
-    let position: Vector2 = point;
-
-    const viewport = ViewportManager.Get(
-      this.globalComposition,
-      this.globalLayer
-    );
-    return this.ConvertToGlobalPosition(position).Transform(
-      viewport.GetViewportTransform()
-    );
   }
 }

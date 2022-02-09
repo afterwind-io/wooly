@@ -2,7 +2,12 @@ import { Vector2 } from "../../util/vector2";
 
 export const CanvasManager = new (class CanvasManager {
   public container!: HTMLDivElement;
-  public ctx!: CanvasRenderingContext2D;
+
+  private ctx!: CanvasRenderingContext2D;
+
+  public GetRenderContext(): CanvasRenderingContext2D {
+    return this.ctx;
+  }
 
   public SetContainer(el: HTMLDivElement): void {
     this.container = el;

@@ -1,5 +1,6 @@
 import { Entity, EntitySignals } from "../../../core/entity";
 import { OneTimeCachedGetter } from "../../../util/cachedGetter";
+import { Vector2 } from "../../../util/vector2";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
@@ -205,8 +206,12 @@ export abstract class Widget<
   /**
    * @override
    */
-  public HitTest(): boolean {
-    return super.HitTest(this._intrinsicWidth, this._intrinsicHeight);
+  public HitTest(screenPoint: Vector2): boolean {
+    return super.HitTest(
+      screenPoint,
+      this._intrinsicWidth,
+      this._intrinsicHeight
+    );
   }
 
   public Refresh(): void {

@@ -1,4 +1,3 @@
-import { CanvasItem } from "../core/canvasItem";
 import { Node } from "../core/node";
 
 /**
@@ -10,7 +9,7 @@ import { Node } from "../core/node";
  *
  * 该抽象模型包含了一个本地变量，一个全局值缓存变量，以及一个是否应该更新全局缓存的标记位。
  */
-export abstract class GlobalComputedProperty<H extends CanvasItem, T> {
+export abstract class GlobalComputedProperty<H extends Node, T> {
   protected host: H;
 
   private _local: T;
@@ -33,7 +32,25 @@ export abstract class GlobalComputedProperty<H extends CanvasItem, T> {
     }
 
     this._local = v;
+    this.Notify();
+  }
 
+  public get global(): T {
+    if (this._isDirty) {
+      this._isDirty = false;
+      this._cachedGlobal = this.ComputeGlobalValue();
+    }
+
+    return this._cachedGlobal;
+  }
+
+  public abstract ComputeGlobalValue(): T;
+
+  public abstract GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<H, T> | null;
+
+  public Notify(): void {
     this.host.Traverse((node) => {
       const ins = this.GetPropertyInstance(node);
       if (!ins) {
@@ -48,17 +65,7 @@ export abstract class GlobalComputedProperty<H extends CanvasItem, T> {
     });
   }
 
-  public get global(): T {
-    if (this._isDirty) {
-      this._isDirty = false;
-      this._cachedGlobal = this.ComputeGlobalValue();
-    }
-
-    return this._cachedGlobal;
+  public Update(): void {
+    void this.global;
   }
-
-  public abstract ComputeGlobalValue(): T;
-  public abstract GetPropertyInstance(
-    node: Node
-  ): GlobalComputedProperty<H, T> | null;
 }

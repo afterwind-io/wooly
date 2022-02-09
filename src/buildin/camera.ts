@@ -21,7 +21,10 @@ export class Camera extends Entity {
   public _Update() {
     const viewport = this.GetViewport();
 
-    viewport.origin = this.globalPosition;
+    // FIXME 如何降低计算频率/避免重复计算？
+    viewport.origin = this.globalPosition.Transform(
+      this.parentComposition.globalTransform.Invert()
+    );
     viewport.rotation = this.globalRotation;
     viewport.zoom = this.scale;
 
@@ -53,8 +56,8 @@ export class Camera extends Entity {
   }
 
   private GetViewport(): Viewport {
-    const composition = this.targetComposition || this.globalComposition;
-    const layer = this.targetLayer || this.globalLayer;
+    const composition = this.targetComposition || this.parentComposition.index;
+    const layer = this.targetLayer || this.parentLayer;
 
     return ViewportManager.Get(composition, layer);
   }

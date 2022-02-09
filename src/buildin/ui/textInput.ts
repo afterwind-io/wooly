@@ -118,7 +118,7 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
     inputElement.style.height = `${this._intrinsicHeight}px`;
 
     // FIXME 只有Layout阶段之后才能拿到Input的真实位置，理论上应该在某个特定生命周期钩子处理
-    const { x, y } = this.ConvertToScreenPosition(this.position);
+    const { x, y } = this.ConvertToScreenSpace(this.position);
     inputElement.style.left = `${x}px`;
     inputElement.style.top = `${y}px`;
   }

@@ -1,7 +1,7 @@
 import { OrderedLinkedList } from "../struct/orderedLinkedList";
 import { LinkedList } from "../struct/linkedList";
 import { CanvasItem } from "../canvasItem";
-import { Transform } from "../transform";
+import { Tangible } from "../tangible";
 import { CanvasComposition } from "../canvasComposition";
 import { CanvasLayer } from "../canvasLayer";
 
@@ -46,7 +46,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
   private BuildComposition(root: CanvasComposition): CompositionContext {
     const rootComposition = new CompositionContext(root);
 
-    root.Traverse<Transform>((node) => {
+    root.Traverse<Tangible>((node) => {
       if (node instanceof CanvasItem) {
         if (!node.enabled || !node.visible) {
           return true;
@@ -63,7 +63,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
 
       if (node instanceof CanvasComposition) {
         const childComposition = this.BuildComposition(node);
-        rootComposition.AddItem(node.globalLayer, childComposition);
+        rootComposition.AddItem(node.parentLayer, childComposition);
         return true;
       }
 
@@ -76,7 +76,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
   private BuildLayer(root: CanvasLayer, parentComposition: CompositionContext) {
     const rootLayer = root.index;
 
-    root.Traverse<Transform>((node) => {
+    root.Traverse<Tangible>((node) => {
       if (node instanceof CanvasItem) {
         if (!node.enabled || !node.visible) {
           return true;
@@ -93,7 +93,7 @@ export const RenderTreeManager = new (class RenderTreeManager {
 
       if (node instanceof CanvasComposition) {
         const childComposition = this.BuildComposition(node);
-        parentComposition.AddItem(node.globalLayer, childComposition);
+        parentComposition.AddItem(node.parentLayer, childComposition);
         return true;
       }
 

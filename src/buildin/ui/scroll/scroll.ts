@@ -15,6 +15,7 @@ import { BindThis } from "../foundation/decorator";
 import { CreateWidgetRef, WidgetRefObject } from "../foundation/ref";
 import { ScrollDirection } from "./types";
 import { BAR_MIN_LENGTH, BAR_SIZE, ScrollBar } from "./scrollBar";
+import { Input } from "../../media/input";
 
 export const enum ScrollOverflowBehavior {
   /**
@@ -325,7 +326,7 @@ export class Scroll extends Widget<ScrollOptions> {
       return;
     }
 
-    if (!this.HitTest()) {
+    if (!this.HitTest(Input.GetMousePosition())) {
       return;
     }
 

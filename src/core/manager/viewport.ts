@@ -6,7 +6,7 @@ export const ViewportManager = new (class ViewportManager {
    */
   private registry: Map<number, Map<number, Viewport>> = new Map();
 
-  public Add(composition: number, layer: number): void {
+  public Add(composition: number, layer: number): Viewport {
     let l = this.registry.get(composition);
     if (!l) {
       l = new Map();
@@ -17,6 +17,8 @@ export const ViewportManager = new (class ViewportManager {
     if (!viewport) {
       viewport = new Viewport();
       l.set(layer, viewport);
+
+      return viewport;
     } else {
       throw new Error(
         `[wooly] Can not add duplicate viewport: (composition[${composition}],layer[${layer}]).`
