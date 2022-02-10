@@ -26,12 +26,7 @@ export class CanvasComposition extends Tangible {
   }
 
   @PersistCached
-  public get parentComposition(): CanvasComposition {
-    // 如果是系统默认的根，直接返回自身
-    if (this.index === 0) {
-      return this;
-    }
-
+  public get parentComposition(): CanvasComposition | null {
     let composition: CanvasComposition | null = null;
 
     this.Bubble((node) => {
@@ -41,8 +36,7 @@ export class CanvasComposition extends Tangible {
       }
     });
 
-    console.assert(composition != null, "没有找到根composition");
-    return composition!;
+    return composition;
   }
 
   @PersistCached
@@ -124,6 +118,20 @@ export class CanvasComposition extends Tangible {
 
   protected _Destroy(): void {
     ViewportManager.Remove(this.index, 0);
+  }
+
+  /**
+   * @override
+   */
+  public ConvertToLocalSpace(screenPoint: Vector2): Vector2 {
+    return screenPoint.Transform(this.selfScreenTransform.Invert());
+  }
+
+  /**
+   * @override
+   */
+  public ConvertToScreenSpace(localPoint: Vector2): Vector2 {
+    return localPoint.Transform(this.selfScreenTransform);
   }
 
   public SetSize(size: Vector2): this {

@@ -1,3 +1,4 @@
+import { CanvasComposition } from "../../../core/canvasComposition";
 import { Entity, EntitySignals } from "../../../core/entity";
 import { PersistCached } from "../../../util/persistCachedGetter";
 import { Vector2 } from "../../../util/vector2";
@@ -207,11 +208,28 @@ export abstract class Widget<
    * @override
    */
   public HitTest(screenPoint: Vector2): boolean {
-    return super.HitTest(
+    const isHit = super.HitTest(
       screenPoint,
       this._intrinsicWidth,
       this._intrinsicHeight
     );
+    if (!isHit) {
+      return false;
+    }
+
+    // 同时检测指定点在所有父级composition中是否命中，
+    // 以避免指定点落在widget内，但落点位置已超出widget所在的composition的裁剪区域外的情况。
+    let target: CanvasComposition | null = this.parentComposition;
+    while (target) {
+      const isHit = target.HitTest(screenPoint);
+      if (!isHit) {
+        return false;
+      }
+
+      target = target.parentComposition;
+    }
+
+    return true;
   }
 
   public Refresh(): void {

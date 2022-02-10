@@ -2,11 +2,13 @@ import { CanvasComposition } from "../canvasComposition";
 import { Entity } from "../entity";
 import { SystemTimer } from "../systemTimer";
 import { Tangible } from "../tangible";
+import { CanvasManager } from "./canvas";
 
 export const EntityTreeManager = new (class SceneTreeManager {
   public readonly sceneRoot: CanvasComposition = new CanvasComposition(0);
 
   public Init() {
+    this.sceneRoot.SetSize(CanvasManager.Dimension);
     this.sceneRoot.$Ready();
   }
 
