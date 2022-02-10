@@ -17,6 +17,10 @@ export abstract class Tangible extends Node {
     Matrix2d.Identity()
   );
 
+  public get dimension(): ReadonlyVector2 {
+    return new Vector2(this.width, this.height);
+  }
+
   /**
    * The pivot point of the local transform.
    * Default is the left-top corner of the Entity.

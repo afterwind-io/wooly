@@ -1,7 +1,7 @@
 import { CanvasComposition } from "../../../core/canvasComposition";
 import { Entity, EntitySignals } from "../../../core/entity";
 import { PersistCached } from "../../../util/persistCachedGetter";
-import { Vector2 } from "../../../util/vector2";
+import { ReadonlyVector2, Vector2 } from "../../../util/vector2";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetRoot } from "../root";
@@ -59,6 +59,10 @@ export abstract class Widget<
       instance: this,
     };
     this._contexts = new Map();
+  }
+
+  public get dimension(): ReadonlyVector2 {
+    return new Vector2(this._intrinsicWidth, this._intrinsicHeight);
   }
 
   /**
