@@ -2,7 +2,7 @@ import { Matrix2d } from "../util/matrix2d";
 import { CanvasComposition } from "./canvasComposition";
 import { Tangible } from "./tangible";
 import { ViewportManager } from "./manager/viewport";
-import { OneTimeCachedGetter } from "../util/cachedGetter";
+import { PersistCached } from "../util/persistCachedGetter";
 import { GlobalComputedProperty } from "../util/globalComputedProperty";
 import { Node } from "./node";
 import { CanvasItem } from "./canvasItem";
@@ -28,7 +28,7 @@ export class CanvasLayer extends Tangible {
     super();
   }
 
-  @OneTimeCachedGetter
+  @PersistCached
   public get parentComposition(): CanvasComposition {
     let composition: CanvasComposition | null = null;
 

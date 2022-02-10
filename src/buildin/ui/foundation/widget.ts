@@ -1,5 +1,5 @@
 import { Entity, EntitySignals } from "../../../core/entity";
-import { OneTimeCachedGetter } from "../../../util/cachedGetter";
+import { PersistCached } from "../../../util/persistCachedGetter";
 import { Vector2 } from "../../../util/vector2";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
@@ -104,7 +104,7 @@ export abstract class Widget<
     return false;
   }
 
-  @OneTimeCachedGetter
+  @PersistCached
   protected get root(): WidgetRoot {
     let root = null;
     this.Bubble((node) => {

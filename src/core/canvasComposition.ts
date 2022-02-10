@@ -6,7 +6,7 @@ import { Tangible } from "./tangible";
 import { Node } from "./node";
 import { GlobalComputedProperty } from "../util/globalComputedProperty";
 import { Matrix2d } from "../util/matrix2d";
-import { OneTimeCachedGetter } from "../util/cachedGetter";
+import { PersistCached } from "../util/persistCachedGetter";
 
 /**
  * CanvasComposition
@@ -25,7 +25,7 @@ export class CanvasComposition extends Tangible {
     super();
   }
 
-  @OneTimeCachedGetter
+  @PersistCached
   public get parentComposition(): CanvasComposition {
     // 如果是系统默认的根，直接返回自身
     if (this.index === 0) {
@@ -45,7 +45,7 @@ export class CanvasComposition extends Tangible {
     return composition!;
   }
 
-  @OneTimeCachedGetter
+  @PersistCached
   public get parentLayer(): number {
     let layer = 0;
 

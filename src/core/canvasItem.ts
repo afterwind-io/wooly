@@ -1,4 +1,4 @@
-import { OneTimeCachedGetter } from "../util/cachedGetter";
+import { PersistCached } from "../util/persistCachedGetter";
 import { GlobalComputedProperty } from "../util/globalComputedProperty";
 import { CanvasComposition } from "./canvasComposition";
 import { CanvasLayer } from "./canvasLayer";
@@ -97,7 +97,7 @@ export abstract class CanvasItem extends Tangible {
    * @type {CanvasLayer}
    * @memberof CanvasItem
    */
-  @OneTimeCachedGetter
+  @PersistCached
   public get parentLayer(): number {
     let layer = 0;
 
@@ -118,7 +118,7 @@ export abstract class CanvasItem extends Tangible {
   /**
    * Get the composition the node currently at.
    */
-  @OneTimeCachedGetter
+  @PersistCached
   public get parentComposition(): CanvasComposition {
     let composition: CanvasComposition | null = null;
 
