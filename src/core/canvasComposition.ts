@@ -130,7 +130,7 @@ export class CanvasComposition extends Tangible {
   /**
    * @override
    */
-  public ConvertToScreenSpace(localPoint: Vector2): Vector2 {
+  public ConvertToScreenSpace(localPoint: Vector2 = Vector2.Zero): Vector2 {
     return localPoint.Transform(this.selfScreenTransform);
   }
 

@@ -150,7 +150,7 @@ export abstract class Tangible extends Node {
    * @param localPoint The point in the local space
    * @returns The screen position
    */
-  public ConvertToScreenSpace(localPoint: Vector2): Vector2 {
+  public ConvertToScreenSpace(localPoint: Vector2 = Vector2.Zero): Vector2 {
     return localPoint.Transform(this.screenTransform);
   }
 
@@ -160,7 +160,7 @@ export abstract class Tangible extends Node {
    * @param localPoint The point in the local space
    * @returns The world position
    */
-  public ConvertToWorldSpace(localPoint: Vector2): Vector2 {
+  public ConvertToWorldSpace(localPoint: Vector2 = Vector2.Zero): Vector2 {
     if (!this.parent) {
       return localPoint;
     }
