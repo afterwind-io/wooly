@@ -9,18 +9,13 @@ import { MouseSensor } from "../../ui/mouseSensor";
 import { Transform } from "../../ui/transform";
 import { ThemeContext } from "../common/theme";
 import { Text } from "../../ui/text";
-import { NoChildWidget } from "../../ui/foundation/noChildWidget";
 import { Node } from "../../../core/node";
-import { Constraint } from "../../ui/common/constraint";
-import { Size } from "../../ui/common/types";
-import { WidgetRoot } from "../../ui/root";
-import { CanvasLayer } from "../../../core/canvasLayer";
-import { CanvasComposition } from "../../../core/canvasComposition";
 import { InspectorContext } from "./context";
-import { BoxDecoration } from "../../ui/boxDecoration";
-import { Align, Alignment } from "../../ui/align";
+import { Alignment } from "../../ui/align";
 import { SwitchCursor } from "../../ui/common/utils";
 import { Input } from "../../media/input";
+import { Box } from "../../ui/box";
+import { NodeIcon } from "./adhocs";
 
 interface NodeTreeOptions {
   node: Node;
@@ -122,7 +117,6 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
       children: [
         new Container({
           width: 8 * node.depth,
-          child: null,
         }),
         Container.Shrink({
           margin: Edge.Right(6),
@@ -134,26 +128,19 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
             }),
           }),
         }),
-        new TypeIcon({
-          node,
-        }),
+        NodeIcon(node),
         new MouseSensor({
           onClick: () => onInspect(node),
           onHover: this.OnHover,
-          child: new BoxDecoration({
-            height: "stretch",
+          child: new Box({
+            width: "shrink",
             backgroundColor:
               isInspectingSelf || this._isHovering ? backgroundL1 : void 0,
-            child: Container.Shrink({
-              padding: Edge.Horizontal(6),
-              child: new Align({
-                width: "shrink",
-                alignment: Alignment.Left,
-                child: new Text({
-                  content: node.GetDisplayName(),
-                  fillStyle: colorTextNormal,
-                }),
-              }),
+            padding: Edge.Horizontal(6),
+            alignment: Alignment.Left,
+            child: new Text({
+              content: node.GetDisplayName(),
+              fillStyle: colorTextNormal,
             }),
           }),
         }),
@@ -200,58 +187,6 @@ class ExpandSwitcher extends CompositeWidget<ExpandSwitcherOptions> {
           onHover: this.OnHover,
           onClick: onExpand,
         })
-      : new Container({ width: 12, height: 12, child: null });
-  }
-}
-
-interface TypeIconOptions {
-  node: Node;
-}
-class TypeIcon extends NoChildWidget<TypeIconOptions> {
-  public readonly name: string = "EntityTypeIcon";
-  public readonly enableDrawing: boolean = true;
-
-  public _Draw(ctx: CanvasRenderingContext2D): void {
-    const { node } = this.options;
-
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-
-    if (node instanceof WidgetRoot) {
-      ctx.strokeStyle = "hsl(214deg 46% 66%)";
-      ctx.moveTo(0, 0);
-      ctx.lineTo(12, 0);
-      ctx.rect(0, 4, 12, 8);
-      ctx.stroke();
-    } else if (node instanceof Widget) {
-      ctx.strokeStyle = "hsl(214deg 46% 66%)";
-      ctx.rect(0, 0, 12, 12);
-      ctx.stroke();
-    } else if (node instanceof CanvasLayer) {
-      ctx.strokeStyle = "hsl(359deg 87% 79%)";
-      ctx.rect(0, 0, 9, 9);
-      ctx.moveTo(12, 4);
-      ctx.lineTo(12, 12);
-      ctx.lineTo(4, 12);
-      ctx.stroke();
-    } else if (node instanceof CanvasComposition) {
-      ctx.strokeStyle = "hsl(359deg 87% 79%)";
-      ctx.rect(0, 0, 12, 12);
-      ctx.fillStyle = "hsl(359deg 87% 79%)";
-      ctx.fillRect(5, 5, 7, 7);
-      ctx.stroke();
-    } else {
-      ctx.strokeStyle = "hsl(359deg 87% 79%)";
-      ctx.arc(6, 6, 6, 0, 360);
-      ctx.stroke();
-    }
-
-    ctx.closePath();
-  }
-
-  protected _Layout(constraint: Constraint): Size {
-    this._intrinsicWidth = 14;
-    this._intrinsicHeight = 12;
-    return { width: 14, height: 12 };
+      : new Container({ width: 12, height: 12 });
   }
 }

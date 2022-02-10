@@ -1,8 +1,7 @@
-import { Align, Alignment } from "../../ui/align";
+import { Alignment } from "../../ui/align";
 import { BoxDecoration } from "../../ui/boxDecoration";
 import { Edge } from "../../ui/common/edge";
 import { Length } from "../../ui/common/types";
-import { Container } from "../../ui/container";
 import { Column, Flex, Row } from "../../ui/flex/flex";
 import { CompositeWidget } from "../../ui/foundation/compositeWidget";
 import { SingleChildWidget } from "../../ui/foundation/singleChildWidget";
@@ -13,6 +12,7 @@ import { ThemeContext } from "./theme";
 import { MouseSensor } from "../../ui/mouseSensor";
 import { BindThis } from "../../ui/foundation/decorator";
 import { SwitchCursor } from "../../ui/common/utils";
+import { Box } from "../../ui/box";
 
 interface TabsOptions extends SizableWidgetOptions {
   activeTab?: string;
@@ -48,8 +48,7 @@ export class Tabs extends SingleChildWidget<TabsOptions> {
       children: [
         // 标签栏
         Row({
-          width: "stretch",
-          height: 36,
+          height: "shrink",
           children: children.map(
             (child) =>
               new TabLabel({
@@ -118,21 +117,17 @@ class TabLabel extends CompositeWidget<TabLabelOptions> {
     return new MouseSensor({
       onHover: this.OnHover,
       onClick: this.OnClick,
-      child: new BoxDecoration({
+      child: new Box({
         key: label,
-        height: "stretch",
+        width: "shrink",
+        height: 36,
         backgroundColor: isActive ? backgroundL2 : backgroundL3,
-        child: Container.Shrink({
-          margin: Edge.Right(2),
-          padding: Edge.Horizontal(8),
-          child: new Align({
-            width: "shrink",
-            alignment: Alignment.Center,
-            child: new Text({
-              content: label,
-              fillStyle: isActive ? colorTextNormal : colorTextInactive,
-            }),
-          }),
+        margin: Edge.Right(2),
+        padding: Edge.Horizontal(8),
+        alignment: Alignment.Center,
+        child: new Text({
+          content: label,
+          fillStyle: isActive ? colorTextNormal : colorTextInactive,
         }),
       }),
     });

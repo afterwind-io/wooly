@@ -12,10 +12,10 @@ import { NodeTree } from "./nodeTreeItem";
 import { Button } from "../../ui/button";
 import { Container } from "../../ui/container";
 import { Edge } from "../../ui/common/edge";
-import { Scroll } from "../../ui/scroll/scroll";
-import { NodeDetail } from "./nodeDetail";
+import { Scroll, ScrollOverflowBehavior } from "../../ui/scroll/scroll";
 import { NodeMask } from "./nodeMask";
 import { InspectorContext } from "./context";
+import { NodeDetail } from "./adhocs";
 
 export class DevToolsInspector extends CompositeWidget {
   public readonly name: string = "DevToolsInspector";
@@ -80,8 +80,6 @@ export class DevToolsInspector extends CompositeWidget {
                   child: Container.Stretch({
                     padding: Edge.All(4),
                     child: new BoxDecoration({
-                      width: "stretch",
-                      height: "stretch",
                       backgroundColor: backgroundL3,
                       child: new Scroll({
                         child: Container.Shrink({
@@ -103,14 +101,11 @@ export class DevToolsInspector extends CompositeWidget {
                   child: Container.Stretch({
                     padding: new Edge(0, 4, 4, 4),
                     child: new BoxDecoration({
-                      width: "stretch",
-                      height: "stretch",
                       backgroundColor: backgroundL3,
                       child: new Scroll({
+                        overflowH: ScrollOverflowBehavior.Limit,
                         child: this._inspectingNode
-                          ? new NodeDetail({
-                              node: this._inspectingNode,
-                            })
+                          ? NodeDetail(this._inspectingNode)
                           : null,
                       }),
                     }),

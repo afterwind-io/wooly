@@ -7,6 +7,9 @@ interface ThemeContext {
   backgroundL1: string;
   colorTextNormal: string;
   colorTextInactive: string;
+  colorTextRed: string;
+  colorTextBlue: string;
+  colorTextGreen: string;
   borderNormal: string;
 }
 
@@ -18,6 +21,9 @@ export const ThemeContext = CreateWidgetContext<ThemeContext>(
     backgroundL1: "hsl(225deg 9% 35%)",
     colorTextNormal: "rgba(255, 255, 255, 0.85)",
     colorTextInactive: "rgba(255, 255, 255, 0.25)",
+    colorTextRed: "hsl(359deg 87% 79%)",
+    colorTextBlue: "hsl(214deg 46% 66%)",
+    colorTextGreen: "hsl(131deg 56% 72%)",
     borderNormal: "black",
   },
   "Theme"

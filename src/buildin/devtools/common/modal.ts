@@ -1,7 +1,6 @@
 import { Align, Alignment } from "../../ui/align";
 import { BoxDecoration } from "../../ui/boxDecoration";
 import { Edge } from "../../ui/common/edge";
-import { Container } from "../../ui/container";
 import { Column, Flex } from "../../ui/flex/flex";
 import { CompositeWidget } from "../../ui/foundation/compositeWidget";
 import {
@@ -17,6 +16,7 @@ import { DragDropState, EntityInputEvent } from "../../../core/manager/input";
 import { ThemeContext } from "./theme";
 import { Stack } from "../../ui/stack";
 import { SwitchCursor } from "../../ui/common/utils";
+import { Box } from "../../ui/box";
 
 interface ModalOptions extends SingleChildWidgetOptions, SizableWidgetOptions {
   title: string;
@@ -118,18 +118,13 @@ export class Modal extends CompositeWidget<ModalOptions> {
                 onDragStart: this.OnDragStart,
                 onDragMove: this.OnDragMove,
                 onDragEnd: this.OnDragEnd,
-                child: new BoxDecoration({
-                  width: "stretch",
-                  child: Container.Shrink({
-                    padding: Edge.Horizontal(16),
-                    child: new Align({
-                      alignment: Alignment.Left,
-                      child: new Text({
-                        content: title,
-                        fontSize: 12,
-                        fillStyle: colorTextNormal,
-                      }),
-                    }),
+                child: new Box({
+                  padding: Edge.Horizontal(16),
+                  alignment: Alignment.Left,
+                  child: new Text({
+                    content: title,
+                    fontSize: 12,
+                    fillStyle: colorTextNormal,
                   }),
                 }),
               }),

@@ -1,4 +1,5 @@
 import { Entity } from "../../../core/entity";
+import { DPRMatrix } from "../../../core/globals";
 import { Node } from "../../../core/node";
 
 export class NodeMask extends Entity {
@@ -8,11 +9,13 @@ export class NodeMask extends Entity {
   public _inspectingNode: Node | null = null;
   public _peekingNode: Node | null = null;
 
-  public _Draw(ctx: CanvasRenderingContext2D): void {
-    this.DrawMask(ctx, this._inspectingNode);
+  private _lineDashOffset: number = 0;
 
-    if (this._inspectingNode !== this._peekingNode) {
+  public _Draw(ctx: CanvasRenderingContext2D): void {
+    if (this._peekingNode) {
       this.DrawMask(ctx, this._peekingNode);
+    } else {
+      this.DrawMask(ctx, this._inspectingNode);
     }
   }
 
@@ -25,30 +28,20 @@ export class NodeMask extends Entity {
       return;
     }
 
+    const transform = DPRMatrix.Multiply(node.screenTransform);
+    ctx.setTransform(...transform.data);
+
+    const dimension = node.dimension;
     ctx.globalAlpha = 0.4;
     ctx.fillStyle = "hsl(214deg 46% 66%)";
-
-    const origin = node.ConvertToScreenPosition(node.position);
-    ctx.fillRect(
-      origin.x,
-      origin.y,
-      // @ts-expect-error
-      node._intrinsicWidth || node.width,
-      // @ts-expect-error
-      node._intrinsicHeight || node.height
-    );
-
+    ctx.fillRect(0, 0, dimension.x, dimension.y);
     ctx.globalAlpha = 1;
 
-    // ctx.fillStyle = "black";
-    // ctx.textAlign = "end";
-    // ctx.textBaseline = "top";
-    // ctx.fillText(
-    //   `${widget.GetDisplayName()} (${widget._intrinsicWidth}x${
-    //     widget._intrinsicHeight
-    //   })`,
-    //   origin.x + widget._intrinsicWidth,
-    //   origin.y + widget._intrinsicHeight + 4
-    // );
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "hsl(214deg 46% 30%)";
+    ctx.setLineDash([10, 5]);
+    ctx.lineDashOffset = this._lineDashOffset--;
+    ctx.strokeRect(0, 0, dimension.x, dimension.y);
+    ctx.setLineDash([]);
   }
 }
