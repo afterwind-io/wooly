@@ -4,6 +4,7 @@ export default { Create };
 // core
 export { Engine } from "./core/engine";
 export { Entity, EntitySignals } from "./core/entity";
+export { EntityInputEvent } from "./core/manager/input";
 export { Insights } from "./core/insights";
 export { CanvasComposition } from "./core/canvasComposition";
 export { CanvasLayer } from "./core/canvasLayer";
