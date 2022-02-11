@@ -124,7 +124,7 @@ export class Modal extends CompositeWidget<ModalOptions> {
                   child: new Text({
                     content: title,
                     fontSize: 12,
-                    fillStyle: colorTextNormal,
+                    color: colorTextNormal,
                   }),
                 }),
               }),

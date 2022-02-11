@@ -61,7 +61,7 @@ export { Opacity } from "./buildin/ui/opacity";
 export { Radio } from "./buildin/ui/radio";
 export { Scroll, ScrollOverflowBehavior } from "./buildin/ui/scroll/scroll";
 export { Stack } from "./buildin/ui/stack";
-export { Text } from "./buildin/ui/text";
+export { Text, TextStyle } from "./buildin/ui/text";
 export { TextInput } from "./buildin/ui/textInput";
 export { Transform } from "./buildin/ui/transform";
 export { Transition } from "./buildin/ui/transition";

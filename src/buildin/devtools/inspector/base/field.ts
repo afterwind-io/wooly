@@ -33,7 +33,7 @@ export class Field extends CompositeWidget<FieldOptions> {
             height: "shrink",
             child: new Text({
               content: label,
-              fillStyle: colorTextNormal,
+              color: colorTextNormal,
             }),
           }),
           Row.Expanded({
@@ -71,7 +71,7 @@ class FieldValuePlain extends CompositeWidget<FieldValuePlainOptions> {
       backgroundColor: backgroundL2,
       child: new Text({
         content: value + "",
-        fillStyle: colorTextNormal,
+        color: colorTextNormal,
       }),
     });
   }
@@ -98,7 +98,7 @@ class FieldValueVector2 extends CompositeWidget<FieldValueVector2Options> {
           alignment: Alignment.Center,
           child: new Text({
             content: "x",
-            fillStyle: colorTextRed,
+            color: colorTextRed,
           }),
         }),
         Row.Expanded({
@@ -108,7 +108,7 @@ class FieldValueVector2 extends CompositeWidget<FieldValueVector2Options> {
             backgroundColor: backgroundL2,
             child: new Text({
               content: value.x + "",
-              fillStyle: colorTextNormal,
+              color: colorTextNormal,
             }),
           }),
         }),
@@ -118,7 +118,7 @@ class FieldValueVector2 extends CompositeWidget<FieldValueVector2Options> {
           alignment: Alignment.Center,
           child: new Text({
             content: "y",
-            fillStyle: colorTextBlue,
+            color: colorTextBlue,
           }),
         }),
         Row.Expanded({
@@ -128,7 +128,7 @@ class FieldValueVector2 extends CompositeWidget<FieldValueVector2Options> {
             backgroundColor: backgroundL2,
             child: new Text({
               content: value.y + "",
-              fillStyle: colorTextNormal,
+              color: colorTextNormal,
             }),
           }),
         }),

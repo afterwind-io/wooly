@@ -7,16 +7,12 @@ import { SingleChildWidget } from "./foundation/singleChildWidget";
 import { SizableWidgetOptions, WidgetElement } from "./foundation/types";
 import { MouseSensor } from "./mouseSensor";
 import { Opacity } from "./opacity";
-import { Text } from "./text";
+import { Text, TextStyle } from "./text";
 
-interface TextInputOptions extends SizableWidgetOptions {
+interface TextInputOptions extends TextStyle, SizableWidgetOptions {
   value: string;
   placeholder?: string;
   onChange(value: string): void;
-  color?: string;
-  fontName?: string;
-  fontSize?: number;
-  fontWeight?: number;
 }
 
 /**
@@ -129,7 +125,7 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
 
     const inputElement = this.$inputElement;
     inputElement.value = value;
-    inputElement.style.color = color;
+    inputElement.style.color = color as string;
     inputElement.style.fontFamily = fontName;
     inputElement.style.fontSize = `${fontSize}px`;
     inputElement.style.fontWeight = `${fontWeight}`;
@@ -144,10 +140,10 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
             opacity: 0.5,
             child: new Text({
               content: placeholder,
-              fillStyle: color,
-              fontName: fontName,
-              fontSize: fontSize,
-              fontWeight: fontWeight,
+              color,
+              fontName,
+              fontSize,
+              fontWeight,
             }),
           }),
         })

@@ -140,7 +140,7 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
             alignment: Alignment.Left,
             child: new Text({
               content: node.GetDisplayName(),
-              fillStyle: colorTextNormal,
+              color: colorTextNormal,
             }),
           }),
         }),

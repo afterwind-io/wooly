@@ -35,7 +35,7 @@ export class NodeDetailTitle extends CompositeWidget<NodeDetailTitleOptions> {
             margin: Edge.Left(6),
             child: new Text({
               content: `${node.GetDisplayName()} ${description}`,
-              fillStyle: colorTextNormal,
+              color: colorTextNormal,
             }),
           }),
         ],
@@ -82,7 +82,7 @@ export class NodeDetailSection extends CompositeWidget<NodeDetailCommonOptions> 
         new NodeDetailSectionTitle({
           title: new Text({
             content: title,
-            fillStyle: colorTextNormal,
+            color: colorTextNormal,
           }),
         }),
 

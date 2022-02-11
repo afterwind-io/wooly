@@ -6,12 +6,15 @@ import { NoChildWidget } from "./foundation/noChildWidget";
 // @ts-ignore
 const offscreenContext = new OffscreenCanvas(0, 0).getContext("2d")!;
 
-interface TextOptions {
-  content: string;
+export interface TextStyle {
+  color?: CanvasFillStrokeStyles["fillStyle"];
   fontName?: string;
   fontSize?: number;
   fontWeight?: number;
-  fillStyle?: CanvasFillStrokeStyles["fillStyle"];
+}
+
+interface TextOptions extends TextStyle {
+  content: string;
 }
 
 const DEFAULT_FONT_NAME = "sans-serif";
@@ -26,10 +29,10 @@ export class Text extends NoChildWidget<TextOptions> {
   public _Draw(ctx: CanvasRenderingContext2D) {
     const {
       content = "",
+      color = DEFAULT_FILL_STYLE,
       fontName = DEFAULT_FONT_NAME,
       fontSize = DEFAULT_FONT_SIZE,
       fontWeight = DEFAULT_FONT_WEIGHT,
-      fillStyle = DEFAULT_FILL_STYLE,
     } = this.options;
 
     ctx.save();
@@ -44,7 +47,7 @@ export class Text extends NoChildWidget<TextOptions> {
     ctx.clip();
     ctx.closePath();
 
-    ctx.fillStyle = fillStyle;
+    ctx.fillStyle = color;
     ctx.font = this.GetFontRepr(fontWeight, fontSize, fontName);
     ctx.textBaseline = "top";
     ctx.textAlign = "start";

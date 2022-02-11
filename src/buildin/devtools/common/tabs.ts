@@ -127,7 +127,7 @@ class TabLabel extends CompositeWidget<TabLabelOptions> {
         alignment: Alignment.Center,
         child: new Text({
           content: label,
-          fillStyle: isActive ? colorTextNormal : colorTextInactive,
+          color: isActive ? colorTextNormal : colorTextInactive,
         }),
       }),
     });
