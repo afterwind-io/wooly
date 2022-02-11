@@ -64,14 +64,14 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
 
   protected NormalizeOptions(options: TextInputOptions): TextInputOptions {
     return {
-      width: "stretch",
-      height: "stretch",
-      color: "black",
-      fontName: "",
-      fontSize: 12,
-      fontWeight: 400,
-      placeholder: "",
       ...options,
+      width: options.width || "stretch",
+      height: options.height || "stretch",
+      color: options.color || "black",
+      fontName: options.fontName || "",
+      fontSize: options.fontSize || 12,
+      fontWeight: options.fontWeight || 400,
+      placeholder: options.placeholder || "",
     };
   }
 
@@ -123,12 +123,14 @@ export class TextInput extends SingleChildWidget<TextInputOptions> {
     const { value, placeholder, color, fontName, fontSize, fontWeight } = this
       .options as Required<TextInputOptions>;
 
-    const inputElement = this.$inputElement;
-    inputElement.value = value;
-    inputElement.style.color = color as string;
-    inputElement.style.fontFamily = fontName;
-    inputElement.style.fontSize = `${fontSize}px`;
-    inputElement.style.fontWeight = `${fontWeight}`;
+    if (this._isFocused) {
+      const inputElement = this.$inputElement;
+      inputElement.value = value;
+      inputElement.style.color = color as string;
+      inputElement.style.fontFamily = fontName;
+      inputElement.style.fontSize = `${fontSize}px`;
+      inputElement.style.fontWeight = `${fontWeight}`;
+    }
 
     const { width, height } = this.options as Required<TextInputOptions>;
     const placeholderWidget = !this._isFocused

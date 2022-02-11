@@ -27,21 +27,12 @@ export class Text extends NoChildWidget<TextOptions> {
   public readonly enableDrawing: boolean = true;
 
   public _Draw(ctx: CanvasRenderingContext2D) {
-    const {
-      content = "",
-      color = DEFAULT_FILL_STYLE,
-      fontName = DEFAULT_FONT_NAME,
-      fontSize = DEFAULT_FONT_SIZE,
-      fontWeight = DEFAULT_FONT_WEIGHT,
-    } = this.options;
+    const { content, color, fontName, fontSize, fontWeight } = this
+      .options as Required<TextOptions>;
 
     ctx.save();
 
-    /**
-     * FIXME
-     *
-     * Skip height clip due to no reliable method to measure the text height.
-     */
+    // FIXME Skip height clip due to no reliable method to measure the text height.
     ctx.beginPath();
     ctx.rect(0, 0, this._intrinsicWidth, 1000);
     ctx.clip();
@@ -57,12 +48,8 @@ export class Text extends NoChildWidget<TextOptions> {
   }
 
   protected _Layout(constraint: Constraint): Size {
-    const {
-      content = "",
-      fontName = DEFAULT_FONT_NAME,
-      fontSize = DEFAULT_FONT_SIZE,
-      fontWeight = DEFAULT_FONT_WEIGHT,
-    } = this.options;
+    const { content, fontName, fontSize, fontWeight } = this
+      .options as Required<TextOptions>;
 
     const height = fontSize;
     offscreenContext.font = this.GetFontRepr(fontWeight, fontSize, fontName);
@@ -74,6 +61,17 @@ export class Text extends NoChildWidget<TextOptions> {
     this._intrinsicHeight = Math.min(height, constrainedHeight);
 
     return { width, height };
+  }
+
+  protected NormalizeOptions(options: TextOptions): TextOptions {
+    return {
+      ...options,
+      color: options.color || DEFAULT_FILL_STYLE,
+      content: options.content || "",
+      fontName: options.fontName || DEFAULT_FONT_NAME,
+      fontSize: options.fontSize || DEFAULT_FONT_SIZE,
+      fontWeight: options.fontWeight || DEFAULT_FONT_WEIGHT,
+    };
   }
 
   private GetFontRepr(
