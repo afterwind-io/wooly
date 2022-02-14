@@ -59,6 +59,8 @@ export interface EntitySignals {
   OnDestroy: () => void;
 }
 
+type EntitySignalsMixin<SIG extends {}> = EntitySignals & SIG;
+
 /**
  * The base class of everything (almost) in the game.
  *
@@ -66,11 +68,9 @@ export interface EntitySignals {
  * @abstract
  * @class Entity
  * @extends {CanvasItem}
- * @template SIGNALS The type definition of the signals the `Entity` can emit.
+ * @template SIG The type definition of the signals the `Entity` can emit.
  */
-export abstract class Entity<
-  SIGNALS extends EntitySignals = EntitySignals
-> extends CanvasItem {
+export abstract class Entity<SIG = {}> extends CanvasItem {
   /**
    * Indicates whether to receive input events through `_Input` lifecycle method.
    *
@@ -158,10 +158,9 @@ export abstract class Entity<
    * The inner `Signal` instance.
    *
    * @private
-   * @type {Signal<SIGNALS>}
    * @memberof Entity
    */
-  private signals: Signal<SIGNALS> = new Signal();
+  private signals: Signal<EntitySignalsMixin<SIG>> = new Signal();
 
   /**
    * Get the Orientation of the node.
@@ -198,17 +197,17 @@ export abstract class Entity<
     }
   }
 
-  public Connect<S extends keyof SIGNALS>(
+  public Connect<S extends keyof EntitySignalsMixin<SIG>>(
     signal: S,
-    handler: SIGNALS[S],
+    handler: EntitySignalsMixin<SIG>[S],
     context?: any
   ) {
     this.signals.Connect(signal, handler, context);
   }
 
-  public Emit<S extends keyof SIGNALS>(
+  public Emit<S extends keyof EntitySignalsMixin<SIG>>(
     signal: S,
-    ...args: ParamType<SIGNALS[S]>
+    ...args: ParamType<EntitySignalsMixin<SIG>[S]>
   ) {
     this.signals.EmitWithWarning(signal, ...args);
   }

@@ -1,11 +1,10 @@
-import { EntitySignals } from "../../../core/entity";
 import { WidgetRenderables } from "./types";
 import { Widget } from "./widget";
 
-export abstract class NoChildWidget<
-  OPT = {},
-  SIG extends EntitySignals = EntitySignals
-> extends Widget<OPT, SIG> {
+export abstract class NoChildWidget<OPT = {}, SIG = {}> extends Widget<
+  OPT,
+  SIG
+> {
   public constructor(options: OPT) {
     super(options);
   }

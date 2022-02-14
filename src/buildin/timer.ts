@@ -1,4 +1,4 @@
-import { Entity, EntitySignals } from "../core/entity";
+import { Entity } from "../core/entity";
 import { CoolDown } from "../util/cooldown";
 
 /**
@@ -14,10 +14,10 @@ export const enum TimerBehavior {
   /**
    * Timer will restart on timeout.
    */
-  Repeat
+  Repeat,
 }
 
-interface TimerSignals extends EntitySignals {
+interface TimerSignals {
   /**
    * Emits when timer reaches 0.
    *

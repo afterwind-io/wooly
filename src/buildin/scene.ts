@@ -1,10 +1,10 @@
-import { Entity, EntitySignals } from '../core/entity';
+import { Entity } from "../core/entity";
 
 interface SceneCtor {
   new (): Scene;
 }
 
-interface SceneSignals extends EntitySignals {
+interface SceneSignals {
   OnSwitch: (next: string) => void;
   OnPush: (next: string) => void;
   OnPop: () => void;
@@ -26,7 +26,7 @@ export abstract class Scene extends Entity<SceneSignals> {
    * @memberof Scene
    */
   public SwitchScene(next: string) {
-    this.Emit('OnSwitch', next);
+    this.Emit("OnSwitch", next);
   }
 
   /**
@@ -38,7 +38,7 @@ export abstract class Scene extends Entity<SceneSignals> {
    * @memberof Scene
    */
   public PushScene(next: string) {
-    this.Emit('OnPush', next);
+    this.Emit("OnPush", next);
   }
 
   /**
@@ -48,7 +48,7 @@ export abstract class Scene extends Entity<SceneSignals> {
    * @memberof Scene
    */
   public PopScene() {
-    this.Emit('OnPop');
+    this.Emit("OnPop");
   }
 }
 
@@ -86,7 +86,7 @@ interface SceneRegistry {
  * @extends {Entity}
  */
 export class SceneManager extends Entity {
-  public readonly name: string = 'SceneManager';
+  public readonly name: string = "SceneManager";
 
   private registry: Record<string, SceneRegistry> = {};
   private stack: string[] = [];
@@ -171,9 +171,9 @@ export class SceneManager extends Entity {
     const { ctor } = registry;
 
     const instance = (registry.instance = new ctor());
-    instance.Connect('OnSwitch', this.OnSwitchTo, this);
-    instance.Connect('OnPush', this.OnPush, this);
-    instance.Connect('OnPop', this.OnPop, this);
+    instance.Connect("OnSwitch", this.OnSwitchTo, this);
+    instance.Connect("OnPush", this.OnPush, this);
+    instance.Connect("OnPop", this.OnPop, this);
 
     this.AddChild(instance);
   }
@@ -181,7 +181,7 @@ export class SceneManager extends Entity {
   private GetCurrentScene(): string {
     const count = this.stack.length;
     if (count === 0) {
-      throw new Error('');
+      throw new Error("");
     }
 
     return this.stack[count - 1];
@@ -206,7 +206,7 @@ export class SceneManager extends Entity {
   private OnPop() {
     const from = this.stack.pop();
     if (!from) {
-      throw new Error('[wooly] No more scene on stack.');
+      throw new Error("[wooly] No more scene on stack.");
     }
 
     const to = this.GetCurrentScene();

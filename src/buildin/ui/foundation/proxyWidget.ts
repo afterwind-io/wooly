@@ -1,4 +1,3 @@
-import { EntitySignals } from "../../../core/entity";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { WidgetElement } from "./types";
@@ -15,7 +14,7 @@ interface ProxyWidgetOptions {
  */
 export abstract class ProxyWidget<
   OPT extends ProxyWidgetOptions = ProxyWidgetOptions,
-  SIG extends EntitySignals = EntitySignals
+  SIG = {}
 > extends Widget<OPT, SIG> {
   protected _Layout(constraint: Constraint): Size {
     return this.GetFirstChild()!.$Layout(constraint);

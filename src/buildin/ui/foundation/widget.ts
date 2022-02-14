@@ -1,5 +1,5 @@
 import { CanvasComposition } from "../../../core/canvasComposition";
-import { Entity, EntitySignals } from "../../../core/entity";
+import { Entity } from "../../../core/entity";
 import { PersistCached } from "../../../util/persistCachedGetter";
 import { ReadonlyVector2, Vector2 } from "../../../util/vector2";
 import { Constraint } from "../common/constraint";
@@ -30,10 +30,7 @@ type WidgetFiber = WidgetFragmentFiber | WidgetClassFiber;
 
 type CommonWidgetOptionsMixin<OPT extends {}> = CommonWidgetOptions & OPT;
 
-export abstract class Widget<
-  OPT = {},
-  SIG extends EntitySignals = EntitySignals
-> extends Entity<SIG> {
+export abstract class Widget<OPT = {}, SIG = {}> extends Entity<SIG> {
   public abstract readonly name: string;
   public readonly childSizeIndependent: boolean = false;
 

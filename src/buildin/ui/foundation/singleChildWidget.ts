@@ -1,14 +1,13 @@
-import { EntitySignals } from "../../../core/entity";
 import { Widget } from "./widget";
 import { Constraint } from "../common/constraint";
 import { Length, Size } from "../common/types";
 import { GetLocalLength } from "../common/utils";
 import { SingleChildWidgetOptions as _SingleChildWidgetOptions } from "./types";
 
-export abstract class SingleChildWidget<
-  OPT = {},
-  SIG extends EntitySignals = EntitySignals
-> extends Widget<OPT, SIG> {
+export abstract class SingleChildWidget<OPT = {}, SIG = {}> extends Widget<
+  OPT,
+  SIG
+> {
   public abstract readonly name: string;
 
   protected abstract readonly isLooseBox: boolean;

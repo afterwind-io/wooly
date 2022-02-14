@@ -1,4 +1,4 @@
-import { Entity, EntitySignals } from "../core/entity";
+import { Entity } from "../core/entity";
 import { CoolDown } from "../util/cooldown";
 import { Vector2 } from "../util/vector2";
 import { Dice } from "../util/dice";
@@ -105,7 +105,7 @@ export class Particles extends Entity {
   }
 }
 
-interface ParticleSignals extends EntitySignals {
+interface ParticleSignals {
   OnVanish: () => void;
 }
 

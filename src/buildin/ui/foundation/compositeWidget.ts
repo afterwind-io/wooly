@@ -1,4 +1,3 @@
-import { EntitySignals } from "../../../core/entity";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { Widget } from "./widget";
@@ -14,10 +13,10 @@ import { Widget } from "./widget";
  *
  * 绝大多数的业务组件都应该继承此类。
  */
-export abstract class CompositeWidget<
-  OPT = {},
-  SIG extends EntitySignals = EntitySignals
-> extends Widget<OPT, SIG> {
+export abstract class CompositeWidget<OPT = {}, SIG = {}> extends Widget<
+  OPT,
+  SIG
+> {
   protected _Layout(constraint: Constraint): Size {
     const child = this.GetFirstChild();
     if (child) {
