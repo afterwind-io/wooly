@@ -26,10 +26,8 @@ export class Modal extends CompositeWidget<ModalOptions> {
   public readonly name: string = "Modal";
   public readonly enableInputEvents: boolean = true;
 
-  private _prevPosition!: Vector2;
   private _hasSizeChanged: boolean = false;
   private _size!: Vector2;
-  private _prevSize!: Vector2;
 
   public _Input(event: EntityInputEvent): false | void {
     return false;
@@ -41,20 +39,18 @@ export class Modal extends CompositeWidget<ModalOptions> {
   }
 
   @BindThis
-  private OnDragStart(): void {
-    this._prevPosition = this.position;
+  private OnDragMouseDown(): void {
+    SwitchCursor(true, "grabbing");
   }
 
   @BindThis
   private OnDragMove(state: DragDropState): void {
-    SwitchCursor(true, "grabbing");
-    this.position = this._prevPosition.Add(state.dragOffset);
+    this.position = this.position.Add(state.dragDelta);
   }
 
   @BindThis
   private OnDragEnd(): void {
     SwitchCursor(true, "grab");
-    this._prevPosition = this.position;
   }
 
   @BindThis
@@ -65,14 +61,13 @@ export class Modal extends CompositeWidget<ModalOptions> {
   @BindThis
   private OnResizeStart(): void {
     this._size = new Vector2(this._intrinsicWidth, this._intrinsicHeight);
-    this._prevSize = this._size;
     this._hasSizeChanged = true;
   }
 
   @Reactive
   private OnResizeMove(state: DragDropState): void {
+    this._size = this._size.Add(state.dragDelta);
     SwitchCursor(true, "nwse-resize");
-    this._size = this._prevSize.Add(state.dragOffset);
   }
 
   protected _Render(): Widget | null {
@@ -115,7 +110,8 @@ export class Modal extends CompositeWidget<ModalOptions> {
                 height: 36,
                 draggable: true,
                 onHover: this.OnDragHover,
-                onDragStart: this.OnDragStart,
+                onKeyDown: this.OnDragMouseDown,
+                onDragStart: this.OnDragMouseDown,
                 onDragMove: this.OnDragMove,
                 onDragEnd: this.OnDragEnd,
                 child: new Box({

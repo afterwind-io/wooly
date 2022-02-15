@@ -12,6 +12,8 @@ const DRAG_START_THRESHOLD = 3;
 const GlobalDragDropState = new (class DragDropState {
   private data: any = null;
   private dragStartPosition: ReadonlyVector2 = new Vector2();
+  private dragPenuPosition: ReadonlyVector2 = new Vector2();
+  private dragPrevPosition: ReadonlyVector2 = new Vector2();
   private source: Entity | null = null;
 
   public get isDragging(): boolean {
@@ -26,9 +28,13 @@ const GlobalDragDropState = new (class DragDropState {
     return this.dragOffset.Length;
   }
 
+  public get dragDelta(): Vector2 {
+    return this.dragPrevPosition.Subtract(this.dragPenuPosition);
+  }
+
   public get dragOffset(): Vector2 {
-    const currentPosition = Input.GetMousePosition();
-    return currentPosition.Subtract(this.dragStartPosition);
+    const mousePosition = Input.GetMousePosition();
+    return mousePosition.Subtract(this.dragStartPosition);
   }
 
   public ClearData(): void {
@@ -37,6 +43,9 @@ const GlobalDragDropState = new (class DragDropState {
 
   public ClearSource(): void {
     this.source = null;
+    this.dragStartPosition = Vector2.Zero;
+    this.dragPenuPosition = Vector2.Zero;
+    this.dragPrevPosition = Vector2.Zero;
   }
 
   public GetData(): any {
@@ -56,7 +65,16 @@ const GlobalDragDropState = new (class DragDropState {
   }
 
   public SetDragStartPoint(): void {
-    this.dragStartPosition = Input.GetMousePosition();
+    const mousePosition = Input.GetMousePosition();
+    this.dragStartPosition = mousePosition;
+    this.dragPenuPosition = mousePosition;
+    this.dragPrevPosition = mousePosition;
+  }
+
+  public UpdateDragPosition(): void {
+    const mousePosition = Input.GetMousePosition();
+    this.dragPenuPosition = this.dragPrevPosition;
+    this.dragPrevPosition = mousePosition;
   }
 })();
 
@@ -228,6 +246,7 @@ export class MouseState {
       case MouseDragDrop.DragMove: {
         if (isMouseButtonDown) {
           emitEvent("DragMove");
+          GlobalDragDropState.UpdateDragPosition();
           return MouseDragDrop.DragMove;
         }
 
