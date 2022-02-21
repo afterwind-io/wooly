@@ -1,4 +1,4 @@
-import { Clamp } from "../ui/common/utils";
+import { MathEx } from "../../util/math";
 import { AnimationTrack } from "./track";
 
 abstract class AnimationController {
@@ -67,10 +67,10 @@ class ACSwing extends AnimationController {
 
     if (timestamp >= duration) {
       this.direction *= -1;
-      timestamp = Clamp(duration - (timestamp - duration), 0, duration);
+      timestamp = MathEx.Clamp(duration - (timestamp - duration), 0, duration);
     } else if (timestamp < 0) {
       this.direction *= -1;
-      timestamp = Clamp(0 - timestamp, 0, duration);
+      timestamp = MathEx.Clamp(0 - timestamp, 0, duration);
     }
 
     this.timestamp = timestamp;

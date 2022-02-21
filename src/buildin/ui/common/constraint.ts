@@ -1,5 +1,5 @@
+import { MathEx } from "../../../util/math";
 import { Length, Size } from "./types";
-import { Clamp } from "./utils";
 
 export class Constraint {
   public readonly minWidth: number;
@@ -118,7 +118,7 @@ export class Constraint {
     } else if (desiredLength === "shrink") {
       return min;
     } else {
-      return Clamp(desiredLength, min, max);
+      return MathEx.Clamp(desiredLength, min, max);
     }
   }
 }

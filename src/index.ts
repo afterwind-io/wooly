@@ -96,6 +96,7 @@ export { Color } from "./util/color";
 export { CoolDown } from "./util/cooldown";
 export { Dice } from "./util/dice";
 export { GetUniqId } from "./util/idgen";
+export { MathEx } from "./util/math";
 export * from "./util/common";
 
 // types

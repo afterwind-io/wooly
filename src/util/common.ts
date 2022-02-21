@@ -8,7 +8,3 @@ export function Blackhole(): void {
 export function Identity<T>(arg: T): T {
   return arg;
 }
-
-export function Deg2Rad(deg: number): number {
-  return (Math.PI / 180) * deg;
-}

@@ -4,9 +4,9 @@ import {
   SizableWidgetOptions,
   WidgetElement,
 } from "./foundation/types";
-import { Clamp } from "./common/utils";
 import { Vector2 } from "../../util/vector2";
 import { Length } from "./common/types";
+import { MathEx } from "../../util/math";
 
 export class Alignment {
   public readonly x: number;
@@ -106,14 +106,22 @@ export class Align extends SingleChildWidget<AlignOptions> {
     const childHeight = child._intrinsicHeight;
 
     const maxPosX = width - childWidth;
-    const centerX = Clamp(width * alignment.x - childWidth / 2, 0, maxPosX);
+    const centerX = MathEx.Clamp(
+      width * alignment.x - childWidth / 2,
+      0,
+      maxPosX
+    );
 
     const maxPosY = height - childHeight;
-    const centerY = Clamp(height * alignment.y - childHeight / 2, 0, maxPosY);
+    const centerY = MathEx.Clamp(
+      height * alignment.y - childHeight / 2,
+      0,
+      maxPosY
+    );
 
     const childPosition = new Vector2(
-      Clamp(centerX + offset.x, 0, maxPosX),
-      Clamp(centerY + offset.y, 0, maxPosY)
+      MathEx.Clamp(centerX + offset.x, 0, maxPosX),
+      MathEx.Clamp(centerY + offset.y, 0, maxPosY)
     );
     child.position = childPosition;
   }

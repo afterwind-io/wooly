@@ -6,7 +6,7 @@ import {
   SizableWidgetOptions,
   WidgetElement,
 } from "../foundation/types";
-import { Clamp, GetLocalLength } from "../common/utils";
+import { GetLocalLength } from "../common/utils";
 import { CanvasComposition } from "../../../core/canvasComposition";
 import { GetUniqId } from "../../../util/idgen";
 import { Vector2 } from "../../../util/vector2";
@@ -16,6 +16,7 @@ import { CreateWidgetRef, WidgetRefObject } from "../foundation/ref";
 import { ScrollDirection } from "./types";
 import { BAR_MIN_LENGTH, BAR_SIZE, ScrollBar } from "./scrollBar";
 import { Input } from "../../media/input";
+import { MathEx } from "../../../util/math";
 
 export const enum ScrollOverflowBehavior {
   /**
@@ -133,11 +134,13 @@ export class Scroll extends Widget<ScrollOptions> {
     const { overflowH, overflowV } = this.options as Required<ScrollOptions>;
     if (overflowV === ScrollOverflowBehavior.Scroll) {
       const delta = scrollHeight - clientHeight;
-      this.scrollV = delta < 0 ? 0 : Clamp(this.scrollV + deltaV, 0, delta);
+      this.scrollV =
+        delta < 0 ? 0 : MathEx.Clamp(this.scrollV + deltaV, 0, delta);
     }
     if (overflowH === ScrollOverflowBehavior.Scroll) {
       const delta = scrollWidth - clientWidth;
-      this.scrollH = delta < 0 ? 0 : Clamp(this.scrollH + deltaH, 0, delta);
+      this.scrollH =
+        delta < 0 ? 0 : MathEx.Clamp(this.scrollH + deltaH, 0, delta);
     }
 
     const shouldEnableBarH =
@@ -298,9 +301,9 @@ export class Scroll extends Widget<ScrollOptions> {
       const barDelta = trackLength - barLength;
 
       const ratio = scrollDelta / barDelta;
-      this.scrollH = Clamp(this.scrollH + delta * ratio, 0, scrollDelta);
+      this.scrollH = MathEx.Clamp(this.scrollH + delta * ratio, 0, scrollDelta);
 
-      $barH.barOffset = Clamp($barH.barOffset + delta, 0, barDelta);
+      $barH.barOffset = MathEx.Clamp($barH.barOffset + delta, 0, barDelta);
     } else {
       const trackLength = $barV.trackLength;
       const barLength = $barV.barLength;
@@ -309,9 +312,9 @@ export class Scroll extends Widget<ScrollOptions> {
       const barDelta = trackLength - barLength;
 
       const ratio = scrollDelta / barDelta;
-      this.scrollV = Clamp(this.scrollV + delta * ratio, 0, scrollDelta);
+      this.scrollV = MathEx.Clamp(this.scrollV + delta * ratio, 0, scrollDelta);
 
-      $barV.barOffset = Clamp($barV.barOffset + delta, 0, barDelta);
+      $barV.barOffset = MathEx.Clamp($barV.barOffset + delta, 0, barDelta);
     }
 
     // 滚动位置发生变化不会变更自身及子代的layout，只会变更直接子代的位置

@@ -1,8 +1,5 @@
+import { MathEx } from "../../../util/math";
 import { Length } from "./types";
-
-export function Clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
 
 export function GetLocalLength(
   min: number,
@@ -18,7 +15,7 @@ export function GetLocalLength(
     return max;
   }
 
-  return Clamp(desiredLength, min, max);
+  return MathEx.Clamp(desiredLength, min, max);
 }
 
 export function SwitchCursor(
