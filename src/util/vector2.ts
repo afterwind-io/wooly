@@ -1,4 +1,4 @@
-import { MathEx } from "./math";
+import { Lerp } from "./math";
 import { Matrix2d } from "./matrix2d";
 
 export type ReadonlyVector2 = Readonly<Vector2>;
@@ -65,8 +65,8 @@ export class Vector2 {
   }
 
   public Lerp(target: Vector2, t: number): Vector2 {
-    const x = MathEx.Lerp(t, this.x, target.x);
-    const y = MathEx.Lerp(t, this.y, target.y);
+    const x = Lerp(t, this.x, target.x);
+    const y = Lerp(t, this.y, target.y);
     return new Vector2(x, y);
   }
 

@@ -1,4 +1,4 @@
-import { MathEx } from "../../../util/math";
+import { Clamp } from "../../../util/math";
 import { Length, Size } from "./types";
 
 export class Constraint {
@@ -118,7 +118,7 @@ export class Constraint {
     } else if (desiredLength === "shrink") {
       return min;
     } else {
-      return MathEx.Clamp(desiredLength, min, max);
+      return Clamp(desiredLength, min, max);
     }
   }
 }

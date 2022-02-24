@@ -15,7 +15,7 @@ import { SwitchCursor } from "../../ui/common/utils";
 import { Input } from "../../media/input";
 import { Box } from "../../ui/box";
 import { NodeIcon } from "./adhocs";
-import { MathEx } from "../../../util/math";
+import { Deg2Rad } from "../../../util/math";
 
 interface NodeTreeOptions {
   node: Node;
@@ -121,7 +121,7 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
         Container.Shrink({
           margin: Edge.Right(6),
           child: new Transform({
-            rotation: isExpand ? MathEx.Deg2Rad(90) : 0,
+            rotation: isExpand ? Deg2Rad(90) : 0,
             child: new ExpandSwitcher({
               enabled: hasChildren,
               onExpand,
