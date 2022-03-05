@@ -144,8 +144,18 @@ export abstract class Tangible extends Node {
    * @param screenPoint The point on the screen
    * @returns The local position
    */
-  public ConvertToLocalSpace(screenPoint: Vector2): Vector2 {
+  public ConvertScreenToLocalSpace(screenPoint: Vector2): Vector2 {
     return screenPoint.Transform(this.screenTransform.Invert());
+  }
+
+  /**
+   * Calculate the actual position in the local space of the specified point in the world space.
+   *
+   * @param worldPoint The point in the world space
+   * @returns The local position
+   */
+  public ConvertWorldToLocalSpace(worldPoint: Vector2): Vector2 {
+    return worldPoint.Transform(this.globalTransform.Invert());
   }
 
   /**
@@ -159,17 +169,13 @@ export abstract class Tangible extends Node {
   }
 
   /**
-   * Calculate the actual position in world space of the specified point in the local space.
+   * Calculate the actual position in the world space of the specified point in the local space.
    *
    * @param localPoint The point in the local space
    * @returns The world position
    */
   public ConvertToWorldSpace(localPoint: Vector2 = Vector2.Zero): Vector2 {
-    if (!this.parent) {
-      return localPoint;
-    }
-
-    return localPoint.Transform(this.parent.globalTransform);
+    return localPoint.Transform(this.globalTransform);
   }
 
   /**
@@ -189,7 +195,7 @@ export abstract class Tangible extends Node {
       return false;
     }
 
-    const { x, y } = this.ConvertToLocalSpace(screenPoint);
+    const { x, y } = this.ConvertScreenToLocalSpace(screenPoint);
     return x >= 0 && x < width && y >= 0 && y < height;
   }
 
