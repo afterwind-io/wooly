@@ -1,8 +1,8 @@
 export class Color {
-  private r: number = 0;
-  private g: number = 0;
-  private b: number = 0;
-  private a: number = 1;
+  public readonly r: number = 0;
+  public readonly g: number = 0;
+  public readonly b: number = 0;
+  public readonly a: number = 1;
 
   constructor(r: number = 0, g: number = 0, b: number = 0, a: number = 1) {
     this.r = r;
