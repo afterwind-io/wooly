@@ -12,6 +12,19 @@ export class Vector2 {
     this.y = y;
   }
 
+  public static Equals(v1: Vector2, v2: Vector2): boolean {
+    const x1 = v1.x;
+    const x2 = v2.x;
+    const y1 = v1.y;
+    const y2 = v2.y;
+    return (
+      Math.abs(x1 - x2) <=
+        Number.EPSILON * Math.max(1.0, Math.abs(x1), Math.abs(x2)) &&
+      Math.abs(y1 - y2) <=
+        Number.EPSILON * Math.max(1.0, Math.abs(y1), Math.abs(y2))
+    );
+  }
+
   public static get Right(): Vector2 {
     return new Vector2(1, 0);
   }
@@ -57,7 +70,7 @@ export class Vector2 {
   }
 
   public Equals(v: Vector2): boolean {
-    return this.x === v.x && this.y === v.y;
+    return Vector2.Equals(this, v);
   }
 
   public Flip(): Vector2 {
