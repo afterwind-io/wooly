@@ -43,13 +43,14 @@ export abstract class State<T> {
    * Decide which state is the next.
    *
    * @abstract
+   * @param args Any parameters to be passed to the `Next` method of current state.
    * @returns {(State<T> | string)} The next state.
    * If a string is returned,
    * the state machine will take it as the state name,
    * and fetch the corresponding state from its registry.
    * @memberof State
    */
-  public abstract Next(): State<T> | string;
+  public abstract Next(...args: unknown[]): State<T> | string;
 
   /**
    * [Lifecycle]
@@ -71,9 +72,9 @@ export abstract class State<T> {
    * [Lifecycle]
    * Called when state machine updates if itself is the current state.
    *
-   * @memberof State
+   * @param args Any parameters to be passed to the `Update` method of current state.
    */
-  public Update() {}
+  public Update(...args: unknown[]) {}
 
   /**
    * [Lifecycle]
@@ -108,9 +109,9 @@ class EmptyState extends State<any> {
 export class StateMachine<T> {
   /**
    * The reference to the host object.
-   * 
+   *
    * A `host` means the target it attached to.
-   * 
+   *
    * ```typescript
    * // `host` points to the instance of the `Player`
    * class Player extends Entity {
@@ -183,10 +184,11 @@ export class StateMachine<T> {
    * ```
    *
    * @param {State<T> | string} [forceNext] The state object or state name.
+   * @param args Any parameters to be passed to the `Next` method of current state.
    * @memberof StateMachine
    */
-  public Next(forceNext?: State<T> | string): void {
-    const next = this.GetUniformState(forceNext || this.current.Next());
+  public Next(forceNext?: State<T> | string, ...args: unknown[]): void {
+    const next = this.GetUniformState(forceNext || this.current.Next(...args));
 
     if (next == this.current) {
       this.previous = this.current;
@@ -212,11 +214,11 @@ export class StateMachine<T> {
   public Register(state: State<T>): this;
   /**
    * Register a state.
-   * 
+   *
    * The state machine will instantiate the state with its host reference.
    * ```typescript
    * class StateA extends State<Player>{}
-   * 
+   *
    * this.stateMachine.Register(StateA);
    * // StateA.host === this.stateMachine.host
    * ```
@@ -268,10 +270,10 @@ export class StateMachine<T> {
    *
    * In other words, call the `Update` method of the current state.
    *
-   * @memberof StateMachine
+   * @param args Any parameters to be passed to the `Update` method of current state.
    */
-  public Update() {
-    this.current.Update();
+  public Update(...args: unknown[]) {
+    this.current.Update(...args);
   }
 
   private GetUniformState(s: State<T> | string) {
