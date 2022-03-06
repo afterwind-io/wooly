@@ -4,7 +4,7 @@ import { WidgetElement } from "./types";
 import { Widget } from "./widget";
 
 interface ProxyWidgetOptions {
-  child: Widget;
+  child: Widget | null;
 }
 
 /**
@@ -17,7 +17,12 @@ export abstract class ProxyWidget<
   SIG = {}
 > extends Widget<OPT, SIG> {
   protected _Layout(constraint: Constraint): Size {
-    return this.GetFirstChild()!.$Layout(constraint);
+    const child = this.GetFirstChild();
+    if (!child) {
+      return { width: 0, height: 0 };
+    }
+
+    return child.$Layout(constraint);
   }
 
   protected _Render(): WidgetElement {
