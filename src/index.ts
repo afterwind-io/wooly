@@ -55,7 +55,7 @@ export {
   Row,
   Column,
 } from "./buildin/ui/flex/flex";
-export { Grid } from "./buildin/ui/grid";
+export { Grid, GridArea, GridView } from "./buildin/ui/grid";
 export { MouseSensor } from "./buildin/ui/mouseSensor";
 export { Opacity } from "./buildin/ui/opacity";
 export { Radio } from "./buildin/ui/radio";
