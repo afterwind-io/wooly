@@ -1,4 +1,3 @@
-import { CanvasLayer } from "../../core/canvasLayer";
 import { Entity } from "../../core/entity";
 import { WidgetRoot } from "../ui/root";
 import { DevToolsApp } from "./app";
@@ -6,13 +5,12 @@ import { DevToolsApp } from "./app";
 export class DevTools extends Entity {
   public readonly name: string = "DevTools";
 
-  public _Ready() {
-    const layer = new CanvasLayer(100000000);
-    this.AddChild(layer);
+  public constructor(builder: () => Entity) {
+    super();
 
-    layer.AddChild(
+    this.AddChild(
       new WidgetRoot({
-        child: new DevToolsApp({}),
+        child: new DevToolsApp(builder),
       })
     );
   }

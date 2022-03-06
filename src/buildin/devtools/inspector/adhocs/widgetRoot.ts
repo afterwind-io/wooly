@@ -20,7 +20,7 @@ export class NodeDetailWidgetRoot extends CompositeWidget<NodeDetailWidgetRootOp
       children: [
         new NodeDetailTitle({
           node,
-          icon: new NodeIconWidgetRoot({ node }),
+          icon: new NodeIconWidgetRoot({}),
         }),
 
         new NodeDetailSectionTransform({ node }),

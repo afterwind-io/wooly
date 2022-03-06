@@ -1,6 +1,6 @@
-import { SystemTimer } from './systemTimer';
-import { CanvasManager } from './manager/canvas';
-import { Vector2 } from '../util/vector2';
+import { SystemTimer } from "./systemTimer";
+import { ReadonlyVector2 } from "../util/vector2";
+import { LogicalDimension } from "./globals";
 
 export const Insights = new (class Insights {
   /**
@@ -10,8 +10,8 @@ export const Insights = new (class Insights {
    * @returns {Vector2} The size object.
    * @memberof Insights
    */
-  public get Dimension(): Vector2 {
-    return CanvasManager.Dimension;
+  public get Dimension(): ReadonlyVector2 {
+    return LogicalDimension;
   }
 
   /**

@@ -1,6 +1,6 @@
 import { Input } from "./buildin/media/input";
 import { Engine } from "./core/engine";
-import { DPR } from "./core/globals";
+import { DPR, LogicalDimension } from "./core/globals";
 import { CanvasManager } from "./core/manager/canvas";
 
 /**
@@ -37,6 +37,9 @@ export function Create(
 
   Input.Attach(canvas);
   CanvasManager.SetHost(canvas, backend);
+
+  LogicalDimension.x = w;
+  LogicalDimension.y = h;
 
   return Engine;
 }

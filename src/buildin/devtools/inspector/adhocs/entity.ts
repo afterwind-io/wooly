@@ -24,7 +24,7 @@ export class NodeDetailEntity extends CompositeWidget<NodeDetailEntityOptions> {
       children: [
         new NodeDetailTitle({
           node,
-          icon: new NodeIconEntity({ node }),
+          icon: new NodeIconEntity({}),
         }),
 
         new NodeDetailSectionTangible({ node }),

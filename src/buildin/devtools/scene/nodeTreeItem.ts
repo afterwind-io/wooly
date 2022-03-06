@@ -9,16 +9,17 @@ import { Transform } from "../../ui/transform";
 import { ThemeContext } from "../common/theme";
 import { Text } from "../../ui/text";
 import { Node } from "../../../core/node";
-import { InspectorContext } from "./context";
 import { Alignment } from "../../ui/align";
 import { SwitchCursor } from "../../ui/common/utils";
 import { Input } from "../../media/input";
 import { Box } from "../../ui/box";
-import { NodeIcon } from "./adhocs";
+import { NodeIcon } from "../inspector/adhocs";
 import { Deg2Rad } from "../../../util/math";
+import { DevToolsContext } from "../context";
 
 interface NodeTreeOptions {
   node: Node;
+  depth?: number;
   recursiveExpand?: boolean;
 }
 
@@ -46,7 +47,7 @@ export class NodeTree extends CompositeWidget<NodeTreeOptions> {
   }
 
   protected _Render(): Widget | null {
-    const { node } = this.options;
+    const { node, depth = 0 } = this.options;
 
     let recursiveExpand = this._isRecursiveExpand;
     if (recursiveExpand) {
@@ -57,6 +58,7 @@ export class NodeTree extends CompositeWidget<NodeTreeOptions> {
       children: [
         new NodeTreeItem({
           node,
+          depth,
           isExpand: this._isExpanded,
           onExpand: this.OnExpand,
         }),
@@ -67,6 +69,7 @@ export class NodeTree extends CompositeWidget<NodeTreeOptions> {
                 (child) =>
                   new NodeTree({
                     node: child,
+                    depth: depth + 1,
                     recursiveExpand,
                   })
               ),
@@ -79,6 +82,7 @@ export class NodeTree extends CompositeWidget<NodeTreeOptions> {
 
 interface NodeTreeItemOptions {
   node: Node;
+  depth: number;
   isExpand: boolean;
   onExpand(): void;
 }
@@ -93,17 +97,17 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
     this._isHovering = isHovering;
 
     const { node } = this.options;
-    const { onPeek } = InspectorContext.Of(this);
-    onPeek(isHovering ? node : null);
+    const { PeekNode } = DevToolsContext.Of(this);
+    PeekNode(isHovering ? node : null);
 
     SwitchCursor(isHovering, "pointer");
   }
 
   protected _Render(): Widget | null {
-    const { node, isExpand, onExpand } = this.options;
+    const { node, depth, isExpand, onExpand } = this.options;
 
     const { backgroundL1, colorTextNormal } = ThemeContext.Of(this);
-    const { inspectingNode, onInspect } = InspectorContext.Of(this);
+    const { inspectingNode, InspectNode } = DevToolsContext.Of(this);
 
     // FIXME 用_lastChild判断开销比较小
     const hasChildren = node.children.length !== 0;
@@ -115,11 +119,8 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
       height: 20,
       crossAxisAlignment: FlexCrossAxisAlignment.Center,
       children: [
-        new Container({
-          width: 8 * node.depth,
-        }),
         Container.Shrink({
-          margin: Edge.Right(6),
+          margin: new Edge(8 * depth, 6),
           child: new Transform({
             rotation: isExpand ? Deg2Rad(90) : 0,
             child: new ExpandSwitcher({
@@ -130,7 +131,7 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
         }),
         NodeIcon(node),
         new MouseSensor({
-          onClick: () => onInspect(node),
+          onClick: () => InspectNode(node),
           onHover: this.OnHover,
           child: new Box({
             width: "shrink",

@@ -23,7 +23,7 @@ export class NodeDetailWidget extends CompositeWidget<NodeDetailWidgetOptions> {
       children: [
         new NodeDetailTitle({
           node,
-          icon: new NodeIconWidget({ node }),
+          icon: new NodeIconWidget({}),
         }),
 
         new NodeDetailSectionTangible({ node }),

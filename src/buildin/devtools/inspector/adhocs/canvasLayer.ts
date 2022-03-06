@@ -25,7 +25,7 @@ export class NodeDetailCanvasLayer extends CompositeWidget<NodeDetailCanvasLayer
         new NodeDetailTitle({
           description: `(${node.index})`,
           node,
-          icon: new NodeIconCanvasLayer({ node }),
+          icon: new NodeIconCanvasLayer({}),
         }),
 
         new NodeDetailSectionTangible({ node }),
