@@ -3,6 +3,7 @@ import { Column } from "../../../ui/flex/flex";
 import { CompositeWidget } from "../../../ui/foundation/compositeWidget";
 import { Widget } from "../../../ui/foundation/widget";
 import {
+  NodeDetailSectionCustom,
   NodeDetailSectionTangible,
   NodeDetailSectionTransform,
   NodeDetailTitle,
@@ -29,6 +30,7 @@ export class NodeDetailEntity extends CompositeWidget<NodeDetailEntityOptions> {
 
         new NodeDetailSectionTangible({ node }),
         new NodeDetailSectionTransform({ node }),
+        new NodeDetailSectionCustom({ node }),
       ],
     });
   }

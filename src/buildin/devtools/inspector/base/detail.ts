@@ -9,6 +9,7 @@ import { ThemeContext } from "../../common/theme";
 import { Edge } from "../../../ui/common/edge";
 import { Tangible } from "../../../../core/tangible";
 import { Field } from "./field";
+import { GetInspectorPropertyMeta } from "../inspectable";
 
 interface NodeDetailTitleOptions {
   description?: string;
@@ -169,6 +170,36 @@ export class NodeDetailSectionTransform extends CompositeWidget<NodeDetailSectio
           value: node.scale,
         }),
       ],
+    });
+  }
+}
+
+interface NodeDetailSectionCustomOptions {
+  node: Tangible;
+}
+
+/**
+ * 用户自定义字段信息快
+ */
+export class NodeDetailSectionCustom extends CompositeWidget<NodeDetailSectionCustomOptions> {
+  public readonly name: string = "NodeDetailSectionCustom";
+
+  protected _Render(): Widget | null {
+    const node = this.options.node as any;
+
+    const metas = GetInspectorPropertyMeta(node.constructor);
+    if (metas.length === 0) {
+      return null;
+    }
+
+    return new NodeDetailSection({
+      title: "Custom",
+      fields: metas.map((meta) => {
+        return new Field({
+          label: meta.label,
+          value: node[meta.name],
+        });
+      }),
     });
   }
 }
