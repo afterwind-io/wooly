@@ -10,6 +10,7 @@ interface WidgetRootOptions {
 
 export class WidgetRoot extends Entity {
   public readonly name: string = "WidgetRoot";
+  public readonly isWidgetRoot: boolean = true;
 
   private readonly globalTaskLayout: PipeLineTask = new TaskWidgetLayout(this);
   private readonly globalTaskUpdate: PipeLineTask = new TaskWidgetUpdate(this);
@@ -83,6 +84,10 @@ export class WidgetRoot extends Entity {
       }
 
       widget.Traverse<Widget>((node) => {
+        if (!(node instanceof Widget)) {
+          return true;
+        }
+
         node._isLayoutDirty = true;
       });
       pendingLayoutRoots.push(widget);

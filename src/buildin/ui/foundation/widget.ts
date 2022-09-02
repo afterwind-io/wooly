@@ -11,6 +11,7 @@ import {
   SizableWidgetOptions,
   WidgetElement,
 } from "./types";
+import { isWidgetRoot } from "./utils";
 
 type NonNull<T> = T extends null ? never : T;
 
@@ -159,6 +160,10 @@ export abstract class Widget<OPT = {}, SIG = {}> extends Entity<SIG> {
     let parent: Widget | null = null;
 
     this.Bubble((node) => {
+      if (isWidgetRoot(node)) {
+        return false;
+      }
+
       if (!(node instanceof Widget)) {
         return;
       }
