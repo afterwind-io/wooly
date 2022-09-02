@@ -1,4 +1,5 @@
-import { Vector2 } from "../../util/vector2";
+import { LogicalScreenOffsetMap } from "../../core/globals";
+import { ReadonlyVector2, Vector2 } from "../../util/vector2";
 
 export const Input = new (class Input {
   public readonly BUTTON_LEFT: number = 0;
@@ -35,8 +36,9 @@ export const Input = new (class Input {
     return this.mousePos.Subtract(this.prevMousePos);
   }
 
-  public GetMousePosition(): Vector2 {
-    return this.mousePos.Clone();
+  public GetMousePosition(scope: number = 0): ReadonlyVector2 {
+    const logicalScreenOffset = LogicalScreenOffsetMap[scope] || Vector2.Zero;
+    return this.mousePos.Subtract(logicalScreenOffset);
   }
 
   public IsKeyDown(key: string): boolean {

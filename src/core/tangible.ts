@@ -8,6 +8,7 @@ export abstract class Tangible extends Node {
     Tangible,
     Matrix2d
   >;
+  protected _scope: Scope = new Scope(this, 0);
 
   private _offsetTransform: Matrix2d = Matrix2d.Identity();
   private _worldSpaceTransform: WorldSpaceTransform = new WorldSpaceTransform(
@@ -71,6 +72,14 @@ export abstract class Tangible extends Node {
     this._worldSpaceTransform.local.scale = s;
     this._worldSpaceTransform.Notify();
     this._screenSpaceTransform.Notify();
+  }
+
+  public get scope(): number {
+    return this._scope.global;
+  }
+  public set scope(v: number) {
+    this._scope.local = v;
+    this._scope.Notify();
   }
 
   /**
@@ -300,6 +309,30 @@ export abstract class Tangible extends Node {
    */
   public SetScale(scale: Vector2): this {
     return (this.scale = scale), this;
+  }
+}
+
+class Scope extends GlobalComputedProperty<Tangible, number> {
+  public ComputeGlobalValue(): number {
+    const host = this.host;
+    const parent = host.parent as Tangible;
+
+    if (this.local !== 0) {
+      return this.local;
+    }
+
+    if (!parent) {
+      return 0;
+    }
+
+    return this.GetPropertyInstance(parent).global;
+  }
+
+  public GetPropertyInstance(
+    node: Node
+  ): GlobalComputedProperty<Tangible, number> {
+    // @ts-expect-error TS2341 protected property
+    return (node as Tangible)._scope;
   }
 }
 

@@ -327,7 +327,7 @@ export class Scroll extends Widget<ScrollOptions> {
       return;
     }
 
-    if (!this.HitTest(Input.GetMousePosition())) {
+    if (!this.HitTest(Input.GetMousePosition(this.scope))) {
       return;
     }
 

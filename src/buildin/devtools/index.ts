@@ -8,6 +8,8 @@ export class DevTools extends Entity {
   public constructor(builder: () => Entity) {
     super();
 
+    this.scope = -1;
+
     this.AddChild(
       new WidgetRoot({
         child: new DevToolsApp(builder),

@@ -125,12 +125,12 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
   @BindThis
   private OnDragStart(state: DragDropState): void {
     this._isDragging = true;
-    this._prevDragPosition = Input.GetMousePosition();
+    this._prevDragPosition = Input.GetMousePosition(this.scope);
   }
 
   @BindThis
   private OnDragMove(): void {
-    const currentPosition = Input.GetMousePosition();
+    const currentPosition = Input.GetMousePosition(this.scope);
     const prevPosition = this._prevDragPosition;
 
     const direction = this.options.direction;

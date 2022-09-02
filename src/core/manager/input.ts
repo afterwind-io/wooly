@@ -20,20 +20,16 @@ const GlobalDragDropState = new (class DragDropState {
     return this.source != null;
   }
 
-  public get isDragStart(): boolean {
-    return this.dragDistance >= DRAG_START_THRESHOLD;
-  }
-
-  public get dragDistance(): number {
-    return this.dragOffset.Length;
-  }
-
   public get dragDelta(): Vector2 {
     return this.dragPrevPosition.Subtract(this.dragPenuPosition);
   }
 
-  public get dragOffset(): Vector2 {
-    const mousePosition = Input.GetMousePosition();
+  public isDragStart(hostScope: number): boolean {
+    return this.getDragOffset(hostScope).Length >= DRAG_START_THRESHOLD;
+  }
+
+  public getDragOffset(hostScope: number): Vector2 {
+    const mousePosition = Input.GetMousePosition(hostScope);
     return mousePosition.Subtract(this.dragStartPosition);
   }
 
@@ -64,15 +60,15 @@ const GlobalDragDropState = new (class DragDropState {
     this.source = source;
   }
 
-  public SetDragStartPoint(): void {
-    const mousePosition = Input.GetMousePosition();
+  public SetDragStartPoint(hostScope: number): void {
+    const mousePosition = Input.GetMousePosition(hostScope);
     this.dragStartPosition = mousePosition;
     this.dragPenuPosition = mousePosition;
     this.dragPrevPosition = mousePosition;
   }
 
-  public UpdateDragPosition(): void {
-    const mousePosition = Input.GetMousePosition();
+  public UpdateDragPosition(hostScope: number): void {
+    const mousePosition = Input.GetMousePosition(hostScope);
     this.dragPenuPosition = this.dragPrevPosition;
     this.dragPrevPosition = mousePosition;
   }
@@ -221,7 +217,7 @@ export class MouseState {
         }
 
         if (draggable) {
-          GlobalDragDropState.SetDragStartPoint();
+          GlobalDragDropState.SetDragStartPoint(this.host.scope);
           return MouseDragDrop.DragPending;
         }
 
@@ -233,7 +229,7 @@ export class MouseState {
           return MouseDragDrop.None;
         }
 
-        if (GlobalDragDropState.isDragStart) {
+        if (GlobalDragDropState.isDragStart(this.host.scope)) {
           GlobalDragDropState.SetSource(this.host);
           emitEvent("DragStart");
           return MouseDragDrop.DragStart;
@@ -246,7 +242,7 @@ export class MouseState {
       case MouseDragDrop.DragMove: {
         if (isMouseButtonDown) {
           emitEvent("DragMove");
-          GlobalDragDropState.UpdateDragPosition();
+          GlobalDragDropState.UpdateDragPosition(this.host.scope);
           return MouseDragDrop.DragMove;
         }
 
@@ -368,8 +364,6 @@ export const InputManager = new (class InputManager {
     // 记录通过了HitTest的元素
     let hitTarget: Entity | null = null;
 
-    const mousePosition = Input.GetMousePosition();
-
     // 记录鼠标左键是否按下
     const isMouseButtonDown: boolean = Input.IsMouseDown(Input.BUTTON_LEFT);
 
@@ -378,6 +372,8 @@ export const InputManager = new (class InputManager {
     let i = queue.length;
     while (i-- > 0) {
       const { target, version } = queue[i];
+
+      const mousePosition = Input.GetMousePosition(target.scope);
 
       // 在事件分发过程中，如果队列中的某个元素是之前另一个已经派发过事件的元素的祖先，
       // 并且该元素当前的version比进入队列时的version快照要大，那么说明

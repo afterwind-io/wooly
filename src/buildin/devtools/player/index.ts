@@ -1,6 +1,9 @@
 import { CanvasComposition } from "../../../core/canvasComposition";
 import { Entity } from "../../../core/entity";
-import { LogicalDimension, LogicalScreenOffset } from "../../../core/globals";
+import {
+  LogicalDimension,
+  LogicalScreenOffsetMap,
+} from "../../../core/globals";
 import { GetUniqId } from "../../../util/idgen";
 import { Matrix2d } from "../../../util/matrix2d";
 import { Vector2 } from "../../../util/vector2";
@@ -93,8 +96,6 @@ class GameHost extends NoChildWidget<GameHostOptions> {
 
   protected _Ready(): void {
     this.$composition = new CanvasComposition(GetUniqId());
-
-    this.AddChild(this.$composition);
   }
 
   public _Update(delta: number): void {
@@ -103,15 +104,17 @@ class GameHost extends NoChildWidget<GameHostOptions> {
     if (flag === 0) {
       this._deferInit++;
     } else if (flag === 1) {
-      const r = new TransformReset();
-      r.AddChild(this.options.root);
+      this.$composition.scope = 0;
+      this.$composition.AddChild(this.options.root);
 
-      this.$composition.AddChild(r);
-      this._deferInit++;
+      const reset = new TransformReset();
+      reset.AddChild(this.$composition);
+      this.AddChild(reset);
 
       const screenPosition = this.ConvertToScreenSpace();
-      LogicalScreenOffset.x = screenPosition.x;
-      LogicalScreenOffset.y = screenPosition.y;
+      LogicalScreenOffsetMap[0] = screenPosition;
+
+      this._deferInit++;
     } else if (flag === 2) {
       const { onDimensionChange } = this.options;
       onDimensionChange(LogicalDimension);
@@ -122,6 +125,9 @@ class GameHost extends NoChildWidget<GameHostOptions> {
 
   protected _Layout(constraint: Constraint): Size {
     const { maxWidth, maxHeight } = constraint;
+
+    this._intrinsicWidth = maxWidth;
+    this._intrinsicHeight = maxHeight;
 
     this.$composition.SetSize(new Vector2(maxWidth, maxHeight));
 
