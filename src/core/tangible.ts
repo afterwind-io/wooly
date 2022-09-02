@@ -4,8 +4,6 @@ import { Node } from "./node";
 import { GlobalComputedProperty } from "../util/globalComputedProperty";
 
 export abstract class Tangible extends Node {
-  public parent: Tangible | null = null;
-
   protected abstract _screenSpaceTransform: GlobalComputedProperty<
     Tangible,
     Matrix2d
@@ -308,12 +306,13 @@ export abstract class Tangible extends Node {
 class WorldSpaceTransform extends GlobalComputedProperty<Tangible, Matrix2d> {
   public ComputeGlobalValue(): Matrix2d {
     const host = this.host;
+    const parent = host.parent as Tangible;
 
-    if (!host.parent) {
+    if (!parent) {
       return host.localTransform;
     }
 
-    return host.parent.globalTransform.Multiply(host.localTransform);
+    return parent.globalTransform.Multiply(host.localTransform);
   }
 
   public GetPropertyInstance(
