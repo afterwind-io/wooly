@@ -237,6 +237,32 @@ export abstract class Tangible extends Node {
   }
 
   /**
+   * Set the pivot point of the local transform.
+   *
+   * @param origin The origin vector.
+   * @see Tangible.origin
+   */
+  public SetOrigin(origin: ReadonlyVector2): this;
+  /**
+   * Set the pivot point of the local transform.
+   *
+   * @param x The offset along x-axis.
+   * @param y The offset alone y-axis.
+   * @see Tangible.origin
+   */
+  public SetOrigin(x: number, y: number): this;
+  public SetOrigin(x: number | ReadonlyVector2, y?: number): this {
+    let origin: ReadonlyVector2;
+    if (typeof x === "number") {
+      origin = new Vector2(x, y);
+    } else {
+      origin = x;
+    }
+
+    return (this.origin = origin), this;
+  }
+
+  /**
    * Set the local position relative to parent by vector.
    *
    * @param pos Local position vector.
