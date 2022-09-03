@@ -82,6 +82,7 @@ interface EntityInputEventMap {
   MouseClick: 0;
   MouseEnter: 0;
   MouseLeave: 0;
+  MouseMove: 0;
   DragStart: 0;
   DragMove: 0;
   DragEnd: 0;
@@ -312,6 +313,10 @@ export class MouseState {
           return MouseMovement.MouseLeave;
         }
 
+        if (Input.IsMouseMoved(this.host.scope)) {
+          emitEvent("MouseMove");
+        }
+
         return MouseMovement.MouseHover;
       }
 
@@ -330,14 +335,21 @@ export class MouseState {
   }
 }
 
+interface InputMousePositionLog {
+  previous: Vector2;
+  current: Vector2;
+}
+
 export const Input = new (class Input {
   public readonly BUTTON_LEFT: number = 0;
   public readonly BUTTON_MIDDLE: number = 1;
   public readonly BUTTON_RIGHT: number = 2;
 
   private mouseButtonMap: Record<number, boolean> = {};
-  private mousePos: Vector2 = new Vector2();
-  private prevMousePos: Vector2 = new Vector2();
+
+  private nativeMousePosition: Vector2 = Vector2.Zero;
+  private mousePositionLogsByScope: Map<number, InputMousePositionLog> =
+    new Map();
 
   private keyDownMap: Record<string, boolean> = {};
   private keyPressMap: Record<string, boolean> = {};
@@ -350,6 +362,7 @@ export const Input = new (class Input {
     document.addEventListener("keydown", this.OnKeyDown);
     document.addEventListener("keyup", this.OnKeyUp);
 
+    // FIXME 移除这个事件钩子
     target.addEventListener("contextmenu", this.OnContextMenu);
 
     target.addEventListener("mousedown", this.OnMouseDown, { passive: true });
@@ -361,13 +374,30 @@ export const Input = new (class Input {
     this.isEnableContentMenu = f;
   }
 
-  public GetMouseDelta(): Vector2 {
-    return this.mousePos.Subtract(this.prevMousePos);
+  public GetMouseDelta(hostScope: number): Vector2 {
+    const log = this.mousePositionLogsByScope.get(hostScope);
+    if (!log) {
+      return Vector2.Zero;
+    }
+
+    return log.current.Subtract(log.previous);
   }
 
   public GetMousePosition(scope: number = 0): ReadonlyVector2 {
     const logicalScreenOffset = LogicalScreenOffsetMap[scope] || Vector2.Zero;
-    return this.mousePos.Subtract(logicalScreenOffset);
+
+    let scopedMousePosInfo = this.mousePositionLogsByScope.get(scope);
+    if (!scopedMousePosInfo) {
+      this.mousePositionLogsByScope.set(
+        scope,
+        (scopedMousePosInfo = {
+          previous: Vector2.Zero,
+          current: this.nativeMousePosition.Subtract(logicalScreenOffset),
+        })
+      );
+    }
+
+    return scopedMousePosInfo.current;
   }
 
   public IsKeyDown(key: string): boolean {
@@ -392,8 +422,29 @@ export const Input = new (class Input {
     return !!this.mouseButtonMap[btn];
   }
 
-  public IsMouseMoved(): boolean {
-    return this.mousePos.Equals(this.prevMousePos);
+  public IsMouseMoved(hostScope: number): boolean {
+    const log = this.mousePositionLogsByScope.get(hostScope);
+    if (!log) {
+      return false;
+    }
+
+    return log.current.Equals(log.previous);
+  }
+
+  public UpdateMousePositionLog(): void {
+    // 刷新每一帧的鼠标位置记录
+    const nativePos = this.nativeMousePosition;
+
+    for (const [scope, log] of this.mousePositionLogsByScope) {
+      const logicalScreenOffset = LogicalScreenOffsetMap[scope] || Vector2.Zero;
+
+      const positionByScope = nativePos.Subtract(logicalScreenOffset);
+      const hasMoved = !Vector2.Equals(log.current, positionByScope);
+      if (hasMoved) {
+        log.current = positionByScope;
+      }
+      log.previous = log.current;
+    }
   }
 
   private OnContextMenu = (e: MouseEvent) => {
@@ -426,10 +477,8 @@ export const Input = new (class Input {
   };
 
   private OnMouseMove = (e: MouseEvent) => {
-    this.prevMousePos.x = this.mousePos.x;
-    this.prevMousePos.y = this.mousePos.y;
-    this.mousePos.x = e.offsetX;
-    this.mousePos.y = e.offsetY;
+    this.nativeMousePosition.x = e.offsetX;
+    this.nativeMousePosition.y = e.offsetY;
   };
 
   private OnMouseUp = (e: MouseEvent) => {
@@ -593,6 +642,8 @@ export class TaskInput implements PipeLineTask {
   public readonly priority: number = PipelineTaskPriority.Input;
 
   public Run(): void {
+    Input.UpdateMousePositionLog();
+
     InputManager.DispatchEvents();
     InputManager.Reset();
   }
