@@ -1,7 +1,7 @@
-import { Input } from "./buildin/media/input";
 import { Engine } from "./core/engine";
 import { DPR, LogicalDimension } from "./core/globals";
 import { CanvasManager } from "./core/manager/canvas";
+import { Input } from "./core/manager/input";
 
 /**
  * Initialize a new engine instance.

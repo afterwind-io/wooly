@@ -15,8 +15,8 @@ import { BindThis } from "../foundation/decorator";
 import { CreateWidgetRef, WidgetRefObject } from "../foundation/ref";
 import { ScrollDirection } from "./types";
 import { BAR_MIN_LENGTH, BAR_SIZE, ScrollBar } from "./scrollBar";
-import { Input } from "../../media/input";
 import { Clamp } from "../../../util/math";
+import { Input } from "../../../core/manager/input";
 
 export const enum ScrollOverflowBehavior {
   /**

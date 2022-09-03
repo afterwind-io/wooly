@@ -1,6 +1,5 @@
-import { DragDropState } from "../../../core/manager/input";
+import { DragDropState, Input } from "../../../core/manager/input";
 import { Vector2 } from "../../../util/vector2";
-import { Input } from "../../media/input";
 import { Constraint } from "../common/constraint";
 import { Size } from "../common/types";
 import { SwitchCursor } from "../common/utils";

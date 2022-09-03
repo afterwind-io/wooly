@@ -11,11 +11,11 @@ import { Text } from "../../ui/text";
 import { Node } from "../../../core/node";
 import { Alignment } from "../../ui/align";
 import { SwitchCursor } from "../../ui/common/utils";
-import { Input } from "../../media/input";
 import { Box } from "../../ui/box";
 import { NodeIcon } from "../inspector/adhocs";
 import { Deg2Rad } from "../../../util/math";
 import { DevToolsContext } from "../context";
+import { Input } from "../../../core/manager/input";
 
 interface NodeTreeOptions {
   node: Node;
