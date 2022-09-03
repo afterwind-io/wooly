@@ -21,17 +21,20 @@ import { Text } from "../../ui/text";
 import { Node } from "../../../core/node";
 import { Reactive } from "../../ui/foundation/decorator";
 import { ThemeContext } from "../common/theme";
+import { EntityInputEvent, Input } from "../../../core/manager/input";
 
 export class DevToolsModulePlayer extends CompositeWidget {
   public readonly name: string = "DevToolsModuleGame";
 
   private _playerDimension: Vector2 = Vector2.Zero;
+  private _playerMousePosition: Vector2 = Vector2.Zero;
 
   protected _Render(): Widget | null {
     const { colorTextNormal } = ThemeContext.Of(this);
     const { rootNode, rootNodeVersion, PauseGame, RestartGame } =
       DevToolsContext.Of(this);
 
+    const info = `@(${this._playerMousePosition.x},${this._playerMousePosition.y}) | ${this._playerDimension.x} x ${this._playerDimension.y}`;
     return new Container({
       padding: Edge.All(4),
       child: Column.Stretch({
@@ -52,7 +55,7 @@ export class DevToolsModulePlayer extends CompositeWidget {
               Flex.Expanded({ child: null }),
 
               new Text({
-                content: `${this._playerDimension.x} x ${this._playerDimension.y}`,
+                content: info,
                 color: colorTextNormal,
               }),
             ],
@@ -63,6 +66,7 @@ export class DevToolsModulePlayer extends CompositeWidget {
               key: rootNodeVersion,
               root: rootNode,
               onDimensionChange: this.OnPlayerDimensionChange,
+              onMouseMove: this.OnPlayerMouseMove,
             }),
           }),
         ],
@@ -73,6 +77,11 @@ export class DevToolsModulePlayer extends CompositeWidget {
   @Reactive
   private OnPlayerDimensionChange(dimension: Vector2): void {
     this._playerDimension = dimension;
+  }
+
+  @Reactive
+  private OnPlayerMouseMove(position: Vector2): void {
+    this._playerMousePosition = position;
   }
 }
 
@@ -85,11 +94,13 @@ class TransformReset extends Entity {
 interface GameHostOptions {
   root: Node;
   onDimensionChange(dimension: Vector2): void;
+  onMouseMove(position: Vector2): void;
 }
 
 class GameHost extends NoChildWidget<GameHostOptions> {
   public readonly name: string = "GameHost";
   public readonly childSizeIndependent: boolean = true;
+  public readonly enableInputEvents: boolean = true;
 
   private $composition!: CanvasComposition;
   private _deferInit: number = 0;
@@ -120,6 +131,17 @@ class GameHost extends NoChildWidget<GameHostOptions> {
       onDimensionChange(LogicalDimension);
 
       this._deferInit++;
+    }
+  }
+
+  public _Input(event: EntityInputEvent) {
+    switch (event.type) {
+      case "MouseMove":
+        this.options.onMouseMove(Input.GetMousePosition(0));
+        break;
+
+      default:
+        break;
     }
   }
 
