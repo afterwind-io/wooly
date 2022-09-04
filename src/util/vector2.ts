@@ -25,6 +25,10 @@ export class Vector2 {
     );
   }
 
+  public static Uniform(u: number): Vector2 {
+    return new Vector2(u, u);
+  }
+
   public static get Right(): Vector2 {
     return new Vector2(1, 0);
   }
