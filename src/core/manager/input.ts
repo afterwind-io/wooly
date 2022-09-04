@@ -9,7 +9,7 @@ import { PipelineTaskPriority } from "../task/consts";
 
 const DRAG_START_THRESHOLD = 3;
 
-const GlobalDragDropState = new (class DragDropState {
+export const GlobalDragDropState = new (class DragDropState {
   private data: any = null;
   private dragStartPosition: ReadonlyVector2 = new Vector2();
   private dragPenuPosition: ReadonlyVector2 = new Vector2();

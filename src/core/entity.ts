@@ -3,7 +3,11 @@ import { Signal } from "./signal";
 import { ParamType } from "../util/common";
 import { Vector2 } from "../util/vector2";
 import { GetUniqId } from "../util/idgen";
-import { EntityInputEvent, MouseState } from "./manager/input";
+import {
+  EntityInputEvent,
+  GlobalDragDropState,
+  MouseState,
+} from "./manager/input";
 
 /**
  * The global entity group map.
@@ -329,6 +333,12 @@ export abstract class Entity<SIG = {}> extends CanvasItem {
    * @memberof Entity
    */
   protected $SelfDestroy() {
+    if (this.enableInputEvents) {
+      this._mouseState.Step(false, false, (event) =>
+        this._Input(new EntityInputEvent(this, event, GlobalDragDropState))
+      );
+    }
+
     // @ts-ignore
     this.signals.Emit("OnDestroy");
 
