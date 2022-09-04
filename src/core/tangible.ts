@@ -1,7 +1,7 @@
-import { ReadonlyVector2, Vector2 } from "../util/vector2";
-import { Matrix2d } from "../util/matrix2d";
-import { Node } from "./node";
 import { GlobalComputedProperty } from "../util/globalComputedProperty";
+import { Matrix2d } from "../util/matrix2d";
+import { ReadonlyVector2, Vector2 } from "../util/vector2";
+import { Node } from "./node";
 
 export abstract class Tangible extends Node {
   protected abstract _screenSpaceTransform: GlobalComputedProperty<
@@ -86,7 +86,7 @@ export abstract class Tangible extends Node {
    * The actual position in world space.
    */
   public get globalPosition(): ReadonlyVector2 {
-    return this.ConvertToWorldSpace(this.position);
+    return this.ConvertToWorldSpace();
   }
 
   /**
