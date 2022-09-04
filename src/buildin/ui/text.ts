@@ -2,9 +2,7 @@ import { Size } from "./common/types";
 import { Constraint } from "./common/constraint";
 import { NoChildWidget } from "./foundation/noChildWidget";
 
-// FIXME OffscreenCanvas只有chromium支持，替换成普通canvas?
-// @ts-ignore
-const offscreenContext = new OffscreenCanvas(0, 0).getContext("2d")!;
+const offscreenContext = document.createElement("canvas").getContext("2d")!;
 
 export interface TextStyle {
   color?: CanvasFillStrokeStyles["fillStyle"];
