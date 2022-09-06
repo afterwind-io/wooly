@@ -91,6 +91,11 @@ export abstract class Entity<SIG = {}> extends CanvasItem {
    * ```
    */
   public readonly enableInputEvents: boolean = false;
+  /**
+   * Indicates whether to continue the hit tests of the
+   * entities below even if the current entity hit (a.k.a click-through).
+   */
+  public enableInputEventsEscaping: boolean = false;
 
   /**
    * Defines whether the entity can be dragged or not.

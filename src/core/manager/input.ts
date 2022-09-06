@@ -519,7 +519,9 @@ export const InputManager = new (class InputManager {
     const queue = this.listeners;
 
     // 记录通过了HitTest的元素
-    let hitTarget: Entity | null = null;
+    let hitTargets: Entity[] = [];
+    // 记录当前是否处在允许鼠标事件穿透的状态
+    let escaping: boolean = true;
 
     // 记录鼠标左键是否按下
     const isMouseButtonDown: boolean = Input.IsMouseDown(Input.BUTTON_LEFT);
@@ -550,16 +552,17 @@ export const InputManager = new (class InputManager {
         continue;
       }
 
-      // 如果有元素通过HitTest，则分发队列中后续元素的鼠标悬浮和点击判定结果一律视作false。
-      // 该机制主要用以防止鼠标操作穿透。
-      if (hitTarget) {
+      // 如果有元素通过HitTest，并且处在不允许鼠标事件穿透的状态，
+      // 则分发队列中后续元素的鼠标悬浮和点击判定结果一律视作false。
+      if (hitTargets.length !== 0 && !escaping) {
         Dispatch(target, false, false);
         continue;
       }
 
       const isHit = target.HitTest(mousePosition);
       if (isHit) {
-        hitTarget = target;
+        hitTargets.push(target);
+        escaping = escaping && target.enableInputEventsEscaping;
 
         // HitTest通过的元素会被递延执行事件派发（原因见下方注释）
         // 如果该元素的祖先节点也监听了_Input，那么它一定会出现在分发队列的后续元素中。
@@ -585,7 +588,7 @@ export const InputManager = new (class InputManager {
     // 并且都在事件回调中操作了某个相同的变量。如果在分发队列中，A的顺序在B之前，
     // 那么就会发生A的"MouseEnter"结果被B的"MouseLeave"覆写。这种错误常发生于
     // 切换鼠标光标等场合。
-    if (hitTarget) {
+    for (const hitTarget of hitTargets) {
       Dispatch(hitTarget, true, isMouseButtonDown);
     }
   }
