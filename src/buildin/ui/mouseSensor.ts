@@ -29,6 +29,7 @@ interface MouseSensorOptions extends BaseOptions {
   onHover?(isHovering: boolean): false | void;
   onEnter?(): false | void;
   onLeave?(): false | void;
+  onMove?(): false | void;
   /**
    * 当前对象开始被拖曳
    *
@@ -86,6 +87,7 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
       onHover,
       onEnter,
       onLeave,
+      onMove,
       onDragStart,
       onDragMove,
       onDragEnd,
@@ -112,6 +114,8 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
         const p2 = onHover(false);
         return p1 ?? p2;
       }
+      case "MouseMove":
+        return onMove();
       case "DragStart":
         return onDragStart(event.dragDropState);
       case "DragMove":
@@ -162,6 +166,7 @@ export class MouseSensor extends SingleChildWidget<MouseSensorOptions> {
       onHover: Blackhole,
       onEnter: Blackhole,
       onLeave: Blackhole,
+      onMove: Blackhole,
       onDragStart: Blackhole,
       onDragMove: Blackhole,
       onDragEnd: Blackhole,
