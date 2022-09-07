@@ -1,5 +1,5 @@
-import { LinkedNode } from './linkedNode';
-import { Nullable } from '../../util/common';
+import { LinkedNode } from "./linkedNode";
+import { Nullable } from "../../util/common";
 
 export class LinkedList<V, K = null> {
   protected head: LinkedNode<V, K> = new LinkedNode<V, K>();
@@ -105,12 +105,28 @@ export class LinkedList<V, K = null> {
     }
   }
 
-  public Traverse(cb: (value: V, key: Nullable<K>) => boolean | void) {
+  public ReverseTraverse(
+    cb: (value: V, key: Nullable<K>) => false | void
+  ): false | void {
+    let node: Nullable<LinkedNode<V, K>> = this.Tail;
+    while (node != null && !node.IsEmpty()) {
+      const next = cb(node.value!, node.key);
+      if (next === false) {
+        return false;
+      }
+
+      node = node.prev;
+    }
+  }
+
+  public Traverse(
+    cb: (value: V, key: Nullable<K>) => false | void
+  ): false | void {
     let node: Nullable<LinkedNode<V, K>> = this.head;
     while (node != null && !node.IsEmpty()) {
       const next = cb(node.value!, node.key);
       if (next === false) {
-        break;
+        return false;
       }
 
       node = node.next;
