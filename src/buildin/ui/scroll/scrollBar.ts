@@ -35,8 +35,6 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
     const { direction } = this.options;
     const { trackLength, barOffset, barLength } = this;
 
-    ctx.globalAlpha = this._isFocused || this._isDragging ? 1 : 0.5;
-
     // 轨道
     ctx.fillStyle = "#EAEAEA";
     if (direction === "horizontal") {
@@ -44,6 +42,8 @@ export class ScrollBar extends Widget<ScrollBarOptions> {
     } else {
       ctx.fillRect(0, 0, BAR_SIZE, trackLength);
     }
+
+    ctx.globalAlpha = this._isFocused || this._isDragging ? 1 : 0.5;
 
     // 控制柄
     ctx.fillStyle = "#7D7D7D";
