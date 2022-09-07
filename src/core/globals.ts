@@ -26,5 +26,3 @@ export const LogicalDimension: Vector2 = Vector2.Zero;
 export const LogicalScreenOffsetMap: Record<number, Vector2> = {
   0: Vector2.Zero,
 };
-
-export const LogicalScreenOffset: Vector2 = Vector2.Zero;
