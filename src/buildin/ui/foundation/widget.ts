@@ -31,7 +31,10 @@ type WidgetFiber = WidgetFragmentFiber | WidgetClassFiber;
 
 type CommonWidgetOptionsMixin<OPT extends {}> = CommonWidgetOptions & OPT;
 
-export abstract class Widget<OPT = {}, SIG = {}> extends Entity<SIG> {
+export abstract class Widget<
+  OPT extends {} = {},
+  SIG extends {} = {}
+> extends Entity<SIG> {
   public abstract readonly name: string;
   public readonly childSizeIndependent: boolean = false;
 
