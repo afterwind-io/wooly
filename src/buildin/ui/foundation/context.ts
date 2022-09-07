@@ -5,6 +5,7 @@ export interface WidgetContextConstructor<T = unknown> {
   new (options: WidgetContextOptions<T>): WidgetContext<T>;
   readonly defaultValue: T;
   Of(host: Widget): T;
+  Peek(host: Widget): T;
 }
 
 interface WidgetContextOptions<T> {
@@ -25,16 +26,42 @@ export class WidgetContext<T = unknown> extends ProxyWidget<
     super(options);
   }
 
+  /**
+   * Get the value from the nearest context, and get updated
+   * when context updates.
+   *
+   * @param host The current widget instance
+   * @returns The value of the context
+   */
   public static Of<T>(host: Widget): T {
     const parentContext = host.FindNearestContext(this);
     if (!parentContext) {
       return this.defaultValue as T;
     }
 
-    parentContext._dependents.add(host);
-    host.Connect("OnDestroy", () => {
-      parentContext._dependents.delete(host);
-    });
+    const dependents = parentContext._dependents;
+    if (!dependents.has(host)) {
+      dependents.add(host);
+      host.Connect("OnDestroy", () => {
+        dependents.delete(host);
+      });
+    }
+
+    return parentContext.GetContextValue() as T;
+  }
+
+  /**
+   * Get the value from the nearest context, but does not get updated
+   * when context updates.
+   *
+   * @param host The current widget instance
+   * @returns The value of the context
+   */
+  public static Peek<T>(host: Widget): T {
+    const parentContext = host.FindNearestContext(this);
+    if (!parentContext) {
+      return this.defaultValue as T;
+    }
 
     return parentContext.GetContextValue() as T;
   }
