@@ -34,6 +34,24 @@ export class CompositionContext {
 
     zIndexStack.Push(node);
   }
+
+  public Traverse(
+    cb: (node: CompositionContext | CanvasItem) => false | void
+  ): false | void {
+    return this.layerStack.Traverse((layer) =>
+      layer.Traverse((stack) => stack.Traverse((node) => cb(node)))
+    );
+  }
+
+  public ReverseTraverse(
+    cb: (node: CompositionContext | CanvasItem) => false | void
+  ): false | void {
+    return this.layerStack.ReverseTraverse((layer) =>
+      layer.ReverseTraverse((stack) =>
+        stack.ReverseTraverse((node) => cb(node))
+      )
+    );
+  }
 }
 
 export const RenderTreeManager = new (class RenderTreeManager {

@@ -58,17 +58,13 @@ export const PaintManager = new (class PaintManager {
     ctx: CanvasRenderingContext2D,
     compositionContext: CompositionContext
   ) {
-    compositionContext.layerStack.Traverse((layer) => {
-      layer.Traverse((stack) =>
-        stack.Traverse((node) => {
-          if (node instanceof CanvasItem) {
-            this.DrawNode(node, ctx);
-            this.onPaintNode(node);
-          } else {
-            this.DrawComposition(ctx, node);
-          }
-        })
-      );
+    compositionContext.Traverse((node) => {
+      if (node instanceof CanvasItem) {
+        this.DrawNode(node, ctx);
+        this.onPaintNode(node);
+      } else {
+        this.DrawComposition(ctx, node);
+      }
     });
   }
 
