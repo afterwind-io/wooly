@@ -14,7 +14,7 @@ export class Signal<SIGNALS extends {} = {}> {
       throw new Error("[wooly] Signal handler should be a function.");
     }
 
-    let cb = handler as SignalCallback;
+    let cb = handler as unknown as SignalCallback;
     if (context != null) {
       cb = handler.bind(context);
     }
@@ -40,7 +40,7 @@ export class Signal<SIGNALS extends {} = {}> {
       return;
     }
 
-    const index = handlers.indexOf(handler as SignalCallback);
+    const index = handlers.indexOf(handler as unknown as SignalCallback);
     if (index === -1) {
       return;
     }
