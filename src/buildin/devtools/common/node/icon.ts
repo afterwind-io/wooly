@@ -2,7 +2,7 @@ import { Constraint } from "../../../ui/common/constraint";
 import { Size } from "../../../ui/common/types";
 import { NoChildWidget } from "../../../ui/foundation/noChildWidget";
 
-export abstract class NodeIcon extends NoChildWidget {
+export abstract class NodeIconBase extends NoChildWidget {
   public readonly name: string = "NodeIcon";
   public readonly enableDrawing: boolean = true;
 

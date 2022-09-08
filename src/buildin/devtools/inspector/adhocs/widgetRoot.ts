@@ -3,7 +3,7 @@ import { CompositeWidget } from "../../../ui/foundation/compositeWidget";
 import { Widget } from "../../../ui/foundation/widget";
 import { WidgetRoot } from "../../../ui/root";
 import { NodeDetailSectionTransform, NodeDetailTitle } from "../base/detail";
-import { NodeIcon } from "../base/icon";
+import { NodeIconBase } from "../../common/node/icon";
 
 interface NodeDetailWidgetRootOptions {
   node: WidgetRoot;
@@ -29,7 +29,7 @@ export class NodeDetailWidgetRoot extends CompositeWidget<NodeDetailWidgetRootOp
   }
 }
 
-export class NodeIconWidgetRoot extends NodeIcon {
+export class NodeIconWidgetRoot extends NodeIconBase {
   public readonly name: string = "NodeIconWidgetRoot";
 
   public _Draw(ctx: CanvasRenderingContext2D): void {

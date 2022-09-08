@@ -1,37 +1,37 @@
-import { CanvasComposition } from "../../../core/canvasComposition";
-import { Entity } from "../../../core/entity";
-import {
-  LogicalDimension,
-  LogicalScreenOffsetMap,
-} from "../../../core/globals";
 import { GetUniqId } from "../../../util/idgen";
-import { Matrix2d } from "../../../util/matrix2d";
 import { Vector2 } from "../../../util/vector2";
 import { Button } from "../../ui/button";
-import { Constraint } from "../../ui/common/constraint";
 import { Edge } from "../../ui/common/edge";
-import { Size } from "../../ui/common/types";
 import { Container } from "../../ui/container";
 import { Column, Flex, FlexCrossAxisAlignment, Row } from "../../ui/flex/flex";
 import { CompositeWidget } from "../../ui/foundation/compositeWidget";
-import { NoChildWidget } from "../../ui/foundation/noChildWidget";
 import { Widget } from "../../ui/foundation/widget";
 import { DevToolsContext } from "../context";
 import { Text } from "../../ui/text";
-import { Node } from "../../../core/node";
-import { Reactive } from "../../ui/foundation/decorator";
+import { BindThis, Reactive } from "../../ui/foundation/decorator";
 import { ThemeContext } from "../common/theme";
-import { EntityInputEvent, Input } from "../../../core/manager/input";
+import { Input } from "../../../core/manager/input";
+import {
+  CompositionContext,
+  RenderTreeManager,
+} from "../../../core/manager/renderTree";
+import { DEVTOOL_ROOT_SCOPE } from "../const";
+import { Stack } from "../../ui/stack";
+import { CanvasItem } from "../../../core/canvasItem";
+import { GameHost } from "./gameHost";
+import { MouseCapture } from "./mouseCapture";
+import { NodeBreadCrumb } from "./nodeBreadcrumb";
 
 export class DevToolsModulePlayer extends CompositeWidget {
-  public readonly name: string = "DevToolsModuleGame";
+  public readonly name: string = "DevToolsModulePlayer";
 
   private _playerDimension: Vector2 = Vector2.Zero;
   private _playerMousePosition: Vector2 = Vector2.Zero;
+  private _playerCompositionIndex: number = GetUniqId();
 
   protected _Render(): Widget | null {
     const { colorTextNormal } = ThemeContext.Of(this);
-    const { rootNode, rootNodeVersion, PauseGame, RestartGame } =
+    const { isGamePaused, rootNode, inspectingNode, PauseGame, InspectNode } =
       DevToolsContext.Of(this);
 
     const info = `@(${this._playerMousePosition.x},${this._playerMousePosition.y}) | ${this._playerDimension.x} x ${this._playerDimension.y}`;
@@ -44,12 +44,8 @@ export class DevToolsModulePlayer extends CompositeWidget {
             crossAxisAlignment: FlexCrossAxisAlignment.Center,
             children: [
               new Button({
-                label: "Pause/Play",
+                label: isGamePaused ? "Continue" : "Pause",
                 onClick: PauseGame,
-              }),
-              new Button({
-                label: "Restart",
-                onClick: RestartGame,
               }),
 
               Flex.Expanded({ child: null }),
@@ -62,12 +58,34 @@ export class DevToolsModulePlayer extends CompositeWidget {
           }),
 
           Flex.Expanded({
-            child: new GameHost({
-              key: rootNodeVersion,
-              root: rootNode,
-              onDimensionChange: this.OnPlayerDimensionChange,
-              onMouseMove: this.OnPlayerMouseMove,
+            child: new Stack({
+              children: [
+                new GameHost({
+                  root: rootNode,
+                  compositionIndex: this._playerCompositionIndex,
+                  onDimensionChange: this.OnPlayerDimensionChange,
+                }),
+                new MouseCapture({
+                  onPlayerMouseMove: this.OnPlayerMouseMove,
+                  onPlayerMouseClick: this.OnPlayerMouseClick,
+                }),
+              ],
             }),
+          }),
+
+          Row({
+            height: 32,
+            crossAxisAlignment: FlexCrossAxisAlignment.Center,
+            children: [
+              Flex.Expanded({ child: new NodeBreadCrumb({}) }),
+
+              !inspectingNode
+                ? null
+                : new Button({
+                    label: "Clear",
+                    onClick: () => InspectNode(null),
+                  }),
+            ],
           }),
         ],
       }),
@@ -79,83 +97,56 @@ export class DevToolsModulePlayer extends CompositeWidget {
     this._playerDimension = dimension;
   }
 
+  @BindThis
+  private OnPlayerMouseClick(): void {
+    const { isPickingNode, peekingNode, InspectNode } =
+      DevToolsContext.Of(this);
+
+    if (!isPickingNode) {
+      return;
+    }
+
+    InspectNode(peekingNode);
+  }
+
   @Reactive
-  private OnPlayerMouseMove(position: Vector2): void {
-    this._playerMousePosition = position;
-  }
-}
+  private OnPlayerMouseMove(): void {
+    const inGameMousePosition = Input.GetMousePosition(0);
+    this._playerMousePosition = inGameMousePosition;
 
-class TransformReset extends Entity {
-  public get globalTransform(): Matrix2d {
-    return Matrix2d.Identity();
-  }
-}
-
-interface GameHostOptions {
-  root: Node;
-  onDimensionChange(dimension: Vector2): void;
-  onMouseMove(position: Vector2): void;
-}
-
-class GameHost extends NoChildWidget<GameHostOptions> {
-  public readonly name: string = "GameHost";
-  public readonly childSizeIndependent: boolean = true;
-  public readonly enableInputEvents: boolean = true;
-
-  private $composition!: CanvasComposition;
-  private _deferInit: number = 0;
-
-  protected _Ready(): void {
-    this.$composition = new CanvasComposition(GetUniqId());
-  }
-
-  public _Update(delta: number): void {
-    const flag = this._deferInit;
-
-    if (flag === 0) {
-      this._deferInit++;
-    } else if (flag === 1) {
-      this.$composition.scope = 0;
-      this.$composition.AddChild(this.options.root);
-
-      const reset = new TransformReset();
-      reset.AddChild(this.$composition);
-      this.AddChild(reset);
-
-      const screenPosition = this.ConvertToScreenSpace();
-      LogicalScreenOffsetMap[0] = screenPosition;
-
-      this._deferInit++;
-    } else if (flag === 2) {
-      const { onDimensionChange } = this.options;
-      onDimensionChange(LogicalDimension);
-
-      this._deferInit++;
+    const { isPickingNode, PeekNode } = DevToolsContext.Of(this);
+    if (!isPickingNode) {
+      return;
     }
-  }
 
-  public _Input(event: EntityInputEvent) {
-    switch (event.type) {
-      case "MouseMove":
-        this.options.onMouseMove(Input.GetMousePosition(0));
-        break;
+    const mousePosition = Input.GetMousePosition(DEVTOOL_ROOT_SCOPE);
 
-      default:
-        break;
+    function recursiveHitTest(
+      context: CompositionContext,
+      onHit: (node: CanvasItem) => void
+    ): false | void {
+      return context.ReverseTraverse((node) => {
+        if (node instanceof CanvasItem) {
+          if (node.HitTest(mousePosition)) {
+            onHit(node);
+            return false;
+          }
+        } else {
+          return recursiveHitTest(node, onHit);
+        }
+      });
     }
-  }
 
-  protected _Layout(constraint: Constraint): Size {
-    const { maxWidth, maxHeight } = constraint;
-
-    this._intrinsicWidth = maxWidth;
-    this._intrinsicHeight = maxHeight;
-
-    this.$composition.SetSize(new Vector2(maxWidth, maxHeight));
-
-    LogicalDimension.x = maxWidth;
-    LogicalDimension.y = maxHeight;
-
-    return { width: maxWidth, height: maxHeight };
+    RenderTreeManager.compositionRoot.Traverse((node) => {
+      if (
+        node instanceof CompositionContext &&
+        node.root.index === this._playerCompositionIndex
+      ) {
+        recursiveHitTest(node, (target) => {
+          PeekNode(target);
+        });
+        return false;
+      }
+    });
   }
 }

@@ -1,6 +1,7 @@
 import { Entity } from "../../core/entity";
 import { WidgetRoot } from "../ui/root";
 import { DevToolsApp } from "./app";
+import { DEVTOOL_ROOT_SCOPE } from "./const";
 
 export class DevTools extends Entity {
   public readonly name: string = "DevTools";
@@ -8,7 +9,7 @@ export class DevTools extends Entity {
   public constructor(builder: () => Entity) {
     super();
 
-    this.scope = -1;
+    this.scope = DEVTOOL_ROOT_SCOPE;
 
     this.AddChild(
       new WidgetRoot({

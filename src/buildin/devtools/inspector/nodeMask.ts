@@ -14,7 +14,7 @@ export class NodeMask extends Entity {
   public _Draw(ctx: CanvasRenderingContext2D): void {
     if (this._peekingNode) {
       this.DrawMask(ctx, this._peekingNode);
-    } else {
+    } else if (this._inspectingNode) {
       this.DrawMask(ctx, this._inspectingNode);
     }
   }

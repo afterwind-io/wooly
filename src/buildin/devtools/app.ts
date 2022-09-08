@@ -25,6 +25,9 @@ export class DevToolsApp extends CompositeWidget {
   private $layer!: CanvasLayer;
   private $mask!: NodeMask;
   private _inspectingNode: Node | null = null;
+  private _peekingNode: Node | null = null;
+  private _isPickingNode: boolean = false;
+  private _isGamePaused: boolean = false;
   private _root: Entity;
   private _rootBuilder: () => Entity;
   private _rootVersion: number = 0;
@@ -53,10 +56,14 @@ export class DevToolsApp extends CompositeWidget {
     return new DevToolsContext({
       value: {
         inspectingNode: this._inspectingNode,
+        peekingNode: this._peekingNode,
+        isPickingNode: this._isPickingNode,
+        isGamePaused: this._isGamePaused,
         rootNode: this._root,
         rootNodeVersion: this._rootVersion,
         InspectNode: this.OnInspectNode,
         PeekNode: this.OnPeekNode,
+        PickNode: this.OnPickNode,
         PauseGame: this.OnPauseGame,
         RestartGame: this.OnRestartGame,
       },
@@ -153,20 +160,35 @@ export class DevToolsApp extends CompositeWidget {
   }
 
   @Reactive
-  private OnInspectNode(node: Widget): void {
+  private OnInspectNode(node: Widget | null): void {
+    this._inspectingNode = node;
     this.$mask._inspectingNode = node;
 
-    this._inspectingNode = node;
+    this._peekingNode = null;
+    this.$mask._peekingNode = null;
+    this._isPickingNode = false;
+
     console.log(node);
   }
 
-  @BindThis
+  @Reactive
+  private OnPickNode(flag: boolean = true): void {
+    this._isPickingNode = flag;
+    if (!flag) {
+      this._peekingNode = null;
+      this.$mask._peekingNode = null;
+    }
+  }
+
+  @Reactive
   private OnPeekNode(node: Node): void {
+    this._peekingNode = node;
     this.$mask._peekingNode = node;
   }
 
-  @BindThis
+  @Reactive
   private OnPauseGame(): void {
+    this._isGamePaused = !this._isGamePaused;
     this._root.paused = !this._root.paused;
   }
 

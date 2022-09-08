@@ -2,20 +2,17 @@ import { Edge } from "../../ui/common/edge";
 import { Container } from "../../ui/container";
 import { Column, FlexCrossAxisAlignment, Row } from "../../ui/flex/flex";
 import { CompositeWidget } from "../../ui/foundation/compositeWidget";
-import { Reactive } from "../../ui/foundation/decorator";
+import { BindThis, Reactive } from "../../ui/foundation/decorator";
 import { Widget } from "../../ui/foundation/widget";
 import { MouseSensor } from "../../ui/mouseSensor";
 import { Transform } from "../../ui/transform";
 import { ThemeContext } from "../common/theme";
-import { Text } from "../../ui/text";
 import { Node } from "../../../core/node";
-import { Alignment } from "../../ui/align";
 import { SwitchCursor } from "../../ui/common/utils";
-import { Box } from "../../ui/box";
-import { NodeIcon } from "../inspector/adhocs";
 import { Deg2Rad } from "../../../util/math";
 import { DevToolsContext } from "../context";
 import { Input } from "../../../core/manager/input";
+import { NodeItem } from "../common/node/item";
 
 interface NodeTreeOptions {
   node: Node;
@@ -90,23 +87,17 @@ interface NodeTreeItemOptions {
 class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
   public readonly name: string = "NodeTreeItem";
 
-  private _isHovering: boolean = false;
-
-  @Reactive
+  @BindThis
   private OnHover(isHovering: boolean) {
-    this._isHovering = isHovering;
-
     const { node } = this.options;
     const { PeekNode } = DevToolsContext.Of(this);
     PeekNode(isHovering ? node : null);
-
-    SwitchCursor(isHovering, "pointer");
   }
 
   protected _Render(): Widget | null {
     const { node, depth, isExpand, onExpand } = this.options;
 
-    const { backgroundL1, colorTextNormal } = ThemeContext.Of(this);
+    const { backgroundL1 } = ThemeContext.Of(this);
     const { inspectingNode, InspectNode } = DevToolsContext.Of(this);
 
     // FIXME 用_lastChild判断开销比较小
@@ -129,21 +120,11 @@ class NodeTreeItem extends CompositeWidget<NodeTreeItemOptions> {
             }),
           }),
         }),
-        NodeIcon(node),
-        new MouseSensor({
+        new NodeItem({
+          node,
           onClick: () => InspectNode(node),
           onHover: this.OnHover,
-          child: new Box({
-            width: "shrink",
-            backgroundColor:
-              isInspectingSelf || this._isHovering ? backgroundL1 : void 0,
-            padding: Edge.Horizontal(6),
-            alignment: Alignment.Left,
-            child: new Text({
-              content: node.GetDisplayName(),
-              color: colorTextNormal,
-            }),
-          }),
+          backgroundColor: isInspectingSelf ? backgroundL1 : void 0,
         }),
       ],
     });

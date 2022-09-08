@@ -8,7 +8,7 @@ import {
   NodeDetailSectionTransform,
   NodeDetailTitle,
 } from "../base/detail";
-import { NodeIcon } from "../base/icon";
+import { NodeIconBase } from "../../common/node/icon";
 
 interface NodeDetailEntityOptions {
   node: Entity;
@@ -36,7 +36,7 @@ export class NodeDetailEntity extends CompositeWidget<NodeDetailEntityOptions> {
   }
 }
 
-export class NodeIconEntity extends NodeIcon {
+export class NodeIconEntity extends NodeIconBase {
   public readonly name: string = "NodeIconEntity";
 
   public _Draw(ctx: CanvasRenderingContext2D): void {
