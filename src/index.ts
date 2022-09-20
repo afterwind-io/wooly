@@ -25,7 +25,6 @@ export {
   COLLISION_RECTANGLE,
 } from "./buildin/collision/type";
 export { Anchor } from "./buildin/anchor";
-export { Particles } from "./buildin/particle";
 export {
   AnimationPlayer,
   Animation,
@@ -37,6 +36,7 @@ export { Timer, TimerBehavior } from "./buildin/timer";
 export { Camera } from "./buildin/camera";
 export { DevTools } from "./buildin/devtools";
 export { Interpolate, InterpolationMethod } from "./buildin/interpolation";
+export * from "./buildin/particle";
 
 // UI Widgets
 export { Align, Alignment } from "./buildin/ui/align";
