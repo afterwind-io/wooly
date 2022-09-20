@@ -31,12 +31,12 @@ export {
   Animation,
   AnimationLoopMode,
   AnimationTrack,
-  InterpolationMethod,
 } from "./buildin/animation";
 export { State, StateMachine } from "./buildin/fsm";
 export { Timer, TimerBehavior } from "./buildin/timer";
 export { Camera } from "./buildin/camera";
 export { DevTools } from "./buildin/devtools";
+export { Interpolate, InterpolationMethod } from "./buildin/interpolation";
 
 // UI Widgets
 export { Align, Alignment } from "./buildin/ui/align";

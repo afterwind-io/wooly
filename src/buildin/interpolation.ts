@@ -2,7 +2,7 @@
  * Credits to https://github.com/tweenjs/tween.js for the easing functions.
  */
 
-import { Identity } from "../../util/common";
+import { Identity } from "../util/common";
 
 type InterpolationFunction = (amount: number) => number;
 
@@ -28,7 +28,7 @@ export const enum InterpolationMethod {
 
 export function GetInterpolationMethod(
   method: InterpolationMethod = InterpolationMethod.None
-) {
+): InterpolationFunction {
   switch (method) {
     case InterpolationMethod.None:
       return None;

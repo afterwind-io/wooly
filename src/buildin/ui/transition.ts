@@ -1,10 +1,6 @@
-import {
-  Animation,
-  AnimationLoopMode,
-  AnimationTrack,
-  InterpolationMethod,
-} from "../animation";
+import { Animation, AnimationLoopMode, AnimationTrack } from "../animation";
 import { AnimatableProperty } from "../animation/track";
+import { InterpolationMethod } from "../interpolation";
 import { CompositeWidget } from "./foundation/compositeWidget";
 import { Reactive } from "./foundation/decorator";
 import { Widget } from "./foundation/widget";

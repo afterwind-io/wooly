@@ -1,5 +1,5 @@
 import { Vector2 } from "../../util/vector2";
-import { Interpolate, InterpolationMethod } from "./interpolation";
+import { Interpolate, InterpolationMethod } from "../interpolation";
 
 export type AnimatableProperty = number | Vector2;
 
