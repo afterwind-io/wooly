@@ -254,6 +254,8 @@ export abstract class Node {
       return;
     }
 
+    this.$SelfDestroy();
+
     this.state = NodeState.Destroying;
 
     SystemSignal.Emit("OnTreeUpdate", this, "delete");
@@ -262,7 +264,7 @@ export abstract class Node {
   /**
    * [**Internal**]
    * *For Devtools Only*
-   * 
+   *
    * Get a proper name to identify what the current node is for.
    */
   public GetDisplayName(): string {

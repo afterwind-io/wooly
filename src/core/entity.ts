@@ -338,6 +338,10 @@ export abstract class Entity<SIG = {}> extends CanvasItem {
    * @memberof Entity
    */
   protected $SelfDestroy() {
+    if (this.IsDestroyed) {
+      return;
+    }
+
     if (this.enableInputEvents) {
       this._mouseState.Step(false, false, (event) =>
         this._Input(new EntityInputEvent(this, event, GlobalDragDropState))
